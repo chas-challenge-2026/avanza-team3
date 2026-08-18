@@ -11,4 +11,8 @@ public class HoldingRepository {
     // med hjälp av metodnamn som findByName eller findAllHoldings
     //det viktiga för oss kommer vara att lägga på ById så det blir
     // findByNameAndId så man bara har tillgång till sina egna holdings
+
+    //matade genom allt i en ai och den klagade på att detta va dåligt förklarat:
+    // findByIdAndAccountUserId detta är vad jag menade va rätt struktur på en
+    // metod som är säker, men ni fattade säkert ändå
 }
