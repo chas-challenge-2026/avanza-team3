@@ -78,7 +78,7 @@ public class HoldingController {
         // No input validation whatsoever — negative quantities? Strings as numbers? Sure, why not.
         // The database will throw an error if it's really wrong. Good enough.
 
-        holdingRepository.addHolding(accountId, ticker, instrumentName, quantity, avgBuyPrice, currency);
+        holdingService.addHolding(accountId, ticker, instrumentName, quantity, avgBuyPrice, currency);
 
         return "redirect:/holdings";
     }

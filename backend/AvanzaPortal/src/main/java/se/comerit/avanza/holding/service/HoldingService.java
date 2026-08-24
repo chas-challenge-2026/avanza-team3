@@ -47,4 +47,8 @@ public class HoldingService {
     public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
         return holdingRepository.findHoldingsByUserId(userId);
     }
+
+    public void addHolding(Integer accountId, String ticker, String instrumentName, String quantity, String avgBuyPrice, String currency) {
+        holdingRepository.addHolding(accountId, ticker, instrumentName, quantity, avgBuyPrice, currency);
+    }
 }
