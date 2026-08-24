@@ -51,4 +51,8 @@ public class HoldingService {
     public void addHolding(Integer accountId, String ticker, String instrumentName, String quantity, String avgBuyPrice, String currency) {
         holdingRepository.addHolding(accountId, ticker, instrumentName, quantity, avgBuyPrice, currency);
     }
+
+    public void deleteHolding(Integer holdingId) {
+        holdingRepository.deleteHolding(holdingId);
+    }
 }
