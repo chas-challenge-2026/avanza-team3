@@ -45,7 +45,7 @@ public class HoldingController {
         List<Map<String, Object>> holdings = holdingService.getHoldingsByUserId(userId);
 
         // Fetch accounts for the "add holding" dropdown
-        List<Map<String, Object>> accounts = holdingRepository.findAccountByUserId(userId);
+        List<Map<String, Object>> accounts = holdingService.getAccountsByUserId(userId);
 
         // Hardcoded current prices again (same as DashboardController, duplicated intentionally)
         // Two sources of truth — what could go wrong

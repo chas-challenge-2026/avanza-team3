@@ -44,5 +44,7 @@ public class HoldingService {
         return holdings;
     }
 
-
+    public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
+        return holdingRepository.findHoldingsByUserId(userId);
+    }
 }
