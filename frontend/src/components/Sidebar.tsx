@@ -8,7 +8,7 @@ import {
   faFileLines,
   faBell
 } from "@fortawesome/free-solid-svg-icons";
-import AppButton from "./Button";
+import AppButton from "./AppButton";
 
 function Sidebar() {
   return (
