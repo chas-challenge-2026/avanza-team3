@@ -15,7 +15,7 @@ public class HoldingRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Map<String,Object>> findHoldingsByAccountId(Integer userId){
+    public List<Map<String,Object>> findHoldingsByUserId(Integer userId){
         String sql = "SELECT h.id, h.ticker, h.instrument_name, h.quantity, h.avg_buy_price, " +
                 "h.currency, a.account_type, a.account_name " +
                 "FROM holdings h " +
