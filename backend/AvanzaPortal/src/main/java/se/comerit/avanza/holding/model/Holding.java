@@ -1,34 +1,20 @@
 package se.comerit.avanza.holding.model;
 
+//ej klart, till när jag byter till jpa senare
 public class Holding {
-    //det kan va bättre att döpa detta paketet till entity(men jag skapar alltid likadant i start, sorry)
-    //Här i kommer vi skapa "objektet" Holding och skriva
-    // alla nödvändiga attribut(tex, id, namn, etc)
 
-    /*
-    @Entity //viktigt att alla delar märks så här med vad dom är, annars fungerar inget
-    public class Holding {
+    private Integer id;
 
-    Här skapas ett automatiskt id
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String ticker;
 
-    i parentesen kan man lägga "regler" liknande valideringen som kan göras i dto(och bör göras i båda)
-    @Column(nullable = false)
-    private String name;
+    private String instrumentName;
 
-    @Column(length = 1000)
-    private String description;
 
-    Här är en relation till Account
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+    //OBS!!! snacka med gruppen om BigDecimal vid framtida möte
+    private Double quantity;
 
-    konstruktor, getters och setters ska också finnas
-    (getters och setters kan automatiskt skapas men helst inte en setter för id)->högerklicka->generera->getter och setter
-    }
-     */
+    private Double avgBuyPrice;
+
+    private String currency;
 
 }
