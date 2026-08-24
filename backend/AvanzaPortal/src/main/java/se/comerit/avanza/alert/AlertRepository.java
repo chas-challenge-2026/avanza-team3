@@ -24,4 +24,12 @@ public class AlertRepository {
     }
 
 
+    //denna ska egentligen ligga i annan repo-klass, men för enkelhetens skull bor den kvar här en stund
+    public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
+
+        String accountSql = "SELECT id, account_type FROM accounts WHERE user_id = ?";
+
+        return jdbcTemplate.queryForList(accountSql, userId);
+    }
+
 }
