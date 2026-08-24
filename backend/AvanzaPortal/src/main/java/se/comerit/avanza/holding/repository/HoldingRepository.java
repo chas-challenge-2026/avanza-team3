@@ -53,7 +53,7 @@ public class HoldingRepository {
     }
 
 
-    public void deleteHolding(Integer holdingId, HttpSession session) {
+    public void deleteHolding(Integer holdingId) {
         String sql = "DELETE FROM holdings WHERE id = ?";
         jdbcTemplate.update(sql, holdingId);
     }
