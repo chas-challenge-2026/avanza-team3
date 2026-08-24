@@ -17,14 +17,9 @@ import java.util.Map;
 @Controller
 public class HoldingController {
 
-    private final HoldingRepository holdingRepository;
     private final HoldingService holdingService;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    public HoldingController(HoldingRepository holdingRepository, HoldingService holdingService) {
-        this.holdingRepository = holdingRepository;
+    public HoldingController(HoldingService holdingService) {
         this.holdingService = holdingService;
     }
 
