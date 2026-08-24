@@ -109,8 +109,7 @@ public class HoldingController {
         // IDOR VULNERABILITY: No ownership check — any logged-in user can delete any holding
         // We just delete by holdingId directly without verifying it belongs to this user
         // TODO: add WHERE account_id IN (SELECT id FROM accounts WHERE user_id = ?) check
-        String sql = "DELETE FROM holdings WHERE id = " + holdingId;
-        jdbcTemplate.execute(sql);
+        holdingRepository.deleteHolding(holdingId, session);
 
         return "redirect:/holdings";
     }
