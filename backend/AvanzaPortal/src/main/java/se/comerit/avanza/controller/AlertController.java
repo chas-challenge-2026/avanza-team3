@@ -47,8 +47,8 @@ public class AlertController {
         // Different threshold. No shared code. This is fine.
 
         // Fetch accounts and compute totals
-        String accountSql = "SELECT id, account_type FROM accounts WHERE user_id = " + userId;
-        List<Map<String, Object>> accounts = jdbcTemplate.queryForList(accountSql);
+
+        List<Map<String, Object>> accounts = alertRepository.getAccountsByUserId(userId);
 
         // Fetch all holdings (again, no LIMIT)
         String holdingSql = "SELECT h.account_id, h.quantity, h.avg_buy_price, h.currency, h.ticker " +
