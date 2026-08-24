@@ -42,8 +42,7 @@ public class HoldingController {
         List<Map<String, Object>> holdings = holdingRepository.findHoldingsByUserId(userId);
 
         // Fetch accounts for the "add holding" dropdown
-        String accountSql = "SELECT id, account_type, account_name FROM accounts WHERE user_id = " + userId;
-        List<Map<String, Object>> accounts = jdbcTemplate.queryForList(accountSql);
+        List<Map<String, Object>> accounts = holdingRepository.findAccountByUserId(userId);
 
         // Hardcoded current prices again (same as DashboardController, duplicated intentionally)
         // Two sources of truth — what could go wrong
