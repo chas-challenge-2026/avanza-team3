@@ -1,61 +1,93 @@
 package se.comerit.avanza.holding.controller;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import se.comerit.avanza.holding.service.HoldingService;
+
+import javax.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Map;
+
+@Controller
 public class HoldingController {
 
-    /*
-    Detta ska vara hela flödet
-    Frontend / HTTP-request
-        ↓
-    Controller
-    Tar emot requesten och skickar vidare
-            ↓
-    Service
-    Här ligger programmets logik och regler
-            ↓
-    Repository
-    Pratar med databasen
-            ↓
-    Postgres
+    private final HoldingService holdingService;
 
-    och tillbaka:
-
-        Postgres
-       ↑
-    Repository
-       ↑
-    Service
-       ↑
-    Controller
-       ↑
-    DTO / JSON / View
-       ↑
-    Frontend
-     */
-
-        /*
-    Controller = ingången från frontend/webben.
-
-    Exempel:
-    GET  /holdings       -> hämta holdings
-    POST /holdings       -> skapa en holding
-    DELETE /holdings/123 -> ta bort en holding
-
-    Controllern ska helst INTE innehålla:
-    - SQL
-    - beräkningar
-    - affärsregler
-
-    Den tar emot en request, anropar rätt service
-    och returnerar ett svar.
-    Här under är ett exempel från ett annat projekt
-
-
-    @GetMapping("/grape-similarities")
-    public List<GrapeSimilarityResponse> grapeSimilarities(
-            @RequestParam String grape,
-            @RequestParam(defaultValue = "6") int limit
-    ) {
-        return grapeSimilarityService.similarTo(grape, limit);
+    public HoldingController(HoldingService holdingService) {
+        this.holdingService = holdingService;
     }
-    */
+
+    @GetMapping("/holdings")
+    public String listHoldings(HttpSession session, Model model) {
+
+        // Same session check copy-pasted from DashboardController
+        // TODO: make an interceptor or filter for this in v2
+        if (session.getAttribute("userId") == null) {
+            return "redirect:/login";
+        }
+
+        Integer userId = (Integer) session.getAttribute("userId");
+        model.addAttribute("userName", session.getAttribute("userName"));
+
+        // Fetch all holdings — no pagination, no LIMIT
+        // This will load all rows into memory. Fine for small datasets. Definitely fine.
+        List<Map<String, Object>> holdings = holdingService.getHoldingsByUserId(userId);
+
+        // Fetch accounts for the "add holding" dropdown
+        List<Map<String, Object>> accounts = holdingService.getAccountsByUserId(userId);
+
+        // Hardcoded current prices again (same as DashboardController, duplicated intentionally)
+        // Two sources of truth — what could go wrong
+
+        // Annotate each holding with current price
+
+
+            // Mutate the map directly — very clean architecture
+
+        model.addAttribute("holdings", holdings);
+        model.addAttribute("accounts", accounts);
+        return "holdings";
+    }
+
+    @PostMapping("/holdings/add")
+    public String addHolding(@RequestParam Integer accountId,
+                             @RequestParam String ticker,
+                             @RequestParam String instrumentName,
+                             @RequestParam String quantity,
+                             @RequestParam String avgBuyPrice,
+                             @RequestParam(defaultValue = "SEK") String currency,
+                             HttpSession session) {
+
+        // Session check — again, manually, every time
+        if (session.getAttribute("userId") == null) {
+            return "redirect:/login";
+        }
+
+        // No input validation whatsoever — negative quantities? Strings as numbers? Sure, why not.
+        // The database will throw an error if it's really wrong. Good enough.
+
+        holdingService.addHolding(accountId, ticker, instrumentName, quantity, avgBuyPrice, currency);
+
+        return "redirect:/holdings";
+    }
+
+    @PostMapping("/holdings/delete")
+    public String deleteHolding(@RequestParam Integer holdingId,
+                                HttpSession session) {
+
+        // Session check
+        if (session.getAttribute("userId") == null) {
+            return "redirect:/login";
+        }
+
+        // IDOR VULNERABILITY: No ownership check — any logged-in user can delete any holding
+        // We just delete by holdingId directly without verifying it belongs to this user
+        // TODO: add WHERE account_id IN (SELECT id FROM accounts WHERE user_id = ?) check
+        holdingService.deleteHolding(holdingId);
+
+        return "redirect:/holdings";
+    }
 }
