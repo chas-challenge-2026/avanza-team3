@@ -1,13 +1,10 @@
 package se.comerit.avanza.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import se.comerit.avanza.holding.repository.HoldingRepository;
 import se.comerit.avanza.holding.service.HoldingService;
 
 import javax.servlet.http.HttpSession;
