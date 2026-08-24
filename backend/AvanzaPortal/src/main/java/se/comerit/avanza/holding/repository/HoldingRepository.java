@@ -3,6 +3,7 @@ package se.comerit.avanza.holding.repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
 
@@ -50,11 +51,12 @@ public class HoldingRepository {
                 avgBuyPrice,
                 currency);
     }
-    //rad 94 i addHolding(Integer accountId, String ticker, String instrumentName, String quantity, String avgBuyPrice, String currency, HttpSession session, Model model)
-//    String sql = "INSERT INTO holdings (account_id, ticker, instrument_name, quantity, avg_buy_price, currency) " +
-//            "VALUES (" + accountId + ", '" + ticker.toUpperCase() + "', '" + instrumentName + "', " +
-//            quantity + ", " + avgBuyPrice + ", '" + currency + "')";
 
+
+    public void deleteHolding(Integer holdingId, HttpSession session) {
+        String sql = "DELETE FROM holdings WHERE id = ?";
+        jdbcTemplate.update(sql, holdingId);
+    }
 
     //rad 115 i deleteHolding(Integer holdingId, HttpSession session)
 //    String sql = "DELETE FROM holdings WHERE id = " + holdingId;
