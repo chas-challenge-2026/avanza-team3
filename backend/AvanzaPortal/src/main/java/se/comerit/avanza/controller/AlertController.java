@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import se.comerit.avanza.alert.AlertRepository;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -23,6 +24,8 @@ public class AlertController {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private AlertRepository alertRepository;
 
     @GetMapping("/alerts")
     public String listAlerts(HttpSession session, Model model) {
@@ -36,9 +39,8 @@ public class AlertController {
         model.addAttribute("userName", session.getAttribute("userName"));
 
         // Fetch stored alerts from DB
-        String alertSql = "SELECT id, alert_type, message, dismissed, created_at " +
-                "FROM alerts WHERE user_id = " + userId + " ORDER BY created_at DESC";
-        List<Map<String, Object>> storedAlerts = jdbcTemplate.queryForList(alertSql);
+
+        List<Map<String, Object>> storedAlerts = alertRepository.getAlerts(userId);
 
         // ---- Inline drift detection — duplicated from DashboardController ----
         // This is the SECOND place we calculate drift. DashboardController also does it.
