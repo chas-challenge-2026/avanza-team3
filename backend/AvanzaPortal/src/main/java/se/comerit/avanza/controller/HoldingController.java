@@ -67,8 +67,7 @@ public class HoldingController {
                              @RequestParam String quantity,
                              @RequestParam String avgBuyPrice,
                              @RequestParam(defaultValue = "SEK") String currency,
-                             HttpSession session,
-                             Model model) {
+                             HttpSession session) {
 
         // Session check — again, manually, every time
         if (session.getAttribute("userId") == null) {
