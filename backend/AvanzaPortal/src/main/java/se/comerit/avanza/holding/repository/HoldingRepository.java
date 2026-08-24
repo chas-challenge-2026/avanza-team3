@@ -30,17 +30,26 @@ public class HoldingRepository {
         String accountSql = "SELECT id, account_type, account_name FROM accounts WHERE user_id = " + userId;
         return jdbcTemplate.queryForList(accountSql, userId);
     }
-    //rad 44 i listHoldings(HttpSession session, Model model)
-//    String accountSql = "SELECT
-//    id,
-//    account_type,
-//    account_name
-//    FROM accounts
-//    WHERE user_id = " + userId;
 
-//    List<Map<String, Object>> accounts = jdbcTemplate.queryForList(accountSql);
+    public void addHolding(Integer accountId,
+                           String ticker,
+                           String instrumentName,
+                           String quantity,
+                           String avgBuyPrice,
+                           String currency){
 
 
+        String sql = "INSERT INTO holdings (account_id, ticker, instrument_name, quantity, avg_buy_price, currency) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
+
+        jdbcTemplate.update(sql,
+                accountId,
+                ticker,
+                instrumentName,
+                quantity,
+                avgBuyPrice,
+                currency);
+    }
     //rad 94 i addHolding(Integer accountId, String ticker, String instrumentName, String quantity, String avgBuyPrice, String currency, HttpSession session, Model model)
 //    String sql = "INSERT INTO holdings (account_id, ticker, instrument_name, quantity, avg_buy_price, currency) " +
 //            "VALUES (" + accountId + ", '" + ticker.toUpperCase() + "', '" + instrumentName + "', " +
