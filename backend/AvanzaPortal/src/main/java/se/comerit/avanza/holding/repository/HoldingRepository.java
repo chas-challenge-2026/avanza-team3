@@ -1,18 +1,43 @@
 package se.comerit.avanza.holding.repository;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Map;
+
+@Repository
 public class HoldingRepository {
-    //Denna klassen kommer bli ett interface och se ut på det här sättet istället
-    //@Repository
-    //Här under står JpaRepository<Holding,Long> Holding är då model klassen Holding
-    //public interface HoldingRepository extends JpaRepository<Holding, Long>
-    //istället för att använda queries kommer dom genereras automatiskt(till viss del)
-    // med hjälp av metodnamn som findByName eller findAllHoldings
-    //det viktiga för oss kommer vara att lägga på ById så det blir
-    // findByNameAndId så man bara har tillgång till sina egna holdings
 
-    //matade genom allt i en ai och den klagade på att detta va dåligt förklarat:
-    // findByIdAndAccountUserId detta är vad jag menade va rätt struktur på en
-    // metod som är säker, men ni fattade säkert ändå
+    private final JdbcTemplate jdbcTemplate;
+
+    public HoldingRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    //rad 35 i listHoldings(HttpSession session, Model model)
+//    String sql = "SELECT h.id, h.ticker, h.instrument_name, h.quantity, h.avg_buy_price, " +
+//            "h.currency, a.account_type, a.account_name " +
+//            "FROM holdings h " +
+//            "JOIN accounts a ON h.account_id = a.id " +
+//            "WHERE a.user_id = " + userId + " " +
+//            "ORDER BY a.account_type, h.ticker";
+//    List<Map<String, Object>> holdings = jdbcTemplate.queryForList(sql);
+
+    //rad 44 i listHoldings(HttpSession session, Model model)
+//    String accountSql = "SELECT id, account_type, account_name FROM accounts WHERE user_id = " + userId;
+//    List<Map<String, Object>> accounts = jdbcTemplate.queryForList(accountSql);
+
+
+    //rad 94 i addHolding(Integer accountId, String ticker, String instrumentName, String quantity, String avgBuyPrice, String currency, HttpSession session, Model model)
+//    String sql = "INSERT INTO holdings (account_id, ticker, instrument_name, quantity, avg_buy_price, currency) " +
+//            "VALUES (" + accountId + ", '" + ticker.toUpperCase() + "', '" + instrumentName + "', " +
+//            quantity + ", " + avgBuyPrice + ", '" + currency + "')";
+
+
+    //rad 115 i deleteHolding(Integer holdingId, HttpSession session)
+//    String sql = "DELETE FROM holdings WHERE id = " + holdingId;
+//        jdbcTemplate.execute(sql);
 }
