@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import se.comerit.avanza.holding.repository.HoldingRepository;
+import se.comerit.avanza.holding.service.HoldingService;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -17,12 +18,14 @@ import java.util.Map;
 public class HoldingController {
 
     private final HoldingRepository holdingRepository;
+    private final HoldingService holdingService;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public HoldingController(HoldingRepository holdingRepository) {
+    public HoldingController(HoldingRepository holdingRepository, HoldingService holdingService) {
         this.holdingRepository = holdingRepository;
+        this.holdingService = holdingService;
     }
 
     @GetMapping("/holdings")
