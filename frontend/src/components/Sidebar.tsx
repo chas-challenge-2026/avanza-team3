@@ -6,8 +6,9 @@ import {
   faBriefcase,
   faRightLeft,
   faFileLines,
-  faBell,
+  faBell
 } from "@fortawesome/free-solid-svg-icons";
+import AppButton from "./Button";
 
 function Sidebar() {
   return (
@@ -30,7 +31,10 @@ function Sidebar() {
         </NavLink>
       </nav>
 
-      <button className={styles.loginButton}>Logga in</button>
+      {/* <button className={styles.loginButton}>Logga in</button> */}
+      <AppButton sx={{ marginTop: "auto" }} variant="contained">
+        Logga In
+      </AppButton>
     </aside>
   );
 }
