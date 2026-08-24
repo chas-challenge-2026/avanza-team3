@@ -26,9 +26,18 @@ public class HoldingRepository {
         return jdbcTemplate.queryForList(sql, userId);
     }
 
-
+    public List<Map<String,Object>> findAccountByUserId(Integer userId){
+        String accountSql = "SELECT id, account_type, account_name FROM accounts WHERE user_id = " + userId;
+        return jdbcTemplate.queryForList(accountSql, userId);
+    }
     //rad 44 i listHoldings(HttpSession session, Model model)
-//    String accountSql = "SELECT id, account_type, account_name FROM accounts WHERE user_id = " + userId;
+//    String accountSql = "SELECT
+//    id,
+//    account_type,
+//    account_name
+//    FROM accounts
+//    WHERE user_id = " + userId;
+
 //    List<Map<String, Object>> accounts = jdbcTemplate.queryForList(accountSql);
 
 
