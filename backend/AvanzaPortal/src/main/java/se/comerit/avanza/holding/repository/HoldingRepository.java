@@ -2,9 +2,7 @@ package se.comerit.avanza.holding.repository;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
 
@@ -17,14 +15,17 @@ public class HoldingRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    //rad 35 i listHoldings(HttpSession session, Model model)
-//    String sql = "SELECT h.id, h.ticker, h.instrument_name, h.quantity, h.avg_buy_price, " +
-//            "h.currency, a.account_type, a.account_name " +
-//            "FROM holdings h " +
-//            "JOIN accounts a ON h.account_id = a.id " +
-//            "WHERE a.user_id = " + userId + " " +
-//            "ORDER BY a.account_type, h.ticker";
-//    List<Map<String, Object>> holdings = jdbcTemplate.queryForList(sql);
+    public List<Map<String,Object>> findHoldingsByAccountId(Integer userId){
+        String sql = "SELECT h.id, h.ticker, h.instrument_name, h.quantity, h.avg_buy_price, " +
+                "h.currency, a.account_type, a.account_name " +
+                "FROM holdings h " +
+                "JOIN accounts a ON h.account_id = a.id " +
+                "WHERE a.user_id = " + userId + " " +
+                "ORDER BY a.account_type, h.ticker";
+
+        return jdbcTemplate.queryForList(sql, userId);
+    }
+
 
     //rad 44 i listHoldings(HttpSession session, Model model)
 //    String accountSql = "SELECT id, account_type, account_name FROM accounts WHERE user_id = " + userId;
