@@ -7,7 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import se.comerit.avanza.alert.AlertRepository;
+import se.comerit.avanza.alert.repository.AlertRepository;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -51,10 +51,8 @@ public class AlertController {
         List<Map<String, Object>> accounts = alertRepository.getAccountsByUserId(userId);
 
         // Fetch all holdings (again, no LIMIT)
-        String holdingSql = "SELECT h.account_id, h.quantity, h.avg_buy_price, h.currency, h.ticker " +
-                "FROM holdings h WHERE h.account_id IN " +
-                "(SELECT id FROM accounts WHERE user_id = " + userId + ")";
-        List<Map<String, Object>> holdings = jdbcTemplate.queryForList(holdingSql);
+
+        List<Map<String, Object>> holdings = alertRepository.getHoldingsForAlertByUserId(userId);
 
         String targetSql = "SELECT account_type, target_pct FROM target_allocations WHERE user_id = " + userId;
         List<Map<String, Object>> targets = jdbcTemplate.queryForList(targetSql);
