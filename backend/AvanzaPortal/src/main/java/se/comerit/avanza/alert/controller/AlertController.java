@@ -1,4 +1,4 @@
-package se.comerit.avanza.controller;
+package se.comerit.avanza.alert.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import se.comerit.avanza.alert.service.AlertService;
 
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
