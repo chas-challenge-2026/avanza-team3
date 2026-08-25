@@ -7,6 +7,10 @@
 - Language: C
 - Build tool: CMake
 
+cd native/risk
+cmake -S . -B build -G Ninja
+cmake --build build
+
 ---
 
 ## In a nutshell:
