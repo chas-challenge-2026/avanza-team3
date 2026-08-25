@@ -105,4 +105,8 @@ public class AlertService {
         }
         return liveAlerts;
     }
+
+    public int getDriftThresholdPercent(){
+        return (int) (DRIFT_THRESHOLD * 100);
+    }
 }

@@ -54,7 +54,7 @@ public class AlertController {
         List<Map<String, Object>> liveAlerts = alertService.getLiveAlertsByUserId(userId);
         model.addAttribute("storedAlerts", storedAlerts);
         model.addAttribute("liveAlerts", liveAlerts);
-        model.addAttribute("driftThreshold", (int)(DRIFT_THRESHOLD * 100));
+        model.addAttribute("driftThreshold", alertService.getDriftThresholdPercent());
         return "alerts";
     }
 
