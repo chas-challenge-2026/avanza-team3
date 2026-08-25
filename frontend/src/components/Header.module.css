@@ -1,0 +1,11 @@
+.header {
+  display: flex;
+  padding: 1em;
+  background-color: var(--bg-container);
+}
+
+.actionWrapper {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}

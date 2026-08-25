@@ -11,7 +11,13 @@ type AppCardProps = {
 
 const AppCard = ({ children, variant, sx }: AppCardProps) => {
   return (
-    <Card sx={sx} variant={variant}>
+    <Card
+      sx={{
+        padding: 5,
+        ...sx
+      }}
+      variant={variant}
+    >
       {children}
     </Card>
   );

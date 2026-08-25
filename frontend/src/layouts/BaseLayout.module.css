@@ -1,0 +1,19 @@
+.appLayout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.appBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.mainContent {
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  flex: 1;
+  padding: 2rem;
+}
