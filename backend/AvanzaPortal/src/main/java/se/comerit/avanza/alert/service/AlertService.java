@@ -41,20 +41,18 @@ public class AlertService {
     }
 
     public List<Map<String, Object>> getLiveAlertsByUserId(Integer userId) {
-        List<Map<String, Object>> accounts = alertRepository.getAccountsByUserId(userId);
+        List<Map<String, Object>> accounts =
+                alertRepository.getAccountsByUserId(userId);
 
-        List<Map<String, Object>> holdings = alertRepository.getHoldingsForAlertByUserId(userId);
+        List<Map<String, Object>> holdings =
+                alertRepository.getHoldingsForAlertByUserId(userId);
 
-        List<Map<String, Object>> targets = alertRepository.getTargetByUserId(userId);
+        List<Map<String, Object>> targets =
+                alertRepository.getTargetByUserId(userId);
 
-        Map<String, Double> prices = new HashMap<>();
-        prices.put("ERIC-B", 74.20);
-        prices.put("VOLV-B", 268.50);
-        prices.put("AAPL", 187.32);
-        prices.put("SWED-A", 193.10);
-        prices.put("SAND", 212.80);
+        Map<String, Double> prices = createPriceMap();
 
-        double usdToSek = 10.45;
+        double usdToSek = getUsdToSekRate();
 
         Map<Integer, String> accountTypeById = new HashMap<>();
 
@@ -108,5 +106,20 @@ public class AlertService {
 
     public int getDriftThresholdPercent(){
         return (int) (DRIFT_THRESHOLD * 100);
+    }
+
+    private Map<String, Double> createPriceMap() {
+
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("ERIC-B", 74.20);
+        prices.put("VOLV-B", 268.50);
+        prices.put("AAPL", 187.32);
+        prices.put("SWED-A", 193.10);
+        prices.put("SAND", 212.80);
+        return prices;
+    }
+
+    private double getUsdToSekRate() {
+        return 10.45;
     }
 }
