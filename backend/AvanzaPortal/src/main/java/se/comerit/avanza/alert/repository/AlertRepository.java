@@ -44,7 +44,7 @@ public class AlertRepository {
     }
 
     //denna ska egentligen ligga i annan repo-klass(targetrepo eller targetAllocationRepo, måste bestämmas med andra i gruppen), men för enkelhetens skull bor den kvar här en stund
-    public List<Map<String, Object>> getByUserId(Integer userId) {
+    public List<Map<String, Object>> getTargetByUserId(Integer userId) {
 
         String targetSql = "SELECT account_type, target_pct FROM target_allocations WHERE user_id = ?";
 
