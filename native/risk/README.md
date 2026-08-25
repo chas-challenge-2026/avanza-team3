@@ -24,6 +24,7 @@ To do this, we require the following data:
     int periods_per_year;     // Number of stock market days per year (usually 252)
     RiskResult *out;          // Struct where the results will be stored
 ```
+
 RiskResult looks like this, and needs to be matched in Java:
 ```c
     typedef struct
@@ -34,20 +35,25 @@ RiskResult looks like this, and needs to be matched in Java:
     } RiskResult;
 ```
 
+The function used by Java looks like this:
+```c
+    int risk_compute(const double *values, int length, double risk_free_rate, int periods_per_year, RiskResult *out);
+```
+
 ---
 
 ### Status codes
+One of the following values will be returned by risk_compute(). 
+Here is what each value means:
 
-Three bands, so the caller can branch on the sign alone:
-
-| Value | Name | Meaning |
-|---|---|---|
-| `0`  | `RISK_OK`                | All outputs valid.                                |
-| `+1` | `RISK_ERR_NULL`          | `values` or `out` is NULL                         |
-| `+2` | `RISK_ERR_TOO_SHORT`     | `length < 3`                                      |
-| `+3` | `RISK_ERR_BAD_RATE`      | `risk_free_rate` is NaN, infinite, or `<= -1.0`.  |
-| `+4` | `RISK_ERR_BAD_PERIODS`   | `periods_per_year < 1`                            |
-| `+5` | `RISK_ERR_INVALID_VALUE` | `values[i]` is NaN, infinite or `<= 0.0`          |
+| Value | Name                     | Meaning                                           |
+|-------|--------------------------|---------------------------------------------------|
+| `0`   | `RISK_OK`                | All outputs valid.                                |
+| `+1`  | `RISK_ERR_NULL`          | `values` or `out` is NULL                         |
+| `+2`  | `RISK_ERR_TOO_SHORT`     | `length < 3`                                      |
+| `+3`  | `RISK_ERR_BAD_RATE`      | `risk_free_rate` is NaN, infinite, or `<= -1.0`.  |
+| `+4`  | `RISK_ERR_BAD_PERIODS`   | `periods_per_year < 1`                            |
+| `+5`  | `RISK_ERR_INVALID_VALUE` | `values[i]` is NaN, infinite or `<= 0.0`          |
 
 ---
 
