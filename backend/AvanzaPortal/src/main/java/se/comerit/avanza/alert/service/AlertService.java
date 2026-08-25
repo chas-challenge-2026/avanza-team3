@@ -1,7 +1,9 @@
 package se.comerit.avanza.alert.service;
 
 import org.springframework.stereotype.Service;
+import se.comerit.avanza.alert.model.Alert;
 import se.comerit.avanza.alert.repository.AlertRepository;
+import se.comerit.avanza.alert.repository.TempJdbcRepo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,40 +17,45 @@ public class AlertService {
     private static final double DRIFT_THRESHOLD = 0.07;
 
     private final AlertRepository alertRepository;
+    private final TempJdbcRepo tempJdbcRepo;
 
-    public AlertService(AlertRepository alertRepository) {
+    public AlertService(AlertRepository alertRepository, TempJdbcRepo tempJdbcRepo) {
+        this.tempJdbcRepo = tempJdbcRepo;
         this.alertRepository = alertRepository;
     }
 
     public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
-        return alertRepository.getAccountsByUserId(userId);
+        return tempJdbcRepo.getAccountsByUserId(userId);
     }
 
     public List<Map<String, Object>> getHoldingsForAlertByUserId(Integer userId) {
-        return alertRepository.getHoldingsForAlertByUserId(userId);
+        return tempJdbcRepo.getHoldingsForAlertByUserId(userId);
     }
 
-    public List<Map<String, Object>> getAlertsByUserId(Integer userId) {
-        return alertRepository.getAlerts(userId);
+    public List<Alert> getAlertsByUserId(Integer userId) {
+        return alertRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
     public List<Map<String, Object>> getTargetByUserId(Integer userId) {
-        return alertRepository.getTargetByUserId(userId);
+        return tempJdbcRepo.getTargetByUserId(userId);
     }
 
     public void dismissAlert(Integer alertId) {
-        alertRepository.dismissAlert(alertId);
+        alertRepository.findById(alertId).ifPresent(alert -> {
+            alert.setDismissed(true);
+            alertRepository.save(alert);
+        });
     }
 
     public List<Map<String, Object>> getLiveAlertsByUserId(Integer userId) {
         List<Map<String, Object>> accounts =
-                alertRepository.getAccountsByUserId(userId);
+                tempJdbcRepo.getAccountsByUserId(userId);
 
         List<Map<String, Object>> holdings =
-                alertRepository.getHoldingsForAlertByUserId(userId);
+                tempJdbcRepo.getHoldingsForAlertByUserId(userId);
 
         List<Map<String, Object>> targets =
-                alertRepository.getTargetByUserId(userId);
+                tempJdbcRepo.getTargetByUserId(userId);
 
         Map<String, Double> prices = createPriceMap();
 

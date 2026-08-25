@@ -1,58 +1,21 @@
 package se.comerit.avanza.alert.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import se.comerit.avanza.alert.model.Alert;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
-public class AlertRepository {
+public interface AlertRepository extends JpaRepository<Alert, Integer> {
 
-    private final JdbcTemplate jdbcTemplate;
+    List<Alert> findByUserIdOrderByCreatedAtDesc(Integer userId);
 
-    public AlertRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-
-    public List<Map<String, Object>> getAlerts(Integer userId) {
-
-    String alertSql = "SELECT id, alert_type, message, dismissed, created_at " +
-            "FROM alerts WHERE user_id = ?" + " ORDER BY created_at DESC";
-    return jdbcTemplate.queryForList(alertSql, userId);
-    }
-
-
-    //denna ska egentligen ligga i annan repo-klass(accountrepo), men för enkelhetens skull bor den kvar här en stund
-    public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
-
-        String accountSql = "SELECT id, account_type FROM accounts WHERE user_id = ?";
-
-        return jdbcTemplate.queryForList(accountSql, userId);
-    }
-
-    //denna ska egentligen ligga i annan repo-klass(holdingrepo), men för enkelhetens skull bor den kvar här en stund
-    //tror denna finns i HoldingRepo redan, men annan branch så tittar på det när det mergats
-    public List<Map<String, Object>> getHoldingsForAlertByUserId(Integer userId) {
-
-        String holdingSql = "SELECT h.account_id, h.quantity, h.avg_buy_price, h.currency, h.ticker " +
-                "FROM holdings h WHERE h.account_id IN " +
-                "(SELECT id FROM accounts WHERE user_id = ?)";
-
-        return jdbcTemplate.queryForList(holdingSql, userId);
-    }
-
-    //denna ska egentligen ligga i annan repo-klass(targetrepo eller targetAllocationRepo, måste bestämmas med andra i gruppen), men för enkelhetens skull bor den kvar här en stund
-    public List<Map<String, Object>> getTargetByUserId(Integer userId) {
-
-        String targetSql = "SELECT account_type, target_pct FROM target_allocations WHERE user_id = ?";
-
-        return jdbcTemplate.queryForList(targetSql, userId);
-    }
-
-    public void dismissAlert(Integer alertId) {
-    String sql = "UPDATE alerts SET dismissed = true WHERE id = ?";
-        jdbcTemplate.update(sql, alertId);
-    }
+    Optional<Alert> findByIdAndUserId(
+            Integer id,
+            Integer userId
+    );
 }
