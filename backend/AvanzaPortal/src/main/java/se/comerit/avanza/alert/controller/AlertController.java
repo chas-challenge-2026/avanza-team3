@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import se.comerit.avanza.alert.model.Alert;
 import se.comerit.avanza.alert.service.AlertService;
 
 import javax.servlet.http.HttpSession;
@@ -47,7 +48,7 @@ public class AlertController {
         // Generate live drift alerts (in-memory, not persisted)
 
 
-        List<Map<String, Object>> storedAlerts = alertService.getAlertsByUserId(userId);
+        List<Alert> storedAlerts = alertService.getAlertsByUserId(userId);
 
         List<Map<String, Object>> liveAlerts = alertService.getLiveAlertsByUserId(userId);
         model.addAttribute("storedAlerts", storedAlerts);
