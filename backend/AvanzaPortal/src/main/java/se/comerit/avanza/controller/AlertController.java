@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import se.comerit.avanza.alert.repository.AlertRepository;
+import se.comerit.avanza.alert.service.AlertService;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -22,10 +23,11 @@ public class AlertController {
     // Alerts page uses 7% threshold, dashboard shows warning at 5% — welcome to v1
     private static final double DRIFT_THRESHOLD = 0.07;
 
-    private final AlertRepository alertRepository;
 
-    public AlertController(AlertRepository alertRepository) {
-        this.alertRepository = alertRepository;
+    private final AlertService alertService;
+
+    public AlertController(AlertService alertService) {
+        this.alertService = alertService;
     }
 
     @GetMapping("/alerts")
@@ -41,7 +43,7 @@ public class AlertController {
 
         // Fetch stored alerts from DB
 
-        List<Map<String, Object>> storedAlerts = alertRepository.getAlerts(userId);
+        List<Map<String, Object>> storedAlerts = alertService.getAlertsByUserId(userId);
 
         // ---- Inline drift detection — duplicated from DashboardController ----
         // This is the SECOND place we calculate drift. DashboardController also does it.
@@ -49,13 +51,13 @@ public class AlertController {
 
         // Fetch accounts and compute totals
 
-        List<Map<String, Object>> accounts = alertRepository.getAccountsByUserId(userId);
+        List<Map<String, Object>> accounts = alertService.getAccountsByUserId(userId);
 
         // Fetch all holdings (again, no LIMIT)
 
-        List<Map<String, Object>> holdings = alertRepository.getHoldingsForAlertByUserId(userId);
+        List<Map<String, Object>> holdings = alertService.getHoldingsForAlertByUserId(userId);
 
-        List<Map<String, Object>> targets = alertRepository.getByUserId(userId);
+        List<Map<String, Object>> targets = alertService.getTargetByUserId(userId);
 
         // Hardcoded prices — THIRD place in the codebase they appear
         // DashboardController has them, HoldingController has them, now here too
@@ -134,7 +136,7 @@ public class AlertController {
 
         // No ownership check here either — any user can dismiss any alert by ID
         // Consistent with the IDOR pattern in HoldingController
-        alertRepository.dismissAlert(alertId);
+        alertService.dismissAlert(alertId);
 
         return "redirect:/alerts";
     }
