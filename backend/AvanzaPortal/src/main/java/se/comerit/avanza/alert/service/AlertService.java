@@ -12,8 +12,6 @@ import java.util.Map;
 @Service
 public class AlertService {
 
-    private static final double DRIFT_THRESHOLD = 0.07;
-
     private final AlertRepository alertRepository;
 
     public AlertService(AlertRepository alertRepository) {
