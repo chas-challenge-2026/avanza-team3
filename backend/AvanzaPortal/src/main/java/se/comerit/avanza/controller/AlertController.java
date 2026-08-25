@@ -22,10 +22,11 @@ public class AlertController {
     // Alerts page uses 7% threshold, dashboard shows warning at 5% — welcome to v1
     private static final double DRIFT_THRESHOLD = 0.07;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-    @Autowired
-    private AlertRepository alertRepository;
+    private final AlertRepository alertRepository;
+
+    public AlertController(AlertRepository alertRepository) {
+        this.alertRepository = alertRepository;
+    }
 
     @GetMapping("/alerts")
     public String listAlerts(HttpSession session, Model model) {
@@ -54,8 +55,7 @@ public class AlertController {
 
         List<Map<String, Object>> holdings = alertRepository.getHoldingsForAlertByUserId(userId);
 
-        String targetSql = "SELECT account_type, target_pct FROM target_allocations WHERE user_id = " + userId;
-        List<Map<String, Object>> targets = jdbcTemplate.queryForList(targetSql);
+        List<Map<String, Object>> targets = alertRepository.getByUserId(userId);
 
         // Hardcoded prices — THIRD place in the codebase they appear
         // DashboardController has them, HoldingController has them, now here too
@@ -134,8 +134,7 @@ public class AlertController {
 
         // No ownership check here either — any user can dismiss any alert by ID
         // Consistent with the IDOR pattern in HoldingController
-        String sql = "UPDATE alerts SET dismissed = true WHERE id = " + alertId;
-        jdbcTemplate.execute(sql);
+        alertRepository.dismissAlert(alertId);
 
         return "redirect:/alerts";
     }
