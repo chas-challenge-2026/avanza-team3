@@ -3,7 +3,7 @@
 
 #define MIN_NUMBER_OF_ELEMENTS 3
 
-typedef enum
+enum
 {
     RISK_OK = 0,
     RISK_ERR_NULL,
