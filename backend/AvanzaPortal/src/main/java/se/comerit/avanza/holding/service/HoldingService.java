@@ -45,7 +45,7 @@ public class HoldingService {
     }
 
     public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
-        return holdingRepository.findHoldingsByUserId(userId);
+        return holdingRepository.findAccountByUserId(userId);
     }
 
     public void addHolding(Integer accountId, String ticker, String instrumentName, String quantity, String avgBuyPrice, String currency) {
