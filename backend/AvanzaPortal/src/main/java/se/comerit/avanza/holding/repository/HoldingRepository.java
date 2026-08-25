@@ -21,14 +21,14 @@ public class HoldingRepository {
                 "h.currency, a.account_type, a.account_name " +
                 "FROM holdings h " +
                 "JOIN accounts a ON h.account_id = a.id " +
-                "WHERE a.user_id = " + userId + " " +
+                "WHERE a.user_id = ? " +
                 "ORDER BY a.account_type, h.ticker";
 
         return jdbcTemplate.queryForList(sql, userId);
     }
 
     public List<Map<String,Object>> findAccountByUserId(Integer userId){
-        String accountSql = "SELECT id, account_type, account_name FROM accounts WHERE user_id = " + userId;
+        String accountSql = "SELECT id, account_type, account_name FROM accounts WHERE user_id = ?";
         return jdbcTemplate.queryForList(accountSql, userId);
     }
 
