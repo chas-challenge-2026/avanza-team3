@@ -54,11 +54,7 @@ public class AlertService {
 
         double usdToSek = getUsdToSekRate();
 
-        Map<Integer, String> accountTypeById = new HashMap<>();
-
-        for (Map<String, Object> acc : accounts) {
-            accountTypeById.put((Integer) acc.get("id"), (String) acc.get("account_type"));
-        }
+        Map<Integer, String> accountTypeById = createAccountTypeById(accounts);
 
         Map<String, Double> typeTotals = new HashMap<>();
         double grandTotal = 0.0;
@@ -121,5 +117,15 @@ public class AlertService {
 
     private double getUsdToSekRate() {
         return 10.45;
+    }
+
+    private Map<Integer, String> createAccountTypeById(List<Map<String, Object>> accounts) {
+        Map<Integer, String> accountTypeById = new HashMap<>();
+
+        for (Map<String, Object> acc : accounts) {
+            accountTypeById.put((Integer) acc.get("id"),
+                    (String) acc.get("account_type"));
+        }
+        return accountTypeById;
     }
 }
