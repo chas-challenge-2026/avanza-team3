@@ -6,6 +6,7 @@ import PortfolioPage from "./pages/PortfolioPage";
 import InnehavPage from "./pages/InnehavPage";
 import TrygghetsoversiktPage from "./pages/TrygghetsoversiktPage";
 import LoginPage from "./pages/LoginPage";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
   return (
@@ -16,10 +17,13 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
 
       {/* Sidor som använder BaseLayout */}
+      <Route element={<ProtectedRoute/>}>
         <Route element={<BaseLayout />}>
           <Route path="/" element={<PortfolioPage />} />
           <Route path="/innehav" element={<InnehavPage />} />
           <Route path="/trygghetsoversikt" element={<TrygghetsoversiktPage />} />
+          <Route path="/login" element={<LoginPage />} />
+        </Route>
         </Route>
       </Routes>
     </>
