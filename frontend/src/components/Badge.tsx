@@ -15,8 +15,20 @@ type BadgeProps = {
 };
 
 const Badge = ({ children, variant }: BadgeProps) => {
+  const isOutline = variant === "over" || variant === "under";
+  console.log(isOutline, styles["badge-outline"]);
   return (
-    <span className={styles.badge + " " + styles[variant]}>{children}</span>
+    <span
+      className={
+        styles.badge +
+        " " +
+        styles[variant] +
+        " " +
+        (isOutline ? styles["badge-outline"] : "")
+      }
+    >
+      {children}
+    </span>
   );
 };
 
