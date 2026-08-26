@@ -17,7 +17,10 @@ const BaseLayout = () => {
             <h2>Card Title</h2>
             <p>Card Content</p>
           </AppCard>
+
+          {/* För att testa / se listkomponent. Tas bort senare */}
           <DataTable
+            width="600px"
             title="Konton"
             rows={[
               {
