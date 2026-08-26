@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import se.comerit.avanza.alert.model.Alert;
 import se.comerit.avanza.alert.repository.AlertRepository;
 import se.comerit.avanza.alert.repository.TempJdbcRepo;
+import se.comerit.avanza.holding.service.HoldingService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,10 +19,12 @@ public class AlertService {
 
     private final AlertRepository alertRepository;
     private final TempJdbcRepo tempJdbcRepo;
+    private final HoldingService holdingService;
 
-    public AlertService(AlertRepository alertRepository, TempJdbcRepo tempJdbcRepo) {
+    public AlertService(AlertRepository alertRepository, TempJdbcRepo tempJdbcRepo, HoldingService holdingService) {
         this.tempJdbcRepo = tempJdbcRepo;
         this.alertRepository = alertRepository;
+        this.holdingService = holdingService;
     }
 
     public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
@@ -29,7 +32,7 @@ public class AlertService {
     }
 
     public List<Map<String, Object>> getHoldingsForAlertByUserId(Integer userId) {
-        return tempJdbcRepo.getHoldingsForAlertByUserId(userId);
+        return holdingService.getHoldingsByUserId(userId);
     }
 
     public List<Alert> getAlertsByUserId(Integer userId) {
@@ -52,7 +55,7 @@ public class AlertService {
                 tempJdbcRepo.getAccountsByUserId(userId);
 
         List<Map<String, Object>> holdings =
-                tempJdbcRepo.getHoldingsForAlertByUserId(userId);
+                holdingService.getHoldingsByUserId(userId);
 
         List<Map<String, Object>> targets =
                 tempJdbcRepo.getTargetByUserId(userId);

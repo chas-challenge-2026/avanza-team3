@@ -22,17 +22,6 @@ public class TempJdbcRepo {
         return jdbcTemplate.queryForList(accountSql, userId);
     }
 
-    //denna ska egentligen ligga i annan repo-klass(holdingrepo), men för enkelhetens skull bor den kvar här en stund
-    //tror denna finns i HoldingRepo redan, men annan branch så tittar på det när det mergats
-    public List<Map<String, Object>> getHoldingsForAlertByUserId(Integer userId) {
-
-        String holdingSql = "SELECT h.account_id, h.quantity, h.avg_buy_price, h.currency, h.ticker " +
-                "FROM holdings h WHERE h.account_id IN " +
-                "(SELECT id FROM accounts WHERE user_id = ?)";
-
-        return jdbcTemplate.queryForList(holdingSql, userId);
-    }
-
     //denna ska egentligen ligga i annan repo-klass(targetrepo eller targetAllocationRepo, måste bestämmas med andra i gruppen), men för enkelhetens skull bor den kvar här en stund
     public List<Map<String, Object>> getTargetByUserId(Integer userId) {
 
