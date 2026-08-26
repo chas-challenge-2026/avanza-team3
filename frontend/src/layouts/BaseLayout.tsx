@@ -2,6 +2,7 @@ import AppCard from "../components/AppCard";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import styles from "./BaseLayout.module.css";
+import { Outlet } from "react-router-dom";
 
 const BaseLayout = () => {
   return (
@@ -10,14 +11,12 @@ const BaseLayout = () => {
       <div className={styles.appBody}>
         <Header userName="Sascha B" />
         <main className={styles.mainContent}>
+          <Outlet/>
           <AppCard>
             <h2>Card Title</h2>
             <p>Card Content</p>
           </AppCard>
-        </main>
-      </div>
-      {/* <Footer /> */}
-    </div>
+
   );
 };
 export default BaseLayout;
