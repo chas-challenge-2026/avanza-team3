@@ -25,3 +25,13 @@
   background-color: var(--bg-green);
   color: var(--text-white);
 }
+
+.tjp {
+  background-color: var(--text-blue);
+  color: var(--text-white);
+}
+
+.depa {
+  background-color: var(--text-gray);
+  color: var(--text-white);
+}
