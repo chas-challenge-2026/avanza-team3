@@ -5,6 +5,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { Paper } from "@mui/material";
+import Badge from "./Badge";
 
 type DataTableProps = {
   title: string;
@@ -29,7 +30,15 @@ const DataTable = ({ title, rows, columns, width }: DataTableProps) => {
           {rows.map((row) => (
             <TableRow key={row.id}>
               {columns.map((col) => (
-                <TableCell key={col.field}>{row[col.field]}</TableCell>
+                <TableCell key={col.field}>
+                  {col.isBadge ? (
+                    <Badge variant={row[col.field].toLowerCase()}>
+                      {row.label}
+                    </Badge>
+                  ) : (
+                    row[col.field]
+                  )}
+                </TableCell>
               ))}
             </TableRow>
           ))}

@@ -1,0 +1,37 @@
+.badge {
+  padding: 0.1rem 0.3rem;
+  border-radius: 7px;
+  font-size: var(--font-xs);
+}
+
+.badge-outline {
+  background-color: transparent;
+  border: 2px solid;
+}
+
+.over {
+  border-color: var(--text-warning);
+  color: var(--text-warning);
+}
+
+.under {
+  border-color: var(--text-green);
+  color: var(--text-green);
+}
+
+.isk,
+.kf,
+.aktie {
+  background-color: var(--bg-green);
+  color: var(--text-white);
+}
+
+.tjp {
+  background-color: var(--text-blue);
+  color: var(--text-white);
+}
+
+.depa {
+  background-color: var(--text-gray);
+  color: var(--text-white);
+}
