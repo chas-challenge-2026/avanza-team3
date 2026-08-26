@@ -1,6 +1,7 @@
 import { useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import styles from "./LoginForm.module.css"
 
 function LoginForm(){
     const [email, setEmail] = useState("");
@@ -29,13 +30,13 @@ function LoginForm(){
       };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className={styles.loginForm} onSubmit={handleSubmit}>
             <label>Email
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                <input type="email" name="email" autoComplete="email" required value={email} placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
             </label>
 
-            <label>Password
-                <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            <label>Lösenord
+                <input type="password" name="password" autoComplete="current-password" required value={password} placeholder="Lösenord" onChange={(e) => setPassword(e.target.value)} />
             </label>
             {error && <p>{error}</p>}
             <button type="submit" disabled={loading}>
