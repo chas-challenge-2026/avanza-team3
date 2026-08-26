@@ -11,12 +11,14 @@ const BaseLayout = () => {
       <div className={styles.appBody}>
         <Header userName="Sascha B" />
         <main className={styles.mainContent}>
-          <Outlet/>
+          <Outlet />
           <AppCard>
             <h2>Card Title</h2>
             <p>Card Content</p>
           </AppCard>
-
+        </main>
+      </div>
+    </div>
   );
 };
 export default BaseLayout;
