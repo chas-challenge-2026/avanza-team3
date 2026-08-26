@@ -9,7 +9,7 @@ const BaseLayout = () => {
     <div className={styles.appLayout}>
       <Sidebar />
       <div className={styles.appBody}>
-        <Header userName="Sascha B" />
+        <Header/>
         <main className={styles.mainContent}>
           <Outlet />
           <AppCard>
