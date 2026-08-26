@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import DataTable from "../components/DataTable";
 import styles from "./BaseLayout.module.css";
 import { Outlet } from "react-router-dom";
+import Badge from "../components/Badge";
 
 const BaseLayout = () => {
   return (
@@ -59,6 +60,7 @@ const BaseLayout = () => {
               { field: "share", headerName: "Andel" },
             ]}
           />
+          <Badge variant="isk">ISK</Badge>
         </main>
       </div>
     </div>

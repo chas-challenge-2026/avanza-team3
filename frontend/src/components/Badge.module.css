@@ -1,0 +1,10 @@
+.badge {
+  padding: 0.12rem 0.5rem;
+  border-radius: 7px;
+  font-size: var(--font-xs);
+}
+
+.isk {
+  background-color: var(--bg-green);
+  color: var(--text-white);
+}
