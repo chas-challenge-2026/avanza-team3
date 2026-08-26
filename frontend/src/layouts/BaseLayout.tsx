@@ -1,5 +1,5 @@
-import Card from "../components/Card";
 import Sidebar from "../components/Sidebar";
+import { Outlet } from "react-router-dom";
 
 const BaseLayout = () => {
   return (
@@ -9,10 +9,7 @@ const BaseLayout = () => {
         {/* <Header/> */}
         <Sidebar />
         <main className="main-content">
-          <Card>
-            <h2>Card Title</h2>
-            <p>Card Description</p>
-          </Card>
+          <Outlet/>
         </main>
       </div>
       {/* <Footer /> */}
