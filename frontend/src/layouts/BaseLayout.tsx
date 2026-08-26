@@ -1,6 +1,5 @@
-import AppButton from "../components/AppButton";
-import AppCard from "../components/AppCard";
 import Sidebar from "../components/Sidebar";
+import { Outlet } from "react-router-dom";
 
 const BaseLayout = () => {
   return (
@@ -10,11 +9,7 @@ const BaseLayout = () => {
         {/* <Header/> */}
         <Sidebar />
         <main className="main-content">
-          <AppCard variant="elevation">
-            <h2>Card Title</h2>
-            <p>Card Description</p>
-            <AppButton variant="contained">Spara</AppButton>
-          </AppCard>
+          <Outlet/>
         </main>
       </div>
       {/* <Footer /> */}
