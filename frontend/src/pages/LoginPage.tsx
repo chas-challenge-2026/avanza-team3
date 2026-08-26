@@ -1,6 +1,7 @@
 import LoginForm from "../components/auth/LoginForm";
 import { Navigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import styles from "./LoginPage.module.css";
 
 function LoginPage(){
     const { user } = useAuth();
@@ -10,10 +11,10 @@ function LoginPage(){
       }
     
       return (
-        <>
-          <h1>Logga in</h1>
-          <LoginForm />
-        </>
+        <section className={styles.loginContainer}>
+                <h1>Logga in</h1>
+                <LoginForm />
+        </section>
       );
     }
 
