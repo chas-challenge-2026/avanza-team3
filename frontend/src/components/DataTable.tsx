@@ -10,13 +10,14 @@ type DataTableProps = {
   title: string;
   rows: any[];
   columns: any[];
+  width?: string;
 };
 
-const DataTable = ({ title, rows, columns }: DataTableProps) => {
+const DataTable = ({ title, rows, columns, width }: DataTableProps) => {
   return (
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} sx={{ width: width || "fit-content" }}>
       <h3>{title}</h3>
-      <Table>
+      <Table size="small">
         <TableHead>
           <TableRow>
             {columns.map((col) => (
