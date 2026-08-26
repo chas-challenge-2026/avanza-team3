@@ -1,10 +1,20 @@
-function LoginPage(){
+import LoginForm from "../components/auth/LoginForm";
+import { Navigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
-    return (
+function LoginPage(){
+    const { user } = useAuth();
+
+    if (user) {
+        return <Navigate to="/" replace />;
+      }
+    
+      return (
         <>
-            <h1>Logga in</h1>
+          <h1>Logga in</h1>
+          <LoginForm />
         </>
-    )
-}
+      );
+    }
 
 export default LoginPage;
