@@ -1,5 +1,6 @@
 package se.comerit.avanza.holding.model;
 
+import se.comerit.avanza.account.model.Account;
 import javax.persistence.*;
 
 @Entity
@@ -12,6 +13,10 @@ public class Holding {
 
     @Column(name = "account_id")
     private Integer accountId;
+
+    @ManyToOne
+    @JoinColumn(name = "account_id", insertable = false, updatable = false)
+    private Account account;
 
     private String ticker;
 
@@ -88,5 +93,9 @@ public class Holding {
 
     public void setCurrency(String currency) {
         this.currency = currency;
+    }
+
+    public Account getAccount() {
+        return account;
     }
 }
