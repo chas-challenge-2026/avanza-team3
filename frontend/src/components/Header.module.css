@@ -1,0 +1,12 @@
+.header {
+  display: flex;
+  padding: 1em;
+  background-color: var(--bg-container);
+  border-bottom: 2px solid #00c281;
+}
+
+.actionWrapper {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}

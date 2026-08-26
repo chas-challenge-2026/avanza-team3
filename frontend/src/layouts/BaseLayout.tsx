@@ -1,19 +1,22 @@
+import AppCard from "../components/AppCard";
+import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import styles from "./BaseLayout.module.css";
 import { Outlet } from "react-router-dom";
 
 const BaseLayout = () => {
   return (
-    <div className="app-layout">
-      {/* <Navbar /> */}
-      <div className="app-body">
-        {/* <Header/> */}
-        <Sidebar />
-        <main className="main-content">
+    <div className={styles.appLayout}>
+      <Sidebar />
+      <div className={styles.appBody}>
+        <Header userName="Sascha B" />
+        <main className={styles.mainContent}>
           <Outlet/>
-        </main>
-      </div>
-      {/* <Footer /> */}
-    </div>
+          <AppCard>
+            <h2>Card Title</h2>
+            <p>Card Content</p>
+          </AppCard>
+
   );
 };
 export default BaseLayout;
