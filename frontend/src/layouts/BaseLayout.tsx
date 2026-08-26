@@ -60,7 +60,7 @@ const BaseLayout = () => {
               { field: "share", headerName: "Andel" },
             ]}
           />
-          <Badge variant="isk">ISK</Badge>
+          <Badge variant="under">ISK</Badge>
         </main>
       </div>
     </div>
