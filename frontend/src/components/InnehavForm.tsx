@@ -1,6 +1,7 @@
 import { Box, MenuItem, TextField, Typography } from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
+import { useState } from "react";
 
 type Currency = "SEK" | "USD" | "EUR";
 
@@ -11,6 +12,15 @@ type InnehavFormData = {
   quantity: number;
   avgBuyPrice: number;
   currency: Currency;
+};
+
+const initialFormData: InnehavFormData = {
+  account: "",
+  ticker: "",
+  instrumentName: "",
+  quantity: 0,
+  avgBuyPrice: 0,
+  currency: "SEK"
 };
 
 // sätt onChange på textfields och lagra i state
