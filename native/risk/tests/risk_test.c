@@ -19,7 +19,7 @@ void test_err_if_ok(void)
     TEST_ASSERT_EQUAL(RISK_OK, res);
 }
 
-void test_ok_if_length_min(void)
+void test_err_ok_if_length_min(void)
 {
     double values[] = { 1, 2, 3 };
     RiskResult r;
@@ -28,7 +28,7 @@ void test_ok_if_length_min(void)
     TEST_ASSERT_EQUAL(RISK_OK, res);
 }
 
-void test_ok_if_periods_min(void)
+void test_err_ok_if_periods_min(void)
 {
     double values[] = { 1, 2, 3, 4, 5 };
     RiskResult r;
@@ -37,7 +37,7 @@ void test_ok_if_periods_min(void)
     TEST_ASSERT_EQUAL(RISK_OK, res);
 }
 
-void test_ok_if_periods_max(void)
+void test_err_ok_if_periods_max(void)
 {
     double values[] = { 1, 2, 3, 4, 5 };
     RiskResult r;
@@ -46,7 +46,7 @@ void test_ok_if_periods_max(void)
     TEST_ASSERT_EQUAL(RISK_OK, res);
 }
 
-void test_ok_if_rate_just_above_minus_one(void)
+void test_err_ok_if_rate_just_above_minus_one(void)
 {
     double values[] = { 1, 2, 3, 4, 5 };
     RiskResult r;
@@ -179,7 +179,7 @@ void test_err_if_value_infinite(void)
     TEST_ASSERT_EQUAL(RISK_ERR_INVALID_VALUE, res);
 }
 
-void test_volatility_and_sharpe_known_values(void)
+void test_err_volatility_and_sharpe_known_values(void)
 {
     double values[] = { 100, 110, 99 };
     RiskResult r;
@@ -188,7 +188,7 @@ void test_volatility_and_sharpe_known_values(void)
     TEST_ASSERT_DOUBLE_WITHIN(1e-12, 0.0, r.sharpe_ratio);
 }
 
-void test_flat_series_gives_zero_vol_and_nan_sharpe(void)
+void test_err_flat_series_gives_zero_vol_and_nan_sharpe(void)
 {
     double values[] = { 100, 110, 121 };
     RiskResult r;
@@ -198,7 +198,7 @@ void test_flat_series_gives_zero_vol_and_nan_sharpe(void)
     TEST_ASSERT_DOUBLE_WITHIN(1e-12, 0.0, r.max_drawdown);
 }
 
-void test_volatility_is_annualized_by_sqrt_periods(void)
+void test_err_volatility_is_annualized_by_sqrt_periods(void)
 {
     double values[] = { 100, 110, 99 };
     RiskResult r;
@@ -206,7 +206,7 @@ void test_volatility_is_annualized_by_sqrt_periods(void)
     TEST_ASSERT_DOUBLE_WITHIN(1e-12, sqrt(0.02) * sqrt(252.0), r.volatility);
 }
 
-void test_sharpe_subtracts_risk_free_rate(void)
+void test_err_sharpe_subtracts_risk_free_rate(void)
 {
     double values[] = { 100, 110, 99 };
     RiskResult r;
@@ -214,7 +214,7 @@ void test_sharpe_subtracts_risk_free_rate(void)
     TEST_ASSERT_DOUBLE_WITHIN(1e-12, -0.05 / sqrt(0.02), r.sharpe_ratio);
 }
 
-void test_max_drawdown_uses_running_peak(void)
+void test_err_max_drawdown_uses_running_peak(void)
 {
     double values[] = { 100, 80, 200, 100 };
     RiskResult r;
@@ -222,7 +222,7 @@ void test_max_drawdown_uses_running_peak(void)
     TEST_ASSERT_DOUBLE_WITHIN(1e-12, 0.5, r.max_drawdown);
 }
 
-void test_max_drawdown_keeps_worst_not_last(void)
+void test_err_max_drawdown_keeps_worst_not_last(void)
 {
     double values[] = { 100, 50, 100, 90 };
     RiskResult r;
@@ -230,7 +230,7 @@ void test_max_drawdown_keeps_worst_not_last(void)
     TEST_ASSERT_DOUBLE_WITHIN(1e-12, 0.5, r.max_drawdown);
 }
 
-void test_max_drawdown_is_zero_when_only_rising(void)
+void test_err_max_drawdown_is_zero_when_only_rising(void)
 {
     double values[] = { 10, 20, 30, 40 };
     RiskResult r;
@@ -243,10 +243,10 @@ int main(void)
     UNITY_BEGIN();
 
     RUN_TEST(test_err_if_ok);
-    RUN_TEST(test_ok_if_length_min);
-    RUN_TEST(test_ok_if_periods_min);
-    RUN_TEST(test_ok_if_periods_max);
-    RUN_TEST(test_ok_if_rate_just_above_minus_one);
+    RUN_TEST(test_err_ok_if_length_min);
+    RUN_TEST(test_err_ok_if_periods_min);
+    RUN_TEST(test_err_ok_if_periods_max);
+    RUN_TEST(test_err_ok_if_rate_just_above_minus_one);
     RUN_TEST(test_err_if_values_null);
     RUN_TEST(test_err_if_riskresult_null);
     RUN_TEST(test_err_if_length_short);
@@ -260,13 +260,13 @@ int main(void)
     RUN_TEST(test_err_if_invalid_value);
     RUN_TEST(test_err_if_value_zero);
     RUN_TEST(test_err_if_value_infinite);
-    RUN_TEST(test_volatility_and_sharpe_known_values);
-    RUN_TEST(test_flat_series_gives_zero_vol_and_nan_sharpe);
-    RUN_TEST(test_volatility_is_annualized_by_sqrt_periods);
-    RUN_TEST(test_sharpe_subtracts_risk_free_rate);
-    RUN_TEST(test_max_drawdown_uses_running_peak);
-    RUN_TEST(test_max_drawdown_keeps_worst_not_last);
-    RUN_TEST(test_max_drawdown_is_zero_when_only_rising);
+    RUN_TEST(test_err_volatility_and_sharpe_known_values);
+    RUN_TEST(test_err_flat_series_gives_zero_vol_and_nan_sharpe);
+    RUN_TEST(test_err_volatility_is_annualized_by_sqrt_periods);
+    RUN_TEST(test_err_sharpe_subtracts_risk_free_rate);
+    RUN_TEST(test_err_max_drawdown_uses_running_peak);
+    RUN_TEST(test_err_max_drawdown_keeps_worst_not_last);
+    RUN_TEST(test_err_max_drawdown_is_zero_when_only_rising);
 
     return UNITY_END();
 }
