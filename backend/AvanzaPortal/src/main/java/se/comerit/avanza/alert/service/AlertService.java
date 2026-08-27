@@ -1,6 +1,7 @@
 package se.comerit.avanza.alert.service;
 
 import org.springframework.stereotype.Service;
+import se.comerit.avanza.account.service.AccountService;
 import se.comerit.avanza.alert.model.Alert;
 import se.comerit.avanza.alert.repository.AlertRepository;
 import se.comerit.avanza.alert.repository.TempJdbcRepo;
@@ -20,15 +21,17 @@ public class AlertService {
     private final AlertRepository alertRepository;
     private final TempJdbcRepo tempJdbcRepo;
     private final HoldingService holdingService;
+    AccountService accountService;
 
-    public AlertService(AlertRepository alertRepository, TempJdbcRepo tempJdbcRepo, HoldingService holdingService) {
+    public AlertService(AlertRepository alertRepository, TempJdbcRepo tempJdbcRepo, HoldingService holdingService, AccountService accountService) {
         this.tempJdbcRepo = tempJdbcRepo;
         this.alertRepository = alertRepository;
         this.holdingService = holdingService;
+        this.accountService = accountService;
     }
 
     public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
-        return tempJdbcRepo.getAccountsByUserId(userId);
+        return accountService.getAccountMapsByUserId(userId);
     }
 
     public List<Map<String, Object>> getHoldingsForAlertByUserId(Integer userId) {
