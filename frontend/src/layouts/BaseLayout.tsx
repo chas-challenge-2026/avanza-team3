@@ -1,17 +1,14 @@
-import AppCard from "../components/AppCard";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import DataTable from "../components/DataTable";
 import styles from "./BaseLayout.module.css";
 import { Outlet } from "react-router-dom";
-import Badge from "../components/Badge";
 
 const BaseLayout = () => {
   return (
     <div className={styles.appLayout}>
       <Sidebar />
       <div className={styles.appBody}>
-        <Header/>
+        <Header />
         <main className={styles.mainContent}>
           <Outlet />
 
