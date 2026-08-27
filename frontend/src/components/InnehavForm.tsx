@@ -1,7 +1,7 @@
 import { Box, MenuItem, TextField, Typography } from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
-import { useState } from "react";
+import { use, useState } from "react";
 
 type Currency = "SEK" | "USD" | "EUR";
 
@@ -9,27 +9,73 @@ type InnehavFormData = {
   account: string;
   ticker: string;
   instrumentName: string;
-  quantity: number;
-  avgBuyPrice: number;
+  instrumentType: string;
+  quantity: string;
+  avgBuyPrice: string;
   currency: Currency;
 };
 
-const initialFormData: InnehavFormData = {
+const initialFormDataValue: InnehavFormData = {
   account: "",
   ticker: "",
   instrumentName: "",
-  quantity: 0,
-  avgBuyPrice: 0,
+  instrumentType: "",
+  quantity: "",
+  avgBuyPrice: "",
   currency: "SEK"
 };
 
-// sätt onChange på textfields och lagra i state
-
 const InnehavsForm = () => {
+  const [formData, setFormData] =
+    useState<InnehavFormData>(initialFormDataValue);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log(event.target);
   };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+
+    setFormData((previusData) => ({
+      ...previusData,
+      [name]: value
+    }));
+    console.log(event.target.value);
+  };
+
+  const handleValidate = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.account) {
+      newErrors.account = "Välj ett konto";
+    }
+    if (!formData.ticker.trim()) {
+      newErrors.ticker = "Ange en ticker";
+    }
+    if (!formData.instrumentName.trim()) {
+      newErrors.instrumentName = "Ange ett instrumentnamn";
+    }
+    if (!formData.instrumentType) {
+      newErrors.InstrumentType = "Ange en instrumenttyp";
+    }
+
+    const quantity = Number(formData.quantity);
+
+    if (!formData.quantity || quantity <= 0) {
+      newErrors.quantity = "Antalet måste vara större än 0";
+    }
+
+    const avgBuyPrice = Number(formData.avgBuyPrice);
+
+    if (!formData.avgBuyPrice || avgBuyPrice < 0) {
+      newErrors.avgBuyPrice = "Snittpris måste vara 0 eller högre";
+    }
+  };
+
   return (
     <div className={styles.formWrapper}>
       <div className={styles.titleWrapper}>
@@ -45,34 +91,85 @@ const InnehavsForm = () => {
           width: "100%"
         }}
       >
-        <TextField select label="Konto" name="account">
+        <TextField
+          select
+          label="Konto"
+          name="account"
+          value={formData.account}
+          onChange={handleChange}
+          error={Boolean(errors.account)}
+          helperText={errors.account}
+        >
           <MenuItem value="1">Anna ISK (ISK)</MenuItem>
           <MenuItem value="2">Anna KF (KF)</MenuItem>
           <MenuItem value="3">Anna Depå (Depa)</MenuItem>
         </TextField>
 
         <TextField
-          id="outlined-helperText"
+          // id="outlined-helperText"
+          placeholder="t.ex. ERIC-B"
           label="Ticker"
           name="ticker"
-          placeholder="t.ex. Ericsson B"
+          value={formData.ticker}
+          onChange={handleChange}
+          error={Boolean(errors.ticker)}
+          helperText={errors.ticker}
         />
         <TextField
-          id="outlined-helperText"
           name="instrumentName"
           label="Instrumentnamn"
-          placeholder="t.ex. ERIC-B"
+          placeholder="t.ex. Ericsson B"
+          value={formData.instrumentName}
+          onChange={handleChange}
+          error={Boolean(errors.instrumentName)}
+          helperText={errors.instrumentName}
         />
-        <TextField label="Antal" name="quantity" placeholder="100" />
 
         <TextField
-          id="outlined-helperText"
-          name="avgBuyPrice"
-          placeholder="150.00"
-          label="Snittpris"
+          select
+          label="Instrumenttyp"
+          name="instrumentType"
+          value={formData.instrumentType}
+          onChange={handleChange}
+          error={Boolean(errors.instrumentType)}
+          helperText={errors.instrumentType}
+        >
+          <MenuItem value="Aktie">Aktie</MenuItem>
+          <MenuItem value="Fond">Fond</MenuItem>
+          <MenuItem value="ETF">ETF</MenuItem>
+        </TextField>
+
+        <TextField
+          label="Antal"
+          name="quantity"
+          type="number"
+          placeholder="100"
+          value={formData.quantity}
+          onChange={handleChange}
+          error={Boolean(errors.quantity)}
+          helperText={errors.quantity}
         />
 
-        <TextField select label="Valuta" name="currency" defaultValue="SEK">
+        <TextField
+          name="avgBuyPrice"
+          type="number"
+          placeholder="150.00"
+          label="Snittpris"
+          value={formData.avgBuyPrice}
+          onChange={handleChange}
+          error={Boolean(errors.avgBuyPrice)}
+          helperText={errors.avgBuyPrice}
+        />
+
+        <TextField
+          select
+          label="Valuta"
+          name="currency"
+          value={formData.currency}
+          onChange={handleChange}
+          error={Boolean(errors.currency)}
+          helperText={errors.currency}
+        >
           <MenuItem value="SEK">SEK</MenuItem>
           <MenuItem value="USD">USD</MenuItem>
           <MenuItem value="EUR">EUR</MenuItem>
