@@ -3,7 +3,7 @@ import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
 import { use, useState } from "react";
 
-type Currency = "SEK" | "USD" | "EUR";
+type Currency = "SEK" | "USD" | "EUR" | "";
 
 type InnehavFormData = {
   account: string;
@@ -22,7 +22,7 @@ const initialFormDataValue: InnehavFormData = {
   instrumentType: "",
   quantity: "",
   avgBuyPrice: "",
-  currency: "SEK"
+  currency: ""
 };
 
 const InnehavsForm = () => {
@@ -35,6 +35,30 @@ const InnehavsForm = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log(event.target);
+
+    setSuccessMessage("");
+
+    if (!handleValidate()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const submittedData = {
+        ...formData,
+        ticker: formData.ticker.trim().toLocaleUpperCase(),
+        quantity: Number(formData.quantity),
+        avgBuyPrice: Number(formData.avgBuyPrice)
+      };
+      console.log(submittedData);
+
+      setFormData(initialFormDataValue);
+      setErrors({});
+      setSuccessMessage("Innehavet har lagts till");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +84,7 @@ const InnehavsForm = () => {
       newErrors.instrumentName = "Ange ett instrumentnamn";
     }
     if (!formData.instrumentType) {
-      newErrors.InstrumentType = "Ange en instrumenttyp";
+      newErrors.instrumentType = "Ange en instrumenttyp";
     }
 
     const quantity = Number(formData.quantity);
@@ -74,6 +98,14 @@ const InnehavsForm = () => {
     if (!formData.avgBuyPrice || avgBuyPrice < 0) {
       newErrors.avgBuyPrice = "Snittpris måste vara 0 eller högre";
     }
+
+    if (!formData.currency) {
+      newErrors.currency = "Välj valuta";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
   };
 
   return (
@@ -174,10 +206,13 @@ const InnehavsForm = () => {
           <MenuItem value="USD">USD</MenuItem>
           <MenuItem value="EUR">EUR</MenuItem>
         </TextField>
-        <AppButton type="submit" variant="contained">
-          Lägg till
+        <AppButton type="submit" variant="contained" disabled={isSubmitting}>
+          {isSubmitting ? "Lägger till..." : "Lägg till"}
         </AppButton>
       </Box>
+      {successMessage && (
+        <Typography color="success.main">{successMessage}</Typography>
+      )}
     </div>
   );
 };
