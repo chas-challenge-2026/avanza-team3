@@ -6,14 +6,9 @@ the plain language overview: what they are for, how they fit together, and the
 rules they all follow. The README inside each folder is the precise technical
 spec for that module.
 
-The original course text that was in this file is still in the git history.
-
 ---
 
 ## Vocabulary
-
-The three modules are full of finance words. None of them are complicated once
-translated, and you do not need any finance background to write the code.
 
 **Instrument**: one thing you can own. A share, a fund. "Ericsson B" is an
 instrument.
