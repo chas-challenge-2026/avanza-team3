@@ -1,7 +1,6 @@
 package se.comerit.avanza.auth.controller;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import se.comerit.avanza.auth.model.User;
 import se.comerit.avanza.auth.service.AuthService;
 
 @Controller
@@ -31,16 +31,16 @@ public class AuthController {
             HttpSession session,
             Model model) {
 
-        List<Map<String, Object>> rows = authService.authenticate(email, password, model);
+        Optional<User> userOpt = authService.authenticate(email, password, model);
 
-        if (rows.isEmpty()) {
+        if (userOpt.isEmpty()) {
             model.addAttribute("error", "Fel e-post eller lösenord.");
             return "login";
         }
 
-        Map<String, Object> user = rows.get(0);
-        Integer userId = (Integer) user.get("id");
-        String userName = (String) user.get("name");
+        User user = userOpt.get();
+        Integer userId = user.getId();
+        String userName = user.getName();
 
         // Store user info in session
         session.setAttribute("userId", userId);
