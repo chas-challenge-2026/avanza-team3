@@ -14,7 +14,8 @@ const AppCard = ({ children, variant, sx }: AppCardProps) => {
     <Card
       sx={{
         padding: 5,
-        ...sx
+        marginBottom: 2,
+        ...sx,
       }}
       variant={variant}
     >
