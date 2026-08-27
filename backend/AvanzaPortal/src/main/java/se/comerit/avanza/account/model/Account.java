@@ -1,6 +1,8 @@
 package se.comerit.avanza.account.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
+
 
 @Entity
 @Table(name = "accounts")

@@ -1,12 +1,10 @@
 package se.comerit.avanza.alert.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import se.comerit.avanza.alert.model.Alert;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Repository
