@@ -55,7 +55,7 @@ public class AlertService {
 
     public List<Map<String, Object>> getLiveAlertsByUserId(Integer userId) {
         List<Map<String, Object>> accounts =
-                tempJdbcRepo.getAccountsByUserId(userId);
+                accountService.getAccountMapsByUserId(userId);
 
         List<Map<String, Object>> holdings =
                 holdingService.getHoldingsByUserId(userId);
