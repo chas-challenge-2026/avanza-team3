@@ -4,6 +4,7 @@ import AppCard from "../components/AppCard";
 import styles from "./PorfolioPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
+import CurrencyExposure from "../components/CurrencyExposure";
 
 function PortfolioPage() {
   return (
@@ -20,10 +21,10 @@ function PortfolioPage() {
               </h3>
             </div>
           </div>
-          <AppCard sx={{ maxWidth: 250 }}>
+          {/* <AppCard sx={{ maxWidth: 250 }}>
             <p className={styles.label}>Totalt värde (SEK)</p>
             <p className={styles.value}>712 567</p>
-          </AppCard>
+          </AppCard> */}
 
           <DataTable
             width="600px"
@@ -31,6 +32,8 @@ function PortfolioPage() {
             rows={accountRows}
             columns={accountColumns}
           />
+        <CurrencyExposure/>
+
         </div>
 
         {/* Column 2 */}

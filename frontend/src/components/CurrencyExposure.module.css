@@ -1,0 +1,52 @@
+.currencyHeader {
+  margin-bottom: 1.5rem;
+}
+
+.currencyHeader h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.currencyHeader p {
+  color: var(--text-gray);
+  font-weight: 700;
+  font-size: var(--font-sm);
+}
+
+.currencyBar {
+  display: flex;
+  width: 100%;
+  height: 90px;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.currencySegment {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: white;
+  padding-left: 6px;
+  min-width: 0;
+}
+
+.currencySegment strong {
+  font-size: 1.5rem;
+}
+
+.currencySegment span {
+  font-size: 1rem;
+}
+
+.sek {
+  background-color: var(--text-green);
+}
+
+.usd {
+  background-color: var(--text-gray);
+}
+
+.eur {
+  background-color: var(--text-blue);
+}

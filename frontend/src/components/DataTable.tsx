@@ -8,7 +8,7 @@ import { Paper } from "@mui/material";
 import Badge from "./Badge";
 
 type DataTableProps = {
-  title: string;
+  title?: string;
   rows: any[];
   columns: any[];
   width?: string;
