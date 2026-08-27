@@ -9,6 +9,7 @@ function PortfolioPage() {
   return (
     <>
       <div className={styles.container}>
+        {/* Column 1 */}
         <div className={styles.col1}>
           <div className={styles.iconTitle}>
             <FontAwesomeIcon icon={faBriefcase} className={styles.icon} />
@@ -19,7 +20,7 @@ function PortfolioPage() {
               </h3>
             </div>
           </div>
-          <AppCard>
+          <AppCard sx={{ maxWidth: 250 }}>
             <p className={styles.label}>Totalt värde (SEK)</p>
             <p className={styles.value}>712 567</p>
           </AppCard>
@@ -31,7 +32,9 @@ function PortfolioPage() {
             columns={accountColumns}
           />
         </div>
-        <div className={styles.col1}>
+
+        {/* Column 2 */}
+        <div className={styles.col2}>
           <AppCard>
             <p className={styles.label}>Totalt värde (SEK)</p>
             <p className={styles.value}>712 567</p>
