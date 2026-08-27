@@ -1,6 +1,7 @@
 package se.comerit.avanza.account.service;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import se.comerit.avanza.account.model.Account;
 import se.comerit.avanza.account.repository.AccountRepository;
@@ -10,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Service
 public class AccountService {
 
     private AccountRepository accountRepository;
