@@ -21,7 +21,18 @@ public class Account {
     @Column(name = "account_name")
     private String accountName;
 
+    @Column(name = "currency", nullable = false)
+    private String currency = "SEK";
+
+
     protected Account() {
+    }
+
+    public Account(Integer userId, String accountType, String accountName, String currency) {
+        this.userId = userId;
+        this.accountType = accountType;
+        this.accountName = accountName;
+        this.currency = currency;
     }
 
     public Integer getId() {
@@ -50,5 +61,13 @@ public class Account {
 
     public void setAccountName(String accountName) {
         this.accountName = accountName;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 }
