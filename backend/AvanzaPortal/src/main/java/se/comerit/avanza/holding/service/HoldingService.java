@@ -1,9 +1,9 @@
 package se.comerit.avanza.holding.service;
 
 import org.springframework.stereotype.Service;
+import se.comerit.avanza.account.service.AccountService;
 import se.comerit.avanza.holding.model.Holding;
 import se.comerit.avanza.holding.repository.HoldingRepository;
-import se.comerit.avanza.holding.repository.TempHoldingJdbcRepository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,11 +15,11 @@ import java.util.Map;
 public class HoldingService {
 
     private final HoldingRepository holdingRepository;
-    private final TempHoldingJdbcRepository tempHoldingJdbcRepository;
+    private final AccountService accountService;
 
-    public HoldingService(HoldingRepository holdingRepository, TempHoldingJdbcRepository tempHoldingJdbcRepository) {
+    public HoldingService(HoldingRepository holdingRepository, AccountService accountService) {
         this.holdingRepository = holdingRepository;
-        this.tempHoldingJdbcRepository = tempHoldingJdbcRepository;
+        this.accountService = accountService;
     }
 
     public List<Map<String, Object>> getHoldingsByUserId(Integer userId) {
@@ -62,7 +62,7 @@ public class HoldingService {
     }
 
     public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
-        return tempHoldingJdbcRepository.findAccountsByUserId(userId);
+        return accountService.getAccountMapsByUserId(userId);
     }
 
     public void addHolding(Integer accountId, String ticker, String instrumentName, String quantity, String avgBuyPrice, String currency) {

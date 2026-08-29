@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import se.comerit.avanza.alert.model.Alert;
 import se.comerit.avanza.alert.service.AlertService;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
 
