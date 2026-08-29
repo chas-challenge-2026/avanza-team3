@@ -1,10 +1,11 @@
 package se.comerit.avanza.alert.service;
 
 import org.springframework.stereotype.Service;
+import se.comerit.avanza.account.service.AccountService;
 import se.comerit.avanza.alert.model.Alert;
 import se.comerit.avanza.alert.repository.AlertRepository;
-import se.comerit.avanza.alert.repository.TempJdbcRepo;
 import se.comerit.avanza.holding.service.HoldingService;
+import se.comerit.avanza.targetallocation.service.TargetAllocationService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,17 +19,19 @@ public class AlertService {
     private static final double DRIFT_THRESHOLD = 0.07;
 
     private final AlertRepository alertRepository;
-    private final TempJdbcRepo tempJdbcRepo;
     private final HoldingService holdingService;
+    private final AccountService accountService;
+    private final TargetAllocationService targetAllocationService;
 
-    public AlertService(AlertRepository alertRepository, TempJdbcRepo tempJdbcRepo, HoldingService holdingService) {
-        this.tempJdbcRepo = tempJdbcRepo;
+    public AlertService(AlertRepository alertRepository, HoldingService holdingService, AccountService accountService, TargetAllocationService targetAllocationService) {
         this.alertRepository = alertRepository;
         this.holdingService = holdingService;
+        this.accountService = accountService;
+        this.targetAllocationService = targetAllocationService;
     }
 
     public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
-        return tempJdbcRepo.getAccountsByUserId(userId);
+        return accountService.getAccountMapsByUserId(userId);
     }
 
     public List<Map<String, Object>> getHoldingsForAlertByUserId(Integer userId) {
@@ -40,7 +43,7 @@ public class AlertService {
     }
 
     public List<Map<String, Object>> getTargetByUserId(Integer userId) {
-        return tempJdbcRepo.getTargetByUserId(userId);
+        return targetAllocationService.getTargetMapsByUserId(userId);
     }
 
     public void dismissAlert(Integer alertId) {
@@ -52,13 +55,13 @@ public class AlertService {
 
     public List<Map<String, Object>> getLiveAlertsByUserId(Integer userId) {
         List<Map<String, Object>> accounts =
-                tempJdbcRepo.getAccountsByUserId(userId);
+                accountService.getAccountMapsByUserId(userId);
 
         List<Map<String, Object>> holdings =
                 holdingService.getHoldingsByUserId(userId);
 
         List<Map<String, Object>> targets =
-                tempJdbcRepo.getTargetByUserId(userId);
+                targetAllocationService.getTargetMapsByUserId(userId);
 
         Map<String, Double> prices = createPriceMap();
 
