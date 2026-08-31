@@ -34,7 +34,7 @@ const PortfolioHealth = ({ value, status }: PortfolioHealthProps) => {
             },
           }}
         />
-        <NavLink to="/trygghetsoversikt"> Klicka för att läsa mer</NavLink>
+        <NavLink to="/portfoljhalsa"> Klicka för att läsa mer</NavLink>
       </div>
     </>
   );
