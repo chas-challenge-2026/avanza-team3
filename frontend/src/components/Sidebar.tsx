@@ -6,7 +6,7 @@ import {
   faBriefcase,
   faRightLeft,
   faFileLines,
-  faBell
+  faBell,
 } from "@fortawesome/free-solid-svg-icons";
 import AppButton from "./AppButton";
 
@@ -20,8 +20,8 @@ function Sidebar() {
         <NavLink to="/innehav">
           <FontAwesomeIcon icon={faBriefcase} /> Innehav
         </NavLink>
-        <NavLink to="/trygghetsoversikt">
-          <FontAwesomeIcon icon={faRightLeft} /> Trygghetsöversikt
+        <NavLink to="/portfoljhalsa">
+          <FontAwesomeIcon icon={faRightLeft} /> Portföljhälsa
         </NavLink>
         <NavLink to="/rapporter">
           <FontAwesomeIcon icon={faFileLines} /> Rapporter
