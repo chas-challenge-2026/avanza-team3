@@ -78,16 +78,12 @@ public class HoldingController {
     public String deleteHolding(@RequestParam Integer holdingId,
                                 HttpSession session) {
 
-        // Session check
-        if (session.getAttribute("userId") == null) {
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        if (userId == null) {
             return "redirect:/login";
         }
-
-        // IDOR VULNERABILITY: No ownership check — any logged-in user can delete any holding
-        // We just delete by holdingId directly without verifying it belongs to this user
-        // TODO: add WHERE account_id IN (SELECT id FROM accounts WHERE user_id = ?) check
-        holdingService.deleteHolding(holdingId);
-
+         holdingService.deleteHolding(holdingId, userId);
         return "redirect:/holdings";
     }
 }
