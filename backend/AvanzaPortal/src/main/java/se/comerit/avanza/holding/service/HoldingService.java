@@ -1,5 +1,7 @@
 package se.comerit.avanza.holding.service;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.comerit.avanza.account.service.AccountService;
@@ -25,6 +27,7 @@ public class HoldingService {
         this.accountService = accountService;
     }
 
+    @Cacheable(value = "holdingsByUser", key = "#userId")
     @Transactional
     public List<Map<String, Object>> getHoldingsByUserId(Integer userId) {
 
@@ -70,6 +73,7 @@ public class HoldingService {
     }
 
     @Transactional
+    @CacheEvict(value = "holdingsByUser", key = "#userId")
     public void addHolding(Integer userId, Integer accountId, String ticker, String instrumentName, String quantity, String avgBuyPrice, String currency) {
 
         accountService.getAccountByIdAndUserId(accountId, userId);
@@ -87,6 +91,7 @@ public class HoldingService {
     }
 
     @Transactional
+    @CacheEvict(value = "holdingsByUser", key = "#userId")
     public void deleteHolding(Integer holdingId, Integer userId)
     {
         Holding holdingToDelete = holdingRepository
