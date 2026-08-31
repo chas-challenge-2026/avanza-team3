@@ -1,6 +1,7 @@
 package se.comerit.avanza.holding.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.comerit.avanza.account.service.AccountService;
 import se.comerit.avanza.holding.model.Holding;
 import se.comerit.avanza.holding.repository.HoldingRepository;
@@ -24,6 +25,7 @@ public class HoldingService {
         this.accountService = accountService;
     }
 
+    @Transactional
     public List<Map<String, Object>> getHoldingsByUserId(Integer userId) {
 
         List<Holding> holdings = holdingRepository.findByAccountUserIdOrderByAccountAccountTypeAscTickerAsc(userId);
@@ -67,6 +69,7 @@ public class HoldingService {
         return accountService.getAccountMapsByUserId(userId);
     }
 
+    @Transactional
     public void addHolding(Integer accountId, String ticker, String instrumentName, String quantity, String avgBuyPrice, String currency) {
 
         Holding holding = new Holding(
@@ -81,6 +84,7 @@ public class HoldingService {
         holdingRepository.save(holding);
     }
 
+    @Transactional
     public void deleteHolding(Integer holdingId, Integer userId)
     {
         Holding holdingToDelete = holdingRepository
