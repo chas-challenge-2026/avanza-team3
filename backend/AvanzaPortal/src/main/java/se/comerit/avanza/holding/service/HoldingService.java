@@ -81,7 +81,11 @@ public class HoldingService {
         holdingRepository.save(holding);
     }
 
-    public void deleteHolding(Integer holdingId) {
-        holdingRepository.deleteById(holdingId);
+    public void deleteHolding(Integer holdingId, Integer userId)
+    {
+        Holding holdingToDelete = holdingRepository
+                .findByIdAndAccountUserId(holdingId, userId)
+                        .orElseThrow(() -> new IllegalArgumentException("Holding not Found"));
+        holdingRepository.delete(holdingToDelete);
     }
 }
