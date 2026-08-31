@@ -19,6 +19,7 @@ const PortfolioHealth = ({ value, status }: PortfolioHealthProps) => {
       <div className={styles.container}>
         <h3>Portföljhälsa</h3>
         <Gauge
+          cornerRadius={"50%"}
           width={300}
           height={200}
           value={value}
@@ -27,13 +28,36 @@ const PortfolioHealth = ({ value, status }: PortfolioHealthProps) => {
           endAngle={90}
           sx={{
             [`& .${gaugeClasses.valueArc}`]: {
-              fill: statusColors[status],
+              fill: "url(#gaugeGradient)",
             },
             [`& .${gaugeClasses.valueText}`]: {
+              fontSize: 25,
+              fontWeight: 500,
               transform: "translateY(-40px)",
             },
           }}
-        />
+        >
+          <defs>
+            <linearGradient
+              id="gaugeGradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="0%"
+            >
+              <stop
+                offset="0%"
+                stopColor={statusColors[status]}
+                stopOpacity={0.3}
+              />
+              <stop
+                offset="100%"
+                stopColor={statusColors[status]}
+                stopOpacity={1}
+              />
+            </linearGradient>
+          </defs>
+        </Gauge>
         <NavLink to="/portfoljhalsa"> Klicka för att läsa mer</NavLink>
       </div>
     </>

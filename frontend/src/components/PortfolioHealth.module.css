@@ -4,3 +4,8 @@
   align-items: center;
   text-align: center;
 }
+
+h3 {
+  font-size: var(--font-xl);
+  margin-bottom: 0.5rem;
+}
