@@ -15,6 +15,7 @@ import se.comerit.avanza.auth.service.AuthService;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+//Ska ändras till integrationstest när vi har en ren kod och inte mockar AuthService.
 @ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
     private MockMvc mockMvc;
