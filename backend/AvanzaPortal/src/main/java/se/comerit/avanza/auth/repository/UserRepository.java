@@ -8,5 +8,5 @@ import se.comerit.avanza.auth.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmailAndPasswordMd5(String email, String passwordMd5);
 }
