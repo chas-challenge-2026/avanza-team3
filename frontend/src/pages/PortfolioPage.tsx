@@ -36,14 +36,14 @@ function PortfolioPage() {
 
         {/* Column 2 */}
         <div className={styles.col2}>
-          <PortfolioHealth value={55} />
+          <PortfolioHealth value={80} />
 
-          <DataTable
+          {/*  <DataTable
             width="600px"
             title="Konton"
             rows={accountRows}
             columns={accountColumns}
-          />
+          /> */}
         </div>
       </div>
     </>

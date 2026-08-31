@@ -1,6 +1,8 @@
 import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
 import { NavLink } from "react-router-dom";
 import styles from "./PortfolioHealth.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 type PortfolioHealthProps = {
   value: number;
@@ -24,7 +26,7 @@ const PortfolioHealth = ({ value }: PortfolioHealthProps) => {
   return (
     <>
       <div className={styles.container}>
-        <h3>Portföljhälsa</h3>
+        <h2>Portföljhälsa</h2>
         <Gauge
           cornerRadius={"50%"}
           width={300}
@@ -37,9 +39,10 @@ const PortfolioHealth = ({ value }: PortfolioHealthProps) => {
             [`& .${gaugeClasses.valueArc}`]: {
               fill: "url(#gaugeGradient)",
             },
-            [`& .${gaugeClasses.valueText}`]: {
+            [`& .${gaugeClasses.valueText} text`]: {
               fontSize: 25,
               fontWeight: 500,
+              fill: statusColors[valueStatus()],
               transform: "translateY(-40px)",
             },
           }}
@@ -65,7 +68,10 @@ const PortfolioHealth = ({ value }: PortfolioHealthProps) => {
             </linearGradient>
           </defs>
         </Gauge>
-        <NavLink to="/portfoljhalsa"> Klicka för att läsa mer</NavLink>
+        <NavLink to="/portfoljhalsa">
+          Läs mer{" "}
+          <FontAwesomeIcon className={styles.arrowIcon} icon={faArrowRight} />
+        </NavLink>
       </div>
     </>
   );
