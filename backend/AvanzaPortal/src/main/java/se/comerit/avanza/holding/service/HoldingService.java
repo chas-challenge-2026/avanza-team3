@@ -70,7 +70,9 @@ public class HoldingService {
     }
 
     @Transactional
-    public void addHolding(Integer accountId, String ticker, String instrumentName, String quantity, String avgBuyPrice, String currency) {
+    public void addHolding(Integer userId, Integer accountId, String ticker, String instrumentName, String quantity, String avgBuyPrice, String currency) {
+
+        accountService.getAccountByIdAndUserId(accountId, userId);
 
         Holding holding = new Holding(
                 accountId,
