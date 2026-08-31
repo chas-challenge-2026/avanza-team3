@@ -5,9 +5,12 @@ import org.springframework.stereotype.Repository;
 import se.comerit.avanza.holding.model.Holding;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface HoldingRepository extends JpaRepository<Holding, Integer> {
 
     List<Holding> findByAccountUserIdOrderByAccountAccountTypeAscTickerAsc(Integer userId);
+
+    Optional<Holding> findByIdAndAccountUserId(Integer holdingId, Integer userId);
 }
