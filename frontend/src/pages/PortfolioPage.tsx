@@ -36,7 +36,7 @@ function PortfolioPage() {
 
         {/* Column 2 */}
         <div className={styles.col2}>
-          <PortfolioHealth value={20} status="Dålig" />
+          <PortfolioHealth value={55} />
 
           <DataTable
             width="600px"
