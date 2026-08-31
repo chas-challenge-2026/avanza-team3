@@ -74,7 +74,7 @@ public class HoldingService {
 
     @Transactional
     @CacheEvict(value = "holdingsByUser", key = "#userId")
-    public void addHolding(Integer userId, Integer accountId, String ticker, String instrumentName, String quantity, String avgBuyPrice, String currency) {
+    public void addHolding(Integer userId, Integer accountId, String ticker, String instrumentName, BigDecimal quantity, BigDecimal avgBuyPrice, String currency) {
 
         accountService.getAccountByIdAndUserId(accountId, userId);
 
@@ -82,8 +82,8 @@ public class HoldingService {
                 accountId,
                 ticker,
                 instrumentName,
-                new BigDecimal(quantity),
-                new BigDecimal(avgBuyPrice),
+                quantity,
+                avgBuyPrice,
                 currency
         );
 
