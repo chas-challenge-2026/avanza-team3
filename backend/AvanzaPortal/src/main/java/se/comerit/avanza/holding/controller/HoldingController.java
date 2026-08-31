@@ -61,15 +61,13 @@ public class HoldingController {
                              @RequestParam(defaultValue = "SEK") String currency,
                              HttpSession session) {
 
-        // Session check — again, manually, every time
-        if (session.getAttribute("userId") == null) {
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        if (userId == null) {
             return "redirect:/login";
         }
 
-        // No input validation whatsoever — negative quantities? Strings as numbers? Sure, why not.
-        // The database will throw an error if it's really wrong. Good enough.
-
-        holdingService.addHolding(accountId, ticker, instrumentName, quantity, avgBuyPrice, currency);
+        holdingService.addHolding(userId, accountId, ticker, instrumentName, quantity, avgBuyPrice, currency);
 
         return "redirect:/holdings";
     }
