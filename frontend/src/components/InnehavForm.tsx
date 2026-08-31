@@ -113,7 +113,13 @@ const InnehavsForm = () => {
   const textFieldSx = {
     "& .MuiFormHelperText-root": {
       minHeight: "20px",
-      marginTop: "4px"
+      marginBottom: "3px"
+    },
+    "& .MuiInputLabel-root.Mui-error": {
+      color: ""
+    },
+    "& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline": {
+      borderColor: ""
     }
   };
 
