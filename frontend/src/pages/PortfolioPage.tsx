@@ -1,6 +1,7 @@
 import { accountRows, accountColumns } from "../data/accountsData";
 import DataTable from "../components/DataTable";
 import AppCard from "../components/AppCard";
+import PortfolioHealth from "../components/PortfolioHealth";
 import styles from "./PorfolioPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
@@ -35,10 +36,7 @@ function PortfolioPage() {
 
         {/* Column 2 */}
         <div className={styles.col2}>
-          <AppCard>
-            <p className={styles.label}>Totalt värde (SEK)</p>
-            <p className={styles.value}>712 567</p>
-          </AppCard>
+          <PortfolioHealth value={60} status="God" />
 
           <DataTable
             width="600px"
