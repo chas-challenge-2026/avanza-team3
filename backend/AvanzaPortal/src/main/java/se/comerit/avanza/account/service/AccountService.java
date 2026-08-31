@@ -24,7 +24,7 @@ public class AccountService {
         return accountRepository.findByUserIdOrderByAccountTypeAscAccountNameAsc(userId);
     }
 
-    public Account getAccountByIdForUser(Integer accountId, Integer userId) {
+    public Account getAccountByIdAndUserId(Integer accountId, Integer userId) {
         return accountRepository.findByIdAndUserId(accountId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
     }
