@@ -3,6 +3,7 @@
   flex-direction: column;
   width: 500px;
   margin: auto;
+  justify-content: center;
 }
 
 .titleWrapper {
@@ -11,4 +12,8 @@
   color: var(--text-white);
   padding: 1em;
   margin-bottom: 16px;
+}
+
+.successMessage {
+  color: #068e6a;
 }

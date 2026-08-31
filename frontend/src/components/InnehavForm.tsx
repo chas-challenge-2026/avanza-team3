@@ -1,7 +1,9 @@
 import { Box, MenuItem, TextField, Typography } from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
-import { use, useState } from "react";
+import { useState } from "react";
+
+// styla succes-text. Se till att value inte uppdateras vid varje bokstav?
 
 type Currency = "SEK" | "USD" | "EUR" | "";
 
@@ -108,6 +110,13 @@ const InnehavsForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const textFieldSx = {
+    "& .MuiFormHelperText-root": {
+      minHeight: "20px",
+      marginTop: "4px"
+    }
+  };
+
   return (
     <div className={styles.formWrapper}>
       <div className={styles.titleWrapper}>
@@ -119,7 +128,6 @@ const InnehavsForm = () => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 2,
           width: "100%"
         }}
       >
@@ -130,7 +138,8 @@ const InnehavsForm = () => {
           value={formData.account}
           onChange={handleChange}
           error={Boolean(errors.account)}
-          helperText={errors.account}
+          helperText={errors.account || " "}
+          sx={textFieldSx}
         >
           <MenuItem value="1">Anna ISK (ISK)</MenuItem>
           <MenuItem value="2">Anna KF (KF)</MenuItem>
@@ -138,14 +147,14 @@ const InnehavsForm = () => {
         </TextField>
 
         <TextField
-          // id="outlined-helperText"
           placeholder="t.ex. ERIC-B"
           label="Ticker"
           name="ticker"
           value={formData.ticker}
           onChange={handleChange}
           error={Boolean(errors.ticker)}
-          helperText={errors.ticker}
+          helperText={errors.ticker || " "}
+          sx={textFieldSx}
         />
         <TextField
           name="instrumentName"
@@ -154,7 +163,8 @@ const InnehavsForm = () => {
           value={formData.instrumentName}
           onChange={handleChange}
           error={Boolean(errors.instrumentName)}
-          helperText={errors.instrumentName}
+          helperText={errors.instrumentName || " "}
+          sx={textFieldSx}
         />
 
         <TextField
@@ -164,7 +174,8 @@ const InnehavsForm = () => {
           value={formData.instrumentType}
           onChange={handleChange}
           error={Boolean(errors.instrumentType)}
-          helperText={errors.instrumentType}
+          helperText={errors.instrumentType || " "}
+          sx={textFieldSx}
         >
           <MenuItem value="Aktie">Aktie</MenuItem>
           <MenuItem value="Fond">Fond</MenuItem>
@@ -179,7 +190,8 @@ const InnehavsForm = () => {
           value={formData.quantity}
           onChange={handleChange}
           error={Boolean(errors.quantity)}
-          helperText={errors.quantity}
+          helperText={errors.quantity || " "}
+          sx={textFieldSx}
         />
 
         <TextField
@@ -190,7 +202,8 @@ const InnehavsForm = () => {
           value={formData.avgBuyPrice}
           onChange={handleChange}
           error={Boolean(errors.avgBuyPrice)}
-          helperText={errors.avgBuyPrice}
+          helperText={errors.avgBuyPrice || " "}
+          sx={textFieldSx}
         />
 
         <TextField
@@ -200,7 +213,8 @@ const InnehavsForm = () => {
           value={formData.currency}
           onChange={handleChange}
           error={Boolean(errors.currency)}
-          helperText={errors.currency}
+          helperText={errors.currency || " "}
+          sx={textFieldSx}
         >
           <MenuItem value="SEK">SEK</MenuItem>
           <MenuItem value="USD">USD</MenuItem>
@@ -211,7 +225,12 @@ const InnehavsForm = () => {
         </AppButton>
       </Box>
       {successMessage && (
-        <Typography color="success.main">{successMessage}</Typography>
+        <Typography
+          sx={{ fontWeight: 800, m: "auto" }}
+          className={styles.successMessage}
+        >
+          {successMessage}
+        </Typography>
       )}
     </div>
   );
