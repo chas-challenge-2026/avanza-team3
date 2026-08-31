@@ -3,6 +3,8 @@ package se.comerit.avanza.holding.model;
 import jakarta.persistence.*;
 import se.comerit.avanza.account.model.Account;
 
+import java.math.BigDecimal;
+
 
 @Entity
 @Table(name = "holdings")
@@ -26,16 +28,16 @@ public class Holding {
 
 
     //OBS!!! snacka med gruppen om BigDecimal vid framtida möte
-    private Double quantity;
+    private BigDecimal quantity;
 
     @Column(name = "avg_buy_price")
-    private Double avgBuyPrice;
+    private BigDecimal avgBuyPrice;
 
     private String currency;
 
     protected Holding() {}
 
-    public Holding(Integer accountId, String ticker, String instrumentName, Double quantity, Double avgBuyPrice, String currency) {
+    public Holding(Integer accountId, String ticker, String instrumentName, BigDecimal quantity, BigDecimal avgBuyPrice, String currency) {
         this.accountId = accountId;
         this.ticker = ticker;
         this.instrumentName = instrumentName;
@@ -72,19 +74,19 @@ public class Holding {
         this.instrumentName = instrumentName;
     }
 
-    public Double getQuantity() {
+    public BigDecimal getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Double quantity) {
+    public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
     }
 
-    public Double getAvgBuyPrice() {
+    public BigDecimal getAvgBuyPrice() {
         return avgBuyPrice;
     }
 
-    public void setAvgBuyPrice(Double avgBuyPrice) {
+    public void setAvgBuyPrice(BigDecimal avgBuyPrice) {
         this.avgBuyPrice = avgBuyPrice;
     }
 
