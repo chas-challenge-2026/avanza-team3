@@ -1,17 +1,17 @@
 package se.comerit.avanza.holding.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import se.comerit.avanza.holding.dto.HoldingRequest;
 import se.comerit.avanza.holding.service.HoldingService;
 
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
+@RequestMapping("/api/holdings")
 public class HoldingController {
 
     private final HoldingService holdingService;
@@ -20,68 +20,44 @@ public class HoldingController {
         this.holdingService = holdingService;
     }
 
-    @GetMapping("/holdings")
-    public String listHoldings(HttpSession session, Model model) {
-
-        // Same session check copy-pasted from DashboardController
-        // TODO: make an interceptor or filter for this in v2
-        if (session.getAttribute("userId") == null) {
-            return "redirect:/login";
-        }
+    @GetMapping
+    public ResponseEntity<List<Map<String, Object>>> listHoldings(HttpSession session) {
 
         Integer userId = (Integer) session.getAttribute("userId");
-        model.addAttribute("userName", session.getAttribute("userName"));
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
 
+        List<Map<String, Object>> holdings = holdingService.getHoldingsByUserId(userId);
+        return ResponseEntity.ok(holdings);
         // Fetch all holdings — no pagination, no LIMIT
         // This will load all rows into memory. Fine for small datasets. Definitely fine.
-        List<Map<String, Object>> holdings = holdingService.getHoldingsByUserId(userId);
-
-        // Fetch accounts for the "add holding" dropdown
-        List<Map<String, Object>> accounts = holdingService.getAccountsByUserId(userId);
-
-        // Hardcoded current prices again (same as DashboardController, duplicated intentionally)
-        // Two sources of truth — what could go wrong
-
-        // Annotate each holding with current price
-
-
-            // Mutate the map directly — very clean architecture
-
-        model.addAttribute("holdings", holdings);
-        model.addAttribute("accounts", accounts);
-        return "holdings";
     }
 
-    @PostMapping("/holdings/add")
-    public String addHolding(@RequestParam Integer accountId,
-                             @RequestParam String ticker,
-                             @RequestParam String instrumentName,
-                             @RequestParam String quantity,
-                             @RequestParam String avgBuyPrice,
-                             @RequestParam(defaultValue = "SEK") String currency,
-                             HttpSession session) {
+    @PostMapping
+    public ResponseEntity<Void> addHolding(@Valid @RequestBody HoldingRequest request, HttpSession session) {
 
         Integer userId = (Integer) session.getAttribute("userId");
 
         if (userId == null) {
-            return "redirect:/login";
+            return ResponseEntity.status(401).build();
         }
 
-        holdingService.addHolding(userId, accountId, ticker, instrumentName, quantity, avgBuyPrice, currency);
+        holdingService.addHolding(userId, request.accountId(), request.ticker(), request.instrumentName(), request.quantity(), request.avgBuyPrice(), request.currency());
 
-        return "redirect:/holdings";
+        return ResponseEntity.status(201).build();
     }
 
-    @PostMapping("/holdings/delete")
-    public String deleteHolding(@RequestParam Integer holdingId,
+    @DeleteMapping("/{holdingId}")
+    public ResponseEntity<Void> deleteHolding(@PathVariable("holdingId") Integer holdingId,
                                 HttpSession session) {
 
         Integer userId = (Integer) session.getAttribute("userId");
 
         if (userId == null) {
-            return "redirect:/login";
+            return ResponseEntity.status(401).build();
         }
          holdingService.deleteHolding(holdingId, userId);
-        return "redirect:/holdings";
+        return ResponseEntity.noContent().build();
     }
 }
