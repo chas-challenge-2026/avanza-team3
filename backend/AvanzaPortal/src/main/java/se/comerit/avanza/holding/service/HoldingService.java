@@ -5,6 +5,8 @@ import se.comerit.avanza.account.service.AccountService;
 import se.comerit.avanza.holding.model.Holding;
 import se.comerit.avanza.holding.repository.HoldingRepository;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -26,21 +28,21 @@ public class HoldingService {
 
         List<Holding> holdings = holdingRepository.findByAccountUserIdOrderByAccountAccountTypeAscTickerAsc(userId);
 
-        Map<String, Double> prices = new HashMap<>();
-        prices.put("ERIC-B", 74.20);
-        prices.put("VOLV-B", 268.50);
-        prices.put("AAPL", 187.32);
-        prices.put("SWED-A", 193.10);
-        prices.put("SAND", 212.80);
+        Map<String, BigDecimal> prices = new HashMap<>();
+        prices.put("ERIC-B", new BigDecimal("74.20"));
+        prices.put("VOLV-B", new BigDecimal("268.50"));
+        prices.put("AAPL", new BigDecimal("187.32"));
+        prices.put("SWED-A", new BigDecimal("193.10"));
+        prices.put("SAND", new BigDecimal("212.80"));
 
         List<Map<String, Object>> result = new ArrayList<>();
         for (Holding holding : holdings) {
-            double currentPrice = prices.getOrDefault(holding.getTicker(), 0.0);
-            double qty = holding.getQuantity() != null ? holding.getQuantity() : 0.0;
-            double avgBuy = holding.getAvgBuyPrice() != null ? holding.getAvgBuyPrice() : 0.0;
-            double marketValue = qty * currentPrice;
-            double costBasis = qty * avgBuy;
-            double pnl = marketValue - costBasis;
+            BigDecimal currentPrice = prices.getOrDefault(holding.getTicker(), BigDecimal.ZERO);
+            BigDecimal qty = holding.getQuantity() != null ? holding.getQuantity() : BigDecimal.ZERO;
+            BigDecimal avgBuy = holding.getAvgBuyPrice() != null ? holding.getAvgBuyPrice() : BigDecimal.ZERO;
+            BigDecimal marketValue = qty.multiply(currentPrice);
+            BigDecimal costBasis = qty.multiply(avgBuy);
+            BigDecimal pnl = marketValue.subtract(costBasis);
 
             Map<String, Object> h = new LinkedHashMap<>();
             h.put("id", holding.getId());
@@ -52,9 +54,9 @@ public class HoldingService {
             h.put("currency", holding.getCurrency());
             h.put("account_type", holding.getAccount().getAccountType());
             h.put("account_name", holding.getAccount().getAccountName());
-            h.put("currentPrice", currentPrice);
-            h.put("marketValue", Math.round(marketValue * 100.0) / 100.0);
-            h.put("pnl", Math.round(pnl * 100.0) / 100.0);
+            h.put("currentPrice", currentPrice.setScale(2, RoundingMode.HALF_UP));
+            h.put("marketValue", marketValue.setScale(2, RoundingMode.HALF_UP));
+            h.put("pnl", pnl.setScale(2, RoundingMode.HALF_UP));
             result.add(h);
         }
 
@@ -71,8 +73,8 @@ public class HoldingService {
                 accountId,
                 ticker,
                 instrumentName,
-                Double.valueOf(quantity),
-                Double.valueOf(avgBuyPrice),
+                new BigDecimal(quantity),
+                new BigDecimal(avgBuyPrice),
                 currency
         );
 
