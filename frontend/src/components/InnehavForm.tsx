@@ -3,8 +3,6 @@ import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
 import { useState } from "react";
 
-// styla succes-text. Se till att value inte uppdateras vid varje bokstav?
-
 type Currency = "SEK" | "USD" | "EUR" | "";
 
 type InnehavFormData = {
@@ -34,9 +32,8 @@ const InnehavsForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(event.target);
 
     setSuccessMessage("");
 
@@ -112,14 +109,14 @@ const InnehavsForm = () => {
 
   const textFieldSx = {
     "& .MuiFormHelperText-root": {
-      minHeight: "20px",
-      marginBottom: "3px"
+      marginBottom: "3px",
+      fontWeight: "bold"
     },
     "& .MuiInputLabel-root.Mui-error": {
-      color: ""
+      color: "#999"
     },
     "& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline": {
-      borderColor: ""
+      borderColor: "#999"
     }
   };
 
