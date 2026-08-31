@@ -24,7 +24,7 @@ public class AuthService {
             model.addAttribute("error", "Internt fel vid autentisering.");
             return Optional.empty();
         }
-        return userRepository.findByEmailandPasswordMd5(email, md5);
+        return userRepository.findByEmailAndPasswordMd5(email, md5);
     }
 
     // MD5 helper — lives here because there's nowhere else to put it
