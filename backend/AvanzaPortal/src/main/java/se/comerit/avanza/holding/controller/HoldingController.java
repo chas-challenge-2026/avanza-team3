@@ -1,13 +1,13 @@
 package se.comerit.avanza.holding.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.comerit.avanza.holding.dto.HoldingRequest;
 import se.comerit.avanza.holding.service.HoldingService;
 
 import jakarta.servlet.http.HttpSession;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,17 +21,26 @@ public class HoldingController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Map<String, Object>>> listHoldings(HttpSession session) {
+    public ResponseEntity<Page<Map<String, Object>>> listHoldings(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size, HttpSession session) {
 
         Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(401).build();
         }
 
-        List<Map<String, Object>> holdings = holdingService.getHoldingsByUserId(userId);
+        if (page < 0) {
+            page = 0;
+        }
+
+        if (size < 1) {
+            size = 20;
+        }
+
+        size = Math.min(size, 100);
+
+        Page<Map<String, Object>> holdings = holdingService.getHoldingsByUserId(userId, page, size);
+
         return ResponseEntity.ok(holdings);
-        // Fetch all holdings — no pagination, no LIMIT
-        // This will load all rows into memory. Fine for small datasets. Definitely fine.
     }
 
     @PostMapping
