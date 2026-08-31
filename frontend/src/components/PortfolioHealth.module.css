@@ -5,7 +5,16 @@
   text-align: center;
 }
 
-h3 {
+h2 {
   font-size: var(--font-xl);
-  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+  font-weight: 400;
+}
+
+.arrowIcon {
+  transition: transform 0.2s;
+}
+
+.arrowIcon:hover {
+  transform: translateX(4px);
 }
