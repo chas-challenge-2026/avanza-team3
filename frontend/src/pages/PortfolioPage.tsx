@@ -5,6 +5,7 @@ import PortfolioHealth from "../components/PortfolioHealth";
 import styles from "./PorfolioPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
+import NotificationCard from "../components/NotificationCard";
 
 function PortfolioPage() {
   return (
@@ -38,12 +39,7 @@ function PortfolioPage() {
         <div className={styles.col2}>
           <PortfolioHealth value={80} />
 
-          {/*  <DataTable
-            width="600px"
-            title="Konton"
-            rows={accountRows}
-            columns={accountColumns}
-          /> */}
+          <NotificationCard />
         </div>
       </div>
     </>
