@@ -4,10 +4,17 @@ import styles from "./PortfolioHealth.module.css";
 
 type PortfolioHealthProps = {
   value: number;
-  status: "God" | "Okej" | "Dålig";
 };
 
-const PortfolioHealth = ({ value, status }: PortfolioHealthProps) => {
+const PortfolioHealth = ({ value }: PortfolioHealthProps) => {
+  const valueStatus = () => {
+    if (value < 40) {
+      return "Dålig";
+    } else if (value > 39 && value < 70) {
+      return "Okej";
+    } else return "God";
+  };
+
   const statusColors = {
     God: "var(--text-green)",
     Okej: "var(--text-warning)",
@@ -23,7 +30,7 @@ const PortfolioHealth = ({ value, status }: PortfolioHealthProps) => {
           width={300}
           height={200}
           value={value}
-          text={status}
+          text={valueStatus()}
           startAngle={-90}
           endAngle={90}
           sx={{
@@ -47,12 +54,12 @@ const PortfolioHealth = ({ value, status }: PortfolioHealthProps) => {
             >
               <stop
                 offset="0%"
-                stopColor={statusColors[status]}
+                stopColor={statusColors[valueStatus()]}
                 stopOpacity={0.3}
               />
               <stop
                 offset="100%"
-                stopColor={statusColors[status]}
+                stopColor={statusColors[valueStatus()]}
                 stopOpacity={1}
               />
             </linearGradient>
