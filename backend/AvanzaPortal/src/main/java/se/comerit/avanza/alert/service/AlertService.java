@@ -1,6 +1,7 @@
 package se.comerit.avanza.alert.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.comerit.avanza.account.service.AccountService;
 import se.comerit.avanza.alert.model.Alert;
 import se.comerit.avanza.alert.repository.AlertRepository;
@@ -46,11 +47,10 @@ public class AlertService {
         return targetAllocationService.getTargetMapsByUserId(userId);
     }
 
-    public void dismissAlert(Integer alertId) {
-        alertRepository.findById(alertId).ifPresent(alert -> {
+    @Transactional
+    public void dismissAlert(Integer alertId, Integer userId) {
+        Alert alert = alertRepository.findByIdAndUserId(alertId, userId).orElseThrow(() -> new IllegalArgumentException("Alert not found"));
             alert.setDismissed(true);
-            alertRepository.save(alert);
-        });
     }
 
     public List<Map<String, Object>> getLiveAlertsByUserId(Integer userId) {
