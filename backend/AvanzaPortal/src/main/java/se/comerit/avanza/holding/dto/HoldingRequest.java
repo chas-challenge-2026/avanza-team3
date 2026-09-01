@@ -1,10 +1,7 @@
 package se.comerit.avanza.holding.dto;
 
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 
@@ -14,7 +11,7 @@ public record HoldingRequest(
         Integer accountId,
 
         @NotBlank
-        @Size(max = 30)
+        @Size(max = 20)
         String ticker,
 
         @NotBlank
@@ -22,11 +19,13 @@ public record HoldingRequest(
         String instrumentName,
 
         @NotNull
-        @DecimalMin(value = "0.00000001")
+        @DecimalMin(value = "0.00001")
+        @Digits(integer = 8, fraction = 4)
         BigDecimal quantity,
 
         @NotNull
         @DecimalMin(value = "0")
+        @Digits(integer = 10, fraction = 2)
         BigDecimal avgBuyPrice,
 
         @NotBlank
