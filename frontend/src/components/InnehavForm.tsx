@@ -2,7 +2,6 @@ import { Box, MenuItem, TextField, Typography } from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
 import { useState } from "react";
-import { height } from "@fortawesome/free-solid-svg-icons/fa0";
 
 type Currency = "SEK" | "USD" | "EUR" | "";
 
@@ -30,7 +29,7 @@ type InnehavsFormProps = {
   width?: string;
 };
 
-const InnehavsForm = ({ width }: InnehavsFormProps) => {
+const InnehavsForm = ({}: InnehavsFormProps) => {
   const [formData, setFormData] =
     useState<InnehavFormData>(initialFormDataValue);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -115,6 +114,7 @@ const InnehavsForm = ({ width }: InnehavsFormProps) => {
   const textFieldSx = {
     "& .MuiFormHelperText-root": {
       marginBottom: "3px",
+      marginTop: "0px",
       fontWeight: "bold"
     },
     "& .MuiInputLabel-root.Mui-error": {
