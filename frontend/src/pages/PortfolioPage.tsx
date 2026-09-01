@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
 import AllocationChart from "../components/AllocationChart";
 import NotificationCard from "../components/NotificationCard";
+import CurrencyExposure from "../components/CurrencyExposure";
 
 function PortfolioPage() {
   return (
@@ -34,6 +35,8 @@ function PortfolioPage() {
             rows={accountRows}
             columns={accountColumns}
           />
+        <CurrencyExposure/>
+
         </div>
 
         {/* Column 2 */}
