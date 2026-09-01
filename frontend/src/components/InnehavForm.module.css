@@ -1,8 +1,7 @@
 .formWrapper {
   display: flex;
   flex-direction: column;
-  width: 500px;
-  margin: auto;
+  align-items: center;
   justify-content: center;
 }
 
@@ -10,8 +9,7 @@
   background-color: #337ab7;
   border-radius: 5px;
   color: var(--text-white);
-  padding: 1em;
-  margin-bottom: 10px;
+  width: 100%;
 }
 
 .successMessage {
