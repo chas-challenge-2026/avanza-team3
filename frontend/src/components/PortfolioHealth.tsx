@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import styles from "./PortfolioHealth.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import AppCard from "./AppCard";
 
 type PortfolioHealthProps = {
   value: number;
@@ -24,7 +25,7 @@ const PortfolioHealth = ({ value }: PortfolioHealthProps) => {
   };
 
   return (
-    <>
+    <AppCard>
       <div className={styles.container}>
         <h2>Portföljhälsa</h2>
         <Gauge
@@ -73,7 +74,7 @@ const PortfolioHealth = ({ value }: PortfolioHealthProps) => {
           <FontAwesomeIcon className={styles.arrowIcon} icon={faArrowRight} />
         </NavLink>
       </div>
-    </>
+    </AppCard>
   );
 };
 

@@ -16,11 +16,14 @@ type DataTableProps = {
 
 const DataTable = ({ title, rows, columns, width }: DataTableProps) => {
   return (
-    <TableContainer component={Paper} sx={{ width: width || "fit-content" }}>
-      <h3>{title}</h3>
+    <TableContainer
+      component={Paper}
+      sx={{ width: width || "fit-content", padding: 3 }}
+    >
+      <h2>{title}</h2>
       <Table size="small">
         <TableHead>
-          <TableRow>
+          <TableRow sx={{ backgroundColor: "#dae0dd" }}>
             {columns.map((col) => (
               <TableCell key={col.field}>{col.headerName}</TableCell>
             ))}
