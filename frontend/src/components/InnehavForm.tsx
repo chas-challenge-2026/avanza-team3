@@ -2,6 +2,7 @@ import { Box, MenuItem, TextField, Typography } from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
 import { useState } from "react";
+import { height } from "@fortawesome/free-solid-svg-icons/fa0";
 
 type Currency = "SEK" | "USD" | "EUR" | "";
 
@@ -25,7 +26,11 @@ const initialFormDataValue: InnehavFormData = {
   currency: ""
 };
 
-const InnehavsForm = () => {
+type InnehavsFormProps = {
+  width?: string;
+};
+
+const InnehavsForm = ({ width }: InnehavsFormProps) => {
   const [formData, setFormData] =
     useState<InnehavFormData>(initialFormDataValue);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -123,7 +128,7 @@ const InnehavsForm = () => {
   return (
     <div className={styles.formWrapper}>
       <div className={styles.titleWrapper}>
-        <Typography variant="h5">Lägg till innehav</Typography>
+        <h3>Lägg till innehav</h3>
       </div>
       <Box
         component="form"
@@ -136,6 +141,7 @@ const InnehavsForm = () => {
       >
         <TextField
           select
+          size="small"
           label="Konto"
           name="account"
           value={formData.account}
@@ -150,6 +156,7 @@ const InnehavsForm = () => {
         </TextField>
 
         <TextField
+          size="small"
           placeholder="t.ex. ERIC-B"
           label="Ticker"
           name="ticker"
@@ -160,6 +167,7 @@ const InnehavsForm = () => {
           sx={textFieldSx}
         />
         <TextField
+          size="small"
           name="instrumentName"
           label="Instrumentnamn"
           placeholder="t.ex. Ericsson B"
@@ -172,6 +180,7 @@ const InnehavsForm = () => {
 
         <TextField
           select
+          size="small"
           label="Instrumenttyp"
           name="instrumentType"
           value={formData.instrumentType}
@@ -186,6 +195,7 @@ const InnehavsForm = () => {
         </TextField>
 
         <TextField
+          size="small"
           label="Antal"
           name="quantity"
           type="number"
@@ -198,6 +208,7 @@ const InnehavsForm = () => {
         />
 
         <TextField
+          size="small"
           name="avgBuyPrice"
           type="number"
           placeholder="150.00"
@@ -211,6 +222,7 @@ const InnehavsForm = () => {
 
         <TextField
           select
+          size="small"
           label="Valuta"
           name="currency"
           value={formData.currency}
