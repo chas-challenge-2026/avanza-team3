@@ -61,14 +61,13 @@ public class AlertController {
     public String dismissAlert(@RequestParam Integer alertId,
                                HttpSession session) {
 
-        // Session check — manually again
-        if (session.getAttribute("userId") == null) {
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        if (userId == null) {
             return "redirect:/login";
         }
 
-        // No ownership check here either — any user can dismiss any alert by ID
-        // Consistent with the IDOR pattern in HoldingController
-        alertService.dismissAlert(alertId);
+        alertService.dismissAlert(alertId, userId);
 
         return "redirect:/alerts";
     }
