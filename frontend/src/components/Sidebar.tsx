@@ -10,7 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import AppButton from "./AppButton";
 
-function Sidebar() {
+const Sidebar = () => {
   return (
     <aside className={styles.sidebar}>
       <nav>
@@ -40,6 +40,6 @@ function Sidebar() {
       </AppButton>
     </aside>
   );
-}
+};
 
 export default Sidebar;

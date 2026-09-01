@@ -6,6 +6,7 @@ import styles from "./PorfolioPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
 import AllocationChart from "../components/AllocationChart";
+import NotificationCard from "../components/NotificationCard";
 
 function PortfolioPage() {
   return (
@@ -45,6 +46,8 @@ function PortfolioPage() {
             rows={accountRows}
             columns={accountColumns}
           /> */}
+
+          <NotificationCard />
         </div>
       </div>
     </>
