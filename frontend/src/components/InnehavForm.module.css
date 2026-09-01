@@ -1,15 +1,20 @@
 .formWrapper {
   background-color: var(--bg-container);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* width: 100%; */
 }
 
 .titleWrapper {
   background-color: #337ab7;
   border-radius: 5px;
   color: var(--text-white);
-  margin: 10px 0 10px 0;
   padding: 5px;
   display: flex;
   align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 .successMessage {

@@ -7,12 +7,10 @@ function InnehavPage() {
   return (
     <Container className={styles.InnehavPageWrapper}>
       <h1>Innehav</h1>
-      <Container className={styles.list}>
-        <InnehavsLista />
-      </Container>
-      <Container className={styles.form}>
-        <InnehavsForm />
-      </Container>
+
+      <InnehavsLista />
+
+      <InnehavsForm />
     </Container>
   );
 }
