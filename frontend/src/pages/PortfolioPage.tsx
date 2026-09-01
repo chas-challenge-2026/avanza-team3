@@ -8,6 +8,7 @@ import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
 import AllocationChart from "../components/AllocationChart";
 import NotificationCard from "../components/NotificationCard";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
+import CurrencyExposure from "../components/CurrencyExposure";
 
 function PortfolioPage() {
   return (
@@ -40,6 +41,10 @@ function PortfolioPage() {
       <div className={styles.row3}>
         <DataTable title="Konton" rows={accountRows} columns={accountColumns} />
         <NotificationCard />
+      </div>
+
+      <div className={styles.row4}>
+        <CurrencyExposure />
       </div>
     </div>
   );
