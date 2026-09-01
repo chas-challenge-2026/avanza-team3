@@ -37,3 +37,13 @@ body {
   color: var(--text-primary);
   font-family: Roboto, Arial, sans-serif;
 }
+
+/* Typography */
+
+a {
+  text-decoration: none;
+}
+
+a:visited {
+  color: inherit;
+}

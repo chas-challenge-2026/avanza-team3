@@ -1,10 +1,12 @@
-function InnehavPage(){
+import InnehavsForm from "../components/InnehavForm";
 
-    return (
-        <>
-            <h1>Innehav</h1>
-        </>
-    )
+function InnehavPage() {
+  return (
+    <>
+      <h1>Innehav</h1>
+      <InnehavsForm />
+    </>
+  );
 }
 
 export default InnehavPage;
