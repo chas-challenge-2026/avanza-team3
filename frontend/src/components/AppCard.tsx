@@ -7,14 +7,16 @@ type AppCardProps = {
   children: React.ReactNode;
   variant?: "outlined" | "elevation";
   sx?: SxProps<Theme>;
+  width?: string | number;
 };
 
-const AppCard = ({ children, variant, sx }: AppCardProps) => {
+const AppCard = ({ children, variant, sx, width }: AppCardProps) => {
   return (
     <Card
       sx={{
         padding: 5,
         marginBottom: 2,
+        width,
         ...sx,
       }}
       variant={variant}
