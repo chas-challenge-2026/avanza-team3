@@ -1,6 +1,5 @@
 import AppCard from "./AppCard";
 import styles from "./CurrencyExposure.module.css"
-import DataTable from "./DataTable";
 
 function CurrencyExposure(){
 
@@ -24,19 +23,6 @@ function CurrencyExposure(){
           value: 24750,
         },
       ];
-
-      const columns = [
-        { field: "currency", headerName: "Valuta" },
-        { field: "value", headerName: "Värde" },
-        { field: "percentage", headerName: "Procent av totala" },
-      ];
-      
-      const rows = mockCurrencyExposure.map((item) => ({
-        id: item.currency,
-        currency: item.currency,
-        value: `${item.value.toLocaleString("sv-SE")} SEK`,
-        percentage: `${item.percentage}%`,
-      }));
 
       return (
         <AppCard sx={{
