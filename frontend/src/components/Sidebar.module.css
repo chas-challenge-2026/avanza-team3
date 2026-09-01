@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   padding: 2rem 0rem;
-  height: 100vh;
   width: 190px;
   background-color: var(--bg-green);
   font-family: "Roboto";
