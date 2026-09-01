@@ -4,6 +4,7 @@ import styles from "./InnehavForm.module.css";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
+import { width } from "@fortawesome/free-solid-svg-icons/fa0";
 
 type Currency = "SEK" | "USD" | "EUR" | "";
 
@@ -114,6 +115,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
   };
 
   const textFieldSx = {
+    // width: "100%",
     "& .MuiFormHelperText-root": {
       marginBottom: "3px",
       marginTop: "0px",
@@ -138,10 +140,14 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
         onSubmit={handleSubmit}
         sx={{
           display: "flex",
-          flexDirection: "column"
+          flexDirection: "column",
+          // alignItems: "center"
+          width: "100%",
+          padding: "0 10px"
         }}
       >
         <TextField
+          fullWidth
           select
           size="small"
           label="Konto"
@@ -158,6 +164,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
         </TextField>
 
         <TextField
+          fullWidth
           size="small"
           placeholder="t.ex. ERIC-B"
           label="Ticker"
@@ -169,6 +176,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
           sx={textFieldSx}
         />
         <TextField
+          fullWidth
           size="small"
           name="instrumentName"
           label="Instrumentnamn"
@@ -182,6 +190,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
 
         <TextField
           select
+          fullWidth
           size="small"
           label="Instrumenttyp"
           name="instrumentType"
@@ -197,6 +206,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
         </TextField>
 
         <TextField
+          fullWidth
           size="small"
           label="Antal"
           name="quantity"
@@ -210,6 +220,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
         />
 
         <TextField
+          fullWidth
           size="small"
           name="avgBuyPrice"
           type="number"
@@ -223,6 +234,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
         />
 
         <TextField
+          fullWidth
           select
           size="small"
           label="Valuta"
@@ -237,10 +249,10 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
           <MenuItem value="USD">USD</MenuItem>
           <MenuItem value="EUR">EUR</MenuItem>
         </TextField>
-        <AppButton type="submit" variant="contained" disabled={isSubmitting}>
-          {isSubmitting ? "Lägger till..." : "Lägg till"}
-        </AppButton>
       </Box>
+      <AppButton type="submit" variant="contained" disabled={isSubmitting}>
+        {isSubmitting ? "Lägger till..." : "Lägg till"}
+      </AppButton>
       {successMessage && (
         <Typography
           sx={{ fontWeight: 800, m: "auto" }}
