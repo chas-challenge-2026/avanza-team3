@@ -1,0 +1,19 @@
+.formWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  margin: auto;
+  justify-content: center;
+}
+
+.titleWrapper {
+  background-color: #337ab7;
+  border-radius: 5px;
+  color: var(--text-white);
+  padding: 1em;
+  margin-bottom: 10px;
+}
+
+.successMessage {
+  color: #068e6a;
+}

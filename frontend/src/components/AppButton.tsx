@@ -6,11 +6,19 @@ type AppButtonProps = {
   children: React.ReactNode;
   variant?: "outlined" | "contained";
   sx?: SxProps<Theme>;
+  type?: "button" | "submit";
+  disabled?: boolean;
 };
 
-const AppButton = ({ children, variant, sx }: AppButtonProps) => {
+const AppButton = ({
+  children,
+  variant,
+  sx,
+  type,
+  disabled
+}: AppButtonProps) => {
   return (
-    <Button sx={sx} variant={variant}>
+    <Button sx={sx} variant={variant} type={type} disabled={disabled}>
       {children}
     </Button>
   );

@@ -1,9 +1,12 @@
 import { accountRows, accountColumns } from "../data/accountsData";
 import DataTable from "../components/DataTable";
 import AppCard from "../components/AppCard";
+import PortfolioHealth from "../components/PortfolioHealth";
 import styles from "./PorfolioPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
+import AllocationChart from "../components/AllocationChart";
+import NotificationCard from "../components/NotificationCard";
 import CurrencyExposure from "../components/CurrencyExposure";
 
 function PortfolioPage() {
@@ -21,10 +24,10 @@ function PortfolioPage() {
               </h3>
             </div>
           </div>
-          {/* <AppCard sx={{ maxWidth: 250 }}>
+          <AppCard sx={{ maxWidth: 250 }}>
             <p className={styles.label}>Totalt värde (SEK)</p>
             <p className={styles.value}>712 567</p>
-          </AppCard> */}
+          </AppCard>
 
           <DataTable
             width="600px"
@@ -38,17 +41,16 @@ function PortfolioPage() {
 
         {/* Column 2 */}
         <div className={styles.col2}>
-          <AppCard>
-            <p className={styles.label}>Totalt värde (SEK)</p>
-            <p className={styles.value}>712 567</p>
-          </AppCard>
-
-          <DataTable
+          <PortfolioHealth value={80} />
+          <AllocationChart />
+          {/*  <DataTable
             width="600px"
             title="Konton"
             rows={accountRows}
             columns={accountColumns}
-          />
+          /> */}
+
+          <NotificationCard />
         </div>
       </div>
     </>

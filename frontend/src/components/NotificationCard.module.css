@@ -1,0 +1,10 @@
+.card {
+  padding: 2rem 2rem;
+  background-color: var(--bg-light-green);
+  border-radius: 10px;
+}
+
+.notification {
+  font-size: var(--font-lg);
+  margin-bottom: 0.5rem;
+}
