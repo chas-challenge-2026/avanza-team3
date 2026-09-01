@@ -144,7 +144,7 @@ public class HoldingService {
     }
 
     @Transactional
-    @CacheEvict(allEntries = true)
+    @CacheEvict(value = "holdingsByUser", allEntries = true)
     public void addHolding(Integer userId, Integer accountId, String ticker, String instrumentName, BigDecimal quantity, BigDecimal avgBuyPrice, String currency) {
 
         accountService.getAccountByIdAndUserId(accountId, userId);
@@ -162,7 +162,7 @@ public class HoldingService {
     }
 
     @Transactional
-    @CacheEvict(allEntries = true)
+    @CacheEvict(value = "holdingsByUser", allEntries = true)
     public void deleteHolding(Integer holdingId, Integer userId)
     {
         Holding holdingToDelete = holdingRepository
