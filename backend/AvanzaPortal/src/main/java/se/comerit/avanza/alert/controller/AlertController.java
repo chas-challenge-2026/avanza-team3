@@ -1,23 +1,13 @@
 package se.comerit.avanza.alert.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import se.comerit.avanza.alert.model.Alert;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import se.comerit.avanza.alert.service.AlertService;
-
 import jakarta.servlet.http.HttpSession;
-import java.util.List;
-import java.util.Map;
 
-@Controller
+@RestController
+@RequestMapping("/api/alerts")
 public class AlertController {
-
-    // NOTE: This is 0.07 but DashboardController uses 0.05 — known inconsistency, file a ticket
-    // Alerts page uses 7% threshold, dashboard shows warning at 5% — welcome to v1
-
 
     private final AlertService alertService;
 
@@ -25,50 +15,42 @@ public class AlertController {
         this.alertService = alertService;
     }
 
-    @GetMapping("/alerts")
-    public String listAlerts(HttpSession session, Model model) {
-
-        // Copy-pasted session check from every other controller
-        if (session.getAttribute("userId") == null) {
-            return "redirect:/login";
-        }
+    @GetMapping
+    public ResponseEntity<?> getAlerts(HttpSession session) {
 
         Integer userId = (Integer) session.getAttribute("userId");
-        model.addAttribute("userName", session.getAttribute("userName"));
 
-        // Fetch stored alerts from DB
-        // ---- Inline drift detection — duplicated from DashboardController ----
-        // This is the SECOND place we calculate drift. DashboardController also does it.
-        // Different threshold. No shared code. This is fine.
-        // Fetch accounts and compute totals
-        // Fetch all holdings (again, no LIMIT)
-        // Hardcoded prices — THIRD place in the codebase they appear
-        // DashboardController has them, HoldingController has them, now here too
-        // Hardcoded FX rate again — should probably match DashboardController's constant but doesn't
-        // Generate live drift alerts (in-memory, not persisted)
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
 
-
-        List<Alert> storedAlerts = alertService.getAlertsByUserId(userId);
-
-        List<Map<String, Object>> liveAlerts = alertService.getLiveAlertsByUserId(userId);
-        model.addAttribute("storedAlerts", storedAlerts);
-        model.addAttribute("liveAlerts", liveAlerts);
-        model.addAttribute("driftThreshold", alertService.getDriftThresholdPercent());
-        return "alerts";
+        return ResponseEntity.ok(alertService.getAlertsByUserId(userId));
     }
 
-    @PostMapping("/alerts/dismiss")
-    public String dismissAlert(@RequestParam Integer alertId,
+    @GetMapping("/live")
+    public ResponseEntity<?> getLiveAlerts(HttpSession session) {
+
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        return ResponseEntity.ok(alertService.getLiveAlertsByUserId(userId));
+    }
+
+    @PatchMapping("/{alertId}/dismiss")
+    public ResponseEntity<Void> dismissAlert(@PathVariable Integer alertId,
                                HttpSession session) {
 
         Integer userId = (Integer) session.getAttribute("userId");
 
         if (userId == null) {
-            return "redirect:/login";
+            return ResponseEntity.status(401).build();
         }
 
         alertService.dismissAlert(alertId, userId);
 
-        return "redirect:/alerts";
+        return ResponseEntity.noContent().build();
     }
 }
