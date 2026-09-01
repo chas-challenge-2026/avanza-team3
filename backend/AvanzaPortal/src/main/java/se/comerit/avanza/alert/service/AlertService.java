@@ -3,6 +3,7 @@ package se.comerit.avanza.alert.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.comerit.avanza.account.service.AccountService;
+import se.comerit.avanza.alert.dto.AlertResponse;
 import se.comerit.avanza.alert.model.Alert;
 import se.comerit.avanza.alert.repository.AlertRepository;
 import se.comerit.avanza.holding.service.HoldingService;
@@ -42,8 +43,19 @@ public class AlertService {
     }
 
     @Transactional
-    public List<Alert> getAlertsByUserId(Integer userId) {
-        return alertRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    public List<AlertResponse> getAlertsByUserId(Integer userId) {
+
+        return alertRepository
+                .findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(alert -> new AlertResponse(
+                        alert.getId(),
+                        alert.getAlertType(),
+                        alert.getMessage(),
+                        alert.isDismissed(),
+                        alert.getCreatedAt()
+                ))
+                .toList();
     }
 
     public List<Map<String, Object>> getTargetByUserId(Integer userId) {
