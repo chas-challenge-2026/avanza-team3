@@ -8,6 +8,8 @@ import se.comerit.avanza.alert.repository.AlertRepository;
 import se.comerit.avanza.holding.service.HoldingService;
 import se.comerit.avanza.targetallocation.service.TargetAllocationService;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.Map;
 @Service
 public class AlertService {
 
-    private static final double DRIFT_THRESHOLD = 0.07;
+    private static final BigDecimal DRIFT_THRESHOLD = new BigDecimal("0.07");
 
     private final AlertRepository alertRepository;
     private final HoldingService holdingService;
@@ -39,6 +41,7 @@ public class AlertService {
         return holdingService.getHoldingsByUserId(userId);
     }
 
+    @Transactional
     public List<Alert> getAlertsByUserId(Integer userId) {
         return alertRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
@@ -63,48 +66,72 @@ public class AlertService {
         List<Map<String, Object>> targets =
                 targetAllocationService.getTargetMapsByUserId(userId);
 
-        Map<String, Double> prices = createPriceMap();
+        Map<String, BigDecimal> prices = createPriceMap();
 
-        double usdToSek = getUsdToSekRate();
+        BigDecimal usdToSek = getUsdToSekRate();
 
-        Map<Integer, String> accountTypeById = createAccountTypeById(accounts);
+        Map<Integer, String> accountTypeById =
+                createAccountTypeById(accounts);
 
-        Map<String, Double> typeTotals = new HashMap<>();
-        double grandTotal = 0.0;
+        Map<String, BigDecimal> typeTotals = new HashMap<>();
 
-        for (Map<String, Object> h : holdings) {
-            String ticker = (String) h.get("ticker");
-            String currency = (String) h.get("currency");
-            double qty = ((java.math.BigDecimal) h.get("quantity")).doubleValue();
-            double price = prices.getOrDefault(ticker, 100.0);
-            double valueSek = "USD".equals(currency) ? qty * price * usdToSek : qty * price;
+        BigDecimal grandTotal = BigDecimal.ZERO;
 
-            Integer accId = (Integer) h.get("account_id");
-            String accType = accountTypeById.getOrDefault(accId, "Depa");
-            typeTotals.put(accType, typeTotals.getOrDefault(accType, 0.0) + valueSek);
-            grandTotal += valueSek;
+        for (Map<String, Object> holding : holdings) {
+
+            String ticker =
+                    (String) holding.get("ticker");
+            String currency =
+                    (String) holding.get("currency");
+
+            BigDecimal quantity =
+                    toBigDecimal(holding.get("quantity"));
+
+            BigDecimal price = prices.getOrDefault(ticker, new BigDecimal("100.00"));
+
+            BigDecimal valueSek;
+
+            if ("USD".equals(currency)) {
+                valueSek = quantity
+                        .multiply(price)
+                        .multiply(usdToSek);
+            } else {
+
+                valueSek = quantity.multiply(price);}
+
+            Integer accountId = (Integer) holding.get("account_id");
+
+            String accountType = accountTypeById.getOrDefault(accountId, "Depa");
+
+            BigDecimal currentTotal = typeTotals.getOrDefault(accountType, BigDecimal.ZERO);
+
+            typeTotals.put(accountType, currentTotal.add(valueSek));
+            grandTotal = grandTotal.add(valueSek);
         }
 
-        Map<String, Double> targetMap = new HashMap<>();
-        for (Map<String, Object> t : targets) {
-            targetMap.put((String) t.get("account_type"),
-                    ((java.math.BigDecimal) t.get("target_pct")).doubleValue());
+        Map<String, BigDecimal> targetMap = new HashMap<>();
+        for (Map<String, Object> target : targets) {
+            String accountType = (String) target.get("account_type");
+            BigDecimal targetPct = toBigDecimal(target.get("target_pct"));
+            targetMap.put(accountType, targetPct);
         }
-
         List<Map<String, Object>> liveAlerts = new ArrayList<>();
         for (String accType : new String[]{"ISK", "KF", "Depa"}) {
-            double actual = grandTotal > 0
-                    ? (typeTotals.getOrDefault(accType, 0.0) / grandTotal) * 100.0
-                    : 0.0;
-            double target = targetMap.getOrDefault(accType, 0.0);
-            double drift = Math.abs(actual - target) / 100.0;
 
-            if (drift > DRIFT_THRESHOLD) {
+            BigDecimal actual;
+            if (grandTotal.compareTo(BigDecimal.ZERO) > 0) {
+                actual = typeTotals.getOrDefault(accType, BigDecimal.ZERO).divide(grandTotal, 6, RoundingMode.HALF_UP).multiply(new BigDecimal("100"));
+            } else {
+                actual = BigDecimal.ZERO;
+            }
+            BigDecimal target = targetMap.getOrDefault(accType, BigDecimal.ZERO);
+            BigDecimal drift = actual.subtract(target).abs().divide(new BigDecimal("100"), 6, RoundingMode.HALF_UP);
+            if (drift.compareTo(DRIFT_THRESHOLD) > 0) {
+
                 Map<String, Object> liveAlert = new HashMap<>();
                 liveAlert.put("alert_type", "LIVE_DRIFT");
-                liveAlert.put("message", String.format(
-                        "%s-allokering: faktisk %.1f%% vs mål %.1f%% (avvikelse %.1f%%) — ombalansering rekommenderas",
-                        accType, actual, target, drift * 100));
+                liveAlert.put("message", String.format("%s-allokering: faktisk %.1f%% vs mål %.1f%% (avvikelse %.1f%%) — ombalansering rekommenderas",
+                        accType, actual.doubleValue(), target.doubleValue(), drift.multiply(new BigDecimal("100")).doubleValue()));
                 liveAlert.put("dismissed", false);
                 liveAlert.put("created_at", "Nu");
                 liveAlerts.add(liveAlert);
@@ -114,22 +141,22 @@ public class AlertService {
     }
 
     public int getDriftThresholdPercent(){
-        return (int) (DRIFT_THRESHOLD * 100);
+        return DRIFT_THRESHOLD.multiply(new BigDecimal("100")).intValue();
     }
 
-    private Map<String, Double> createPriceMap() {
+    private Map<String, BigDecimal> createPriceMap() {
 
-        Map<String, Double> prices = new HashMap<>();
-        prices.put("ERIC-B", 74.20);
-        prices.put("VOLV-B", 268.50);
-        prices.put("AAPL", 187.32);
-        prices.put("SWED-A", 193.10);
-        prices.put("SAND", 212.80);
+        Map<String, BigDecimal> prices = new HashMap<>();
+        prices.put("ERIC-B", new BigDecimal("74.20"));
+        prices.put("VOLV-B", new BigDecimal("268.50"));
+        prices.put("AAPL", new BigDecimal("187.32"));
+        prices.put("SWED-A", new BigDecimal("193.10"));
+        prices.put("SAND", new BigDecimal("212.80"));
         return prices;
     }
 
-    private double getUsdToSekRate() {
-        return 10.45;
+    private BigDecimal getUsdToSekRate() {
+        return new BigDecimal("10.45");
     }
 
     private Map<Integer, String> createAccountTypeById(List<Map<String, Object>> accounts) {
@@ -140,5 +167,22 @@ public class AlertService {
                     (String) acc.get("account_type"));
         }
         return accountTypeById;
+    }
+
+    private BigDecimal toBigDecimal(Object value) {
+
+        if (value == null) {
+            return BigDecimal.ZERO;
+        }
+
+        if (value instanceof BigDecimal bigDecimal) {
+            return bigDecimal;
+        }
+
+        if (value instanceof Number number) {
+            return new BigDecimal(number.toString());
+        }
+
+        return new BigDecimal(value.toString());
     }
 }
