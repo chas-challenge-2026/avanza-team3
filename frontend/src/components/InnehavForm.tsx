@@ -1,7 +1,9 @@
-import { Box, MenuItem, TextField, Typography } from "@mui/material";
+import { Box, MenuItem, Paper, TextField, Typography } from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 
 type Currency = "SEK" | "USD" | "EUR" | "";
 
@@ -126,8 +128,9 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
   };
 
   return (
-    <div className={styles.formWrapper}>
+    <Paper className={styles.formWrapper}>
       <div className={styles.titleWrapper}>
+        <FontAwesomeIcon icon={faChartLine} className={styles.icon} />
         <h3>Lägg till innehav</h3>
       </div>
       <Box
@@ -135,8 +138,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
         onSubmit={handleSubmit}
         sx={{
           display: "flex",
-          flexDirection: "column",
-          width: "100%"
+          flexDirection: "column"
         }}
       >
         <TextField
@@ -247,7 +249,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
           {successMessage}
         </Typography>
       )}
-    </div>
+    </Paper>
   );
 };
 export default InnehavsForm;

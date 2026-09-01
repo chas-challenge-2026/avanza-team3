@@ -1,19 +1,27 @@
-/* .formWrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-} */
+.formWrapper {
+  background-color: var(--bg-container);
+}
 
 .titleWrapper {
   background-color: #337ab7;
   border-radius: 5px;
   color: var(--text-white);
-  width: 100%;
   margin: 10px 0 10px 0;
-  padding: 2px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
 }
 
 .successMessage {
   color: #068e6a;
+}
+
+.icon {
+  background: #f9fbfb;
+  color: #7ac0da;
+  padding: 15px;
+  border-radius: 50%;
+  font-size: 20px;
+  flex-shrink: 0;
+  margin: 3px 6px 3px 0;
 }
