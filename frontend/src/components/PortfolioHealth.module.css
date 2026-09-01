@@ -6,9 +6,9 @@
 }
 
 h2 {
-  font-size: var(--font-xl);
-  letter-spacing: 1px;
-  font-weight: 400;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  font-size: var(--font-md);
 }
 
 .arrowIcon {
