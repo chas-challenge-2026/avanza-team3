@@ -12,8 +12,8 @@ public class User {
     private String name;
     private String email;
 
-    @Column(name = "password_md5")
-    private String passwordMd5;
+    @Column(name = "password")
+    private String password;
 
     public int getId() {
         return id;
@@ -39,11 +39,11 @@ public class User {
         this.email = email;
     }
 
-    public String getPasswordMd5() {
-        return passwordMd5;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordMd5(String passwordMd5) {
-        this.passwordMd5 = passwordMd5;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
