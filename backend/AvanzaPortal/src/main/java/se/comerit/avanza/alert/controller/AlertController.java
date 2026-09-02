@@ -1,10 +1,12 @@
 package se.comerit.avanza.alert.controller;
 
+import jakarta.servlet.http.HttpSession;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.comerit.avanza.alert.dto.AlertResponse;
 import se.comerit.avanza.alert.service.AlertService;
-import jakarta.servlet.http.HttpSession;
+
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +21,11 @@ public class AlertController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AlertResponse>> getAlerts(HttpSession session) {
+    public ResponseEntity<Page<AlertResponse>> getAlerts(
+            @RequestParam(defaultValue = "false") boolean dismissed,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            HttpSession session) {
 
         Integer userId = (Integer) session.getAttribute("userId");
 
@@ -27,7 +33,19 @@ public class AlertController {
             return ResponseEntity.status(401).build();
         }
 
-        return ResponseEntity.ok(alertService.getAlertsByUserId(userId));
+        if (page < 0) {
+            page = 0;
+        }
+
+        if (size < 1) {
+            size = 20;
+    }
+
+        size = Math.min(size, 100);
+
+        return ResponseEntity.ok(
+                alertService.getAlertsByUserId(userId, dismissed, page, size)
+        );
     }
 
     @GetMapping("/live")
@@ -42,7 +60,7 @@ public class AlertController {
         return ResponseEntity.ok(alertService.getLiveAlertsByUserId(userId));
     }
 
-    @PatchMapping("/{alertId}/dismiss")
+    @PutMapping("/{alertId}/dismiss")
     public ResponseEntity<Void> dismissAlert(@PathVariable Integer alertId,
                                HttpSession session) {
 
