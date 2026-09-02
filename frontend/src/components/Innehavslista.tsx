@@ -23,28 +23,36 @@ const holdingColumns = [
 
 const InnehavsLista = ({ width }: InnehavsListaProps) => {
   const getPriceStatus = (holding: Holding) => {
-    if (holding.currentPrice > holding.avgBuyPrice) {
+    const deltaPercent = toPercent(holding);
+
+    if (deltaPercent > 0) {
       return "over";
-    } else if (holding.currentPrice < holding.avgBuyPrice) {
+    } else if (deltaPercent < 0) {
       return "under";
     } else {
       return "ok";
     }
   };
 
+  const toPercent = (holding: Holding) => {
+    if (!holding.avgBuyPrice || holding.avgBuyPrice === 0) return 0;
+    const procent =
+      ((holding.currentPrice - holding.avgBuyPrice) / holding.avgBuyPrice) *
+      100;
+    return procent;
+  };
+
   const rowsWithBadgeStatus = holdings.map((holding) => {
     const badgeStatus = getPriceStatus(holding);
+    const deltaPercent = toPercent(holding);
+
     return {
       ...holding,
       currentPrice: badgeStatus,
-      label:
-        badgeStatus === "under"
-          ? "Över köppris"
-          : badgeStatus === "over"
-            ? "Under köppris"
-            : "Lika köppris"
+      label: `${deltaPercent > 0 ? "+" : ""}${deltaPercent.toFixed(1)}%`
     };
   });
+
   return (
     <TableContainer
       component={Paper}
