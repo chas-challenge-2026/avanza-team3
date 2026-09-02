@@ -9,12 +9,12 @@
   border: 2px solid;
 }
 
-.over {
+.under {
   border-color: var(--text-warning);
   color: var(--text-warning);
 }
 
-.under {
+.over {
   border-color: var(--text-green);
   color: var(--text-green);
 }
