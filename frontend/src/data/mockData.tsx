@@ -12,6 +12,7 @@ export type Holding = {
   instrumentName: string;
   quantity: number;
   avgBuyPrice: number;
+  currentPrice: number;
   currency: string;
 };
 
@@ -58,6 +59,7 @@ export const holdings: Holding[] = [
     instrumentName: "Ericsson B",
     quantity: 500,
     avgBuyPrice: 68.5,
+    currentPrice: 70.2,
     currency: "SEK"
   },
   {
@@ -67,6 +69,7 @@ export const holdings: Holding[] = [
     instrumentName: "Volvo B",
     quantity: 100,
     avgBuyPrice: 245.0,
+    currentPrice: 70.2,
     currency: "SEK"
   },
   {
@@ -76,6 +79,7 @@ export const holdings: Holding[] = [
     instrumentName: "Apple Inc",
     quantity: 50,
     avgBuyPrice: 165.0,
+    currentPrice: 170.2,
     currency: "USD"
   },
   {
@@ -85,6 +89,7 @@ export const holdings: Holding[] = [
     instrumentName: "Swedbank A",
     quantity: 200,
     avgBuyPrice: 185.0,
+    currentPrice: 270.2,
     currency: "SEK"
   },
   {
@@ -94,6 +99,7 @@ export const holdings: Holding[] = [
     instrumentName: "Sandvik",
     quantity: 300,
     avgBuyPrice: 205.0,
+    currentPrice: 170.2,
     currency: "SEK"
   }
 ];
