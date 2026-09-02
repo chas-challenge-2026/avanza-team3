@@ -8,7 +8,7 @@ function InnehavPage() {
     <Container className={styles.InnehavPageWrapper}>
       <h1>Innehav</h1>
 
-      <InnehavsLista />
+      <InnehavsLista width="1200px" />
 
       <InnehavsForm />
     </Container>

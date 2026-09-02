@@ -18,8 +18,18 @@ const holdingColumns = [
 
 const InnehavsLista = ({ width }: InnehavsListaProps) => {
   return (
-    <TableContainer component={Paper} sx={{ width: width || "fit-content" }}>
+    <TableContainer
+      component={Paper}
+      sx={{
+        width: "100%",
+        maxWidth: width || 1200,
+        minWidth: 600,
+        overflowX: "auto",
+        tableLayout: "fixed"
+      }}
+    >
       <DataTable
+        width="100%"
         title="Nuvarande innehav"
         rows={holdings}
         columns={holdingColumns}

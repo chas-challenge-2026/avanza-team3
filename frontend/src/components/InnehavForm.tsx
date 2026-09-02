@@ -4,7 +4,6 @@ import styles from "./InnehavForm.module.css";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
-import { width } from "@fortawesome/free-solid-svg-icons/fa0";
 
 type Currency = "SEK" | "USD" | "EUR" | "";
 
@@ -249,18 +248,18 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
           <MenuItem value="USD">USD</MenuItem>
           <MenuItem value="EUR">EUR</MenuItem>
         </TextField>
+        <AppButton type="submit" variant="contained" disabled={isSubmitting}>
+          {isSubmitting ? "Lägger till..." : "Lägg till"}
+        </AppButton>
+        {successMessage && (
+          <Typography
+            sx={{ fontWeight: 800, m: "auto" }}
+            className={styles.successMessage}
+          >
+            {successMessage}
+          </Typography>
+        )}
       </Box>
-      <AppButton type="submit" variant="contained" disabled={isSubmitting}>
-        {isSubmitting ? "Lägger till..." : "Lägg till"}
-      </AppButton>
-      {successMessage && (
-        <Typography
-          sx={{ fontWeight: 800, m: "auto" }}
-          className={styles.successMessage}
-        >
-          {successMessage}
-        </Typography>
-      )}
     </Paper>
   );
 };
