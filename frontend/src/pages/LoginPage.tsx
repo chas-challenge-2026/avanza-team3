@@ -11,10 +11,15 @@ function LoginPage(){
       }
     
       return (
-        <section className={styles.loginContainer}>
-                <h1>Logga in</h1>
-                <LoginForm />
-        </section>
+        <main className={styles.loginPage}>
+            <header className={styles.loginHeader}>
+                <span>AVANZA</span>
+                <h1>Portföljhälsa</h1>
+                <p>Få koll på din portfölj, risk och utveckling.</p>
+            </header>
+
+            <LoginForm />
+        </main>
       );
     }
 
