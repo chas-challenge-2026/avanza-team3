@@ -17,4 +17,10 @@ public interface HoldingRepository extends JpaRepository<Holding, Integer> {
     Optional<Holding> findByIdAndAccountUserId(Integer holdingId, Integer userId);
 
     Page<Holding> findByAccountUserId(Integer userId, Pageable pageable);
+
+    Page<Holding> findByAccountIdAndAccountUserId(
+            Integer accountId,
+            Integer userId,
+            Pageable pageable
+    );
 }

@@ -7,9 +7,6 @@ import java.math.BigDecimal;
 
 public record HoldingRequest(
 
-        @NotNull
-        Integer accountId,
-
         @NotBlank
         @Size(max = 20)
         String ticker,
