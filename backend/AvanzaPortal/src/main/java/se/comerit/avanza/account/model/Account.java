@@ -15,13 +15,13 @@ public class Account {
     @Column(name = "user_id", nullable = false)
     private Integer userId;
 
-    @Column(name = "account_type")
+    @Column(name = "account_type", length = 10)
     private String accountType;
 
-    @Column(name = "account_name")
+    @Column(name = "account_name", length = 100)
     private String accountName;
 
-    @Column(name = "currency", nullable = false)
+    @Column(name = "currency", length = 3)
     private String currency = "SEK";
 
 
