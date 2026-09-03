@@ -4,16 +4,16 @@
 
 static int validate(const double *values, int length, double risk_free_rate, int periods_per_year, const RiskResult *out)
 {
-    if (values == NULL || out == NULL)      return RISK_ERR_NULL;
-    if (length < MIN_NUMBER_OF_ELEMENTS)    return RISK_ERR_TOO_SHORT;
+    if (values == NULL || out == NULL)      return RISK_ERROR_NULL;
+    if (length < MIN_NUMBER_OF_ELEMENTS)    return RISK_ERROR_TOO_SHORT;
     if (periods_per_year < 1 ||
-        periods_per_year >= 366)            return RISK_ERR_BAD_PERIODS;
+        periods_per_year >= 366)            return RISK_ERROR_BAD_PERIODS;
     if (!isfinite(risk_free_rate) ||
-        risk_free_rate <= -1.0)             return RISK_ERR_BAD_RATE;
+        risk_free_rate <= -1.0)             return RISK_ERROR_BAD_RATE;
     for (int i = 0; i < length; i++)
     {
         if (!isfinite(values[i]) || 
-            values[i] <= 0.0)               return RISK_ERR_INVALID_VALUE;
+            values[i] <= 0.0)               return RISK_ERROR_INVALID_VALUE;
     }
 
     return RISK_OK;
