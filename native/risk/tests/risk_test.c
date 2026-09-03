@@ -60,7 +60,7 @@ void test_err_if_values_null(void)
     RiskResult r;
     int res = risk_compute(NULL, 3, 0.2, 252, &r);
 
-    TEST_ASSERT_EQUAL(RISK_ERR_NULL, res);
+    TEST_ASSERT_EQUAL(RISK_ERROR_NULL, res);
 }
 
 void test_err_if_riskresult_null(void)
@@ -68,7 +68,7 @@ void test_err_if_riskresult_null(void)
     double values[] = { 1, 2, 3, 4, 5 };
     int res = risk_compute(values, 5, 0.5, 253, NULL);
 
-    TEST_ASSERT_EQUAL(RISK_ERR_NULL, res);
+    TEST_ASSERT_EQUAL(RISK_ERROR_NULL, res);
 }
 
 void test_err_if_length_short(void)
@@ -77,7 +77,7 @@ void test_err_if_length_short(void)
     RiskResult r;
     int res = risk_compute(values, 2, 0.02, 200, &r);
 
-    TEST_ASSERT_EQUAL(RISK_ERR_TOO_SHORT, res);
+    TEST_ASSERT_EQUAL(RISK_ERROR_TOO_SHORT, res);
 }
 
 void test_err_if_length_negative(void)
@@ -86,7 +86,7 @@ void test_err_if_length_negative(void)
     RiskResult r;
     int res = risk_compute(values, -1, 0.02, 200, &r);
 
-    TEST_ASSERT_EQUAL(RISK_ERR_TOO_SHORT, res);
+    TEST_ASSERT_EQUAL(RISK_ERROR_TOO_SHORT, res);
 }
 
 void test_err_if_periods_short(void)
@@ -95,7 +95,7 @@ void test_err_if_periods_short(void)
     RiskResult r;
     int res = risk_compute(values, 5, 0.01, 0, &r);
 
-    TEST_ASSERT_EQUAL(RISK_ERR_BAD_PERIODS, res);
+    TEST_ASSERT_EQUAL(RISK_ERROR_BAD_PERIODS, res);
 }
 
 void test_err_if_periods_long(void)
@@ -105,8 +105,8 @@ void test_err_if_periods_long(void)
     int res1 = risk_compute(values, 5, 0.01, 366, &r);
     int res2 = risk_compute(values, 5, 0.01, 499, &r);
 
-    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERR_BAD_PERIODS, res1, "366 failed");
-    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERR_BAD_PERIODS, res2, "499 failed");
+    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERROR_BAD_PERIODS, res1, "366 failed");
+    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERROR_BAD_PERIODS, res2, "499 failed");
 }
 
 void test_err_if_periods_negative(void)
@@ -115,7 +115,7 @@ void test_err_if_periods_negative(void)
     RiskResult r;
     int res = risk_compute(values, 5, 0.01, -3, &r);
 
-    TEST_ASSERT_EQUAL(RISK_ERR_BAD_PERIODS, res);
+    TEST_ASSERT_EQUAL(RISK_ERROR_BAD_PERIODS, res);
 }
 
 void test_err_if_rate_bad(void)
@@ -125,8 +125,8 @@ void test_err_if_rate_bad(void)
     int res1 = risk_compute(values, 5, -2, 232, &r);
     int res2 = risk_compute(values, 5, NAN, 231, &r);
 
-    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERR_BAD_RATE, res1, "-2 failed");
-    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERR_BAD_RATE, res2, "NaN failed");
+    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERROR_BAD_RATE, res1, "-2 failed");
+    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERROR_BAD_RATE, res2, "NaN failed");
 }
 
 void test_err_if_rate_minus_one(void)
@@ -135,7 +135,7 @@ void test_err_if_rate_minus_one(void)
     RiskResult r;
     int res = risk_compute(values, 5, -1.0, 252, &r);
 
-    TEST_ASSERT_EQUAL(RISK_ERR_BAD_RATE, res);
+    TEST_ASSERT_EQUAL(RISK_ERROR_BAD_RATE, res);
 }
 
 void test_err_if_rate_infinite(void)
@@ -145,8 +145,8 @@ void test_err_if_rate_infinite(void)
     int res1 = risk_compute(values, 5, INFINITY, 252, &r);
     int res2 = risk_compute(values, 5, -INFINITY, 252, &r);
 
-    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERR_BAD_RATE, res1, "+inf failed");
-    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERR_BAD_RATE, res2, "-inf failed");
+    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERROR_BAD_RATE, res1, "+inf failed");
+    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERROR_BAD_RATE, res2, "-inf failed");
 }
 
 void test_err_if_invalid_value(void)
@@ -157,8 +157,8 @@ void test_err_if_invalid_value(void)
     int res1 = risk_compute(values1, 5, 1.2, 222, &r);
     int res2 = risk_compute(values2, 5, 1.2, 222, &r);
 
-    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERR_INVALID_VALUE, res1, "-4 failed");
-    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERR_INVALID_VALUE, res2, "NaN failed");
+    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERROR_INVALID_VALUE, res1, "-4 failed");
+    TEST_ASSERT_EQUAL_MESSAGE(RISK_ERROR_INVALID_VALUE, res2, "NaN failed");
 }
 
 void test_err_if_value_zero(void)
@@ -167,7 +167,7 @@ void test_err_if_value_zero(void)
     RiskResult r;
     int res = risk_compute(values, 5, 0.02, 252, &r);
 
-    TEST_ASSERT_EQUAL(RISK_ERR_INVALID_VALUE, res);
+    TEST_ASSERT_EQUAL(RISK_ERROR_INVALID_VALUE, res);
 }
 
 void test_err_if_value_infinite(void)
@@ -176,7 +176,7 @@ void test_err_if_value_infinite(void)
     RiskResult r;
     int res = risk_compute(values, 5, 0.02, 252, &r);
 
-    TEST_ASSERT_EQUAL(RISK_ERR_INVALID_VALUE, res);
+    TEST_ASSERT_EQUAL(RISK_ERROR_INVALID_VALUE, res);
 }
 
 void test_err_volatility_and_sharpe_known_values(void)
