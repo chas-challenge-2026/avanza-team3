@@ -7,10 +7,12 @@
 - Language: C
 - Build tool: CMake
 
+```
 cd native/risk
 cmake -S . -B build -G Ninja
 cmake --build build
 ctest --test-dir build -V
+```
 
 ---
 
@@ -51,14 +53,14 @@ The function used by Java looks like this:
 One of the following values will be returned by risk_compute(). 
 Here is what each value means:
 
-| Value | Name                     | Meaning                                           |
-|-------|--------------------------|---------------------------------------------------|
-| `0`   | `RISK_OK`                | All outputs valid.                                |
-| `+1`  | `RISK_ERR_NULL`          | `values` or `out` is NULL                         |
-| `+2`  | `RISK_ERR_TOO_SHORT`     | `length < 3`                                      |
-| `+3`  | `RISK_ERR_BAD_RATE`      | `risk_free_rate` is NaN, infinite, or `<= -1.0`.  |
-| `+4`  | `RISK_ERR_BAD_PERIODS`   | `periods_per_year < 1`                            |
-| `+5`  | `RISK_ERR_INVALID_VALUE` | `values[i]` is NaN, infinite or `<= 0.0`          |
+| Value | Name                       | Meaning                                           |
+|-------|----------------------------|---------------------------------------------------|
+| `0`   | `RISK_OK`                  | All outputs valid.                                |
+| `+1`  | `RISK_ERROR_NULL`          | `values` or `out` is NULL                         |
+| `+2`  | `RISK_ERROR_TOO_SHORT`     | `length < 3`                                      |
+| `+3`  | `RISK_ERROR_BAD_RATE`      | `risk_free_rate` is NaN, infinite, or `<= -1.0`.  |
+| `+4`  | `RISK_ERROR_BAD_PERIODS`   | `periods_per_year < 1`                            |
+| `+5`  | `RISK_ERROR_INVALID_VALUE` | `values[i]` is NaN, infinite or `<= 0.0`          |
 
 ---
 
