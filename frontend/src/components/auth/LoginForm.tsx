@@ -2,6 +2,7 @@ import { useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import styles from "./LoginForm.module.css"
+import Button from "@mui/material/Button";
 
 function LoginForm(){
     const [email, setEmail] = useState("");
@@ -21,8 +22,7 @@ function LoginForm(){
         try {
             await login({ email, password });
             navigate("/");
-          } catch (err) {
-            console.log("error in loginform: ", err);
+          } catch {
             setError("Fel e-post eller lösenord");
           } finally {
             setLoading(false);
@@ -31,17 +31,37 @@ function LoginForm(){
 
     return (
         <form className={styles.loginForm} onSubmit={handleSubmit}>
-            <label>Email
-                <input type="email" name="email" autoComplete="email" required value={email} placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
+            <h3>Logga in</h3>
+            <label>E-post
+                <input 
+                type="email"
+                name="email"
+                autoComplete="email"
+                placeholder="din.mail@domän.se"
+                required 
+                value={email}
+                aria-invalid={error !== ''}
+                aria-describedby={error ? "login-error" : undefined}
+                onChange={(e) => setEmail(e.target.value)} />
             </label>
 
             <label>Lösenord
-                <input type="password" name="password" autoComplete="current-password" required value={password} placeholder="Lösenord" onChange={(e) => setPassword(e.target.value)} />
+                <input 
+                type="password"
+                name="password"
+                autoComplete="current-password"
+                required 
+                placeholder="Ange ditt lösenord"
+                value={password}
+                aria-invalid={error !== ''}
+                aria-describedby={error ? "login-error" : undefined}
+                onChange={(e) => setPassword(e.target.value)}
+                 />
             </label>
-            {error && <p>{error}</p>}
-            <button type="submit" disabled={loading}>
+            {error && <p className={styles.error} id="login-error" role="alert">{error}</p>}
+            <Button type="submit" disabled={loading} variant="contained" fullWidth>
                 {loading ? "Loggar in..." : "Logga in"}
-            </button>
+            </Button>
         </form>
     )
 }
