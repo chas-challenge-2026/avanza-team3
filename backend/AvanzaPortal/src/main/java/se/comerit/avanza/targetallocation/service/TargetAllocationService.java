@@ -1,8 +1,13 @@
 package se.comerit.avanza.targetallocation.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import se.comerit.avanza.targetallocation.dto.TargetAllocationResponse;
 import se.comerit.avanza.targetallocation.model.TargetAllocation;
 import se.comerit.avanza.targetallocation.repository.TargetAllocationRepository;
 
@@ -20,10 +25,25 @@ public class TargetAllocationService {
         this.targetAllocationRepository = targetAllocationRepository;
     }
 
+    @Transactional(readOnly = true)
+    public Page<TargetAllocationResponse> getTargetAllocationsByUserId(
+            Integer userId,
+            int page,
+            int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return targetAllocationRepository
+                .findByUserIdOrderByAccountTypeAsc(userId, pageable)
+                .map(this::toTargetAllocationResponse);
+    }
+
+    @Transactional(readOnly = true)
     public List<TargetAllocation> getTargetAllocationsByUserId(Integer userId) {
         return targetAllocationRepository.findByUserIdOrderByAccountTypeAsc(userId);
     }
 
+    @Transactional(readOnly = true)
     public TargetAllocation getTargetAllocationByIdForUser(Integer targetAllocationId, Integer userId) {
         return targetAllocationRepository.findByIdAndUserId(targetAllocationId, userId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -32,6 +52,7 @@ public class TargetAllocationService {
                 ));
     }
 
+    @Transactional(readOnly = true)
     public List<Map<String, Object>> getTargetMapsByUserId(Integer userId) {
         List<Map<String, Object>> result = new ArrayList<>();
 
@@ -45,5 +66,13 @@ public class TargetAllocationService {
         }
 
         return result;
+    }
+
+    private TargetAllocationResponse toTargetAllocationResponse(TargetAllocation targetAllocation) {
+        return new TargetAllocationResponse(
+                targetAllocation.getId(),
+                targetAllocation.getAccountType(),
+                targetAllocation.getTargetPct()
+        );
     }
 }
