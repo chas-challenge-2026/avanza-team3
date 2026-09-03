@@ -17,19 +17,19 @@ public class TargetAllocation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     private Integer userId;
 
-    @Column(name = "account_type", nullable = false)
+    @Column(name = "account_type", length = 10)
     private String accountType;
 
-    @Column(name = "target_pct", nullable = false)
-    private Double targetPct;
+    @Column(name = "target_pct", precision = 5, scale = 2)
+    private BigDecimal targetPct;
 
     protected TargetAllocation() {
     }
 
-    public TargetAllocation(Integer userId, String accountType, Double targetPct) {
+    public TargetAllocation(Integer userId, String accountType, BigDecimal targetPct) {
         this.userId = userId;
         this.accountType = accountType;
         this.targetPct = targetPct;
@@ -55,11 +55,11 @@ public class TargetAllocation {
         this.accountType = accountType;
     }
 
-    public Double getTargetPct() {
+    public BigDecimal getTargetPct() {
         return targetPct;
     }
 
-    public void setTargetPct(Double targetPct) {
+    public void setTargetPct(BigDecimal targetPct) {
         this.targetPct = targetPct;
     }
 }
