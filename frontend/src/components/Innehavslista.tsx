@@ -14,7 +14,7 @@ const holdingColumns = [
   { field: "avgBuyPrice", headerName: "Köppris" },
   {
     field: "currentPrice",
-    headerName: "Aktuellt värde",
+    headerName: "Aktuellt pris",
     isBadge: true
   },
   { field: "currency", headerName: "Valuta" },
@@ -22,19 +22,20 @@ const holdingColumns = [
 ];
 
 const InnehavsLista = ({ width }: InnehavsListaProps) => {
-  const getPriceStatus = (holding: Holding) => {
-    const deltaPercent = toPercent(holding);
+  const getReturnStatus = (holding: Holding) => {
+    // avkastning i procent
+    const returnPercent = calculateReturnPercent(holding);
 
-    if (deltaPercent > 0) {
+    if (returnPercent > 0) {
       return "over";
-    } else if (deltaPercent < 0) {
+    } else if (returnPercent < 0) {
       return "under";
     } else {
       return "ok";
     }
   };
 
-  const toPercent = (holding: Holding) => {
+  const calculateReturnPercent = (holding: Holding) => {
     if (!holding.avgBuyPrice || holding.avgBuyPrice === 0) return 0;
     const procent =
       ((holding.currentPrice - holding.avgBuyPrice) / holding.avgBuyPrice) *
@@ -43,13 +44,20 @@ const InnehavsLista = ({ width }: InnehavsListaProps) => {
   };
 
   const rowsWithBadgeStatus = holdings.map((holding) => {
-    const badgeStatus = getPriceStatus(holding);
-    const deltaPercent = toPercent(holding);
+    const badgeStatus = getReturnStatus(holding);
+    const returnPercent = calculateReturnPercent(holding);
+
+    // akutuellt värde
+    const currentValue = holding.currentPrice * holding.quantity;
+    // investerat värde
+    const investedValue = holding.avgBuyPrice * holding.quantity;
+    // avkastning
+    const profit = currentValue - investedValue;
 
     return {
       ...holding,
       currentPrice: badgeStatus,
-      label: `${deltaPercent > 0 ? "+" : ""}${deltaPercent.toFixed(1)}%`
+      label: `${returnPercent > 0 ? "+" : ""}${returnPercent.toFixed(1)}%`
     };
   });
 
