@@ -1,10 +1,51 @@
 .loginForm {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 20px;
+  background-color: var(--bg-container);
+
+  width: 100%;
+  max-width: 425px;
+
+  border-radius: 16px;
+  padding: 40px;
+
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
+.loginForm h3 {
+  font-size: var(--font-xl);
+  text-align: center;
+}
+
 .loginForm label {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  font-size: var(--font-lg);
+  font-weight: 600;
+}
+
+.loginForm input:focus {
+  outline: 2px solid var(--text-green);
+  outline-offset: 2px;
+  border-color: transparent;
+}
+
+.loginForm button {
+  background-color: var(--bg-green);
+  padding: 18px;
+  font-size: var(--font-lg);
+  margin-top: 12px;
+  text-transform: none;
+}
+
+.loginForm input {
+  width: 100%;
+  padding: 16px 14px;
+  font-size: var(--font-md);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.error {
+  color: var(--text-error);
 }
