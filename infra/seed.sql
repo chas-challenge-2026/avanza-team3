@@ -2,7 +2,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100),
     email VARCHAR(100) UNIQUE,
-    password_md5 VARCHAR(32)
+    password_hash VARCHAR(100)
 );
 
 CREATE TABLE accounts (
@@ -40,10 +40,10 @@ CREATE TABLE alerts (
 );
 
 -- Seed users
--- password: password123  →  md5: 482c811da5d5b4bc6d497ffa98491e38
-INSERT INTO users (name, email, password_md5) VALUES
-('Anna Lindqvist', 'anna@example.com', '482c811da5d5b4bc6d497ffa98491e38'),
-('Erik Johansson', 'erik@example.com', '482c811da5d5b4bc6d497ffa98491e38');
+-- password: password123  →  bcrypt: $2y$10$vb7QdzuTR07MtqNjngvG3udHGi9MiEvrNzvOWRJGmRDPG8mUsAZtK
+INSERT INTO users (name, email, password_hash) VALUES
+('Anna Lindqvist', 'anna@example.com', '$2y$10$vb7QdzuTR07MtqNjngvG3udHGi9MiEvrNzvOWRJGmRDPG8mUsAZtK'),
+('Erik Johansson', 'erik@example.com', '$2y$10$vb7QdzuTR07MtqNjngvG3udHGi9MiEvrNzvOWRJGmRDPG8mUsAZtK');
 
 INSERT INTO accounts (user_id, account_type, account_name) VALUES
 (1, 'ISK', 'Anna ISK'),
