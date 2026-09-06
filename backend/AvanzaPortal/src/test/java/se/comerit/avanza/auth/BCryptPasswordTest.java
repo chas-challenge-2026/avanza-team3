@@ -23,4 +23,15 @@ class BCryptPasswordTest {
 
         assertFalse(encoder.matches("wrong-password", hash));
     }
+
+    @Test
+    void samePasswordProducesDifferentHashes() {
+        String firstHash = encoder.encode("password123");
+        String secondHash = encoder.encode("password123");
+
+        assertFalse(firstHash.equals(secondHash));
+
+        assertTrue(encoder.matches("password123", firstHash));
+        assertTrue(encoder.matches("password123",secondHash));
+    }
 }

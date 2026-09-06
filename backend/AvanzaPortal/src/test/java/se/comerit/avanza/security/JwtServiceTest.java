@@ -41,7 +41,7 @@ class JwtServiceTest {
         assertFalse(jwtService.isTokenValid(manipulatedToken));
     }
 
-    @Test 
+    @Test
     void expiredTokenIsInvalid() {
         ReflectionTestUtils.setField(jwtService, "expirationTimeMs", -1_000L);
 
@@ -55,4 +55,17 @@ class JwtServiceTest {
         assertFalse(jwtService.isTokenValid("not-a-jwt-token"));
     }
 
+    @Test
+    void tokenSignedWithDifferentSecretIsInvalid() {
+        String token = jwtService.generateToken("test@example.com", 1);
+
+        JwtService serviceWithOtherSecret = new JwtService();
+
+        ReflectionTestUtils.setField(serviceWithOtherSecret, "secretKeyString",
+                "different-secret-key-with-at-least-32-characters");
+
+        ReflectionTestUtils.setField(serviceWithOtherSecret, "expirationTimeMs", 86_400_000L);
+
+        assertFalse(serviceWithOtherSecret.isTokenValid(token));
+    }
 }
