@@ -17,18 +17,14 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String password;
 
-    public User() {
+    protected User() {
     }
-
-    
 
     public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
     }
-
-
 
     public Integer getId() {
         return id;
