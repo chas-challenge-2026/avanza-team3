@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -101,6 +102,54 @@ class JwtAuthenticationFilterTest {
         assertNull(SecurityContextHolder
                 .getContext()
                 .getAuthentication());
+
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void tokenWithoutBearerPrefixIsIgnored() throws ServletException, IOException{
+
+        JwtAuthenticationFilter filter =  new JwtAuthenticationFilter(jwtService);
+        
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        request.addHeader("Authorization", "Invalid valid-token");
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        assertNull(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication());
+        
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void existingAuthenticationIsNotOverwritten() throws ServletException, IOException {
+
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService);
+
+        Authentication existingAuthentication = new UsernamePasswordAuthenticationToken(
+                "existing@example.com",
+                null,
+                java.util.Collections.emptyList());
+        
+        SecurityContextHolder.getContext()
+                .setAuthentication(existingAuthentication);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        request.addHeader("Authorization", "Bearer valid-token");
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        Authentication result = SecurityContextHolder.getContext().getAuthentication();
+
+        assertEquals("existing@example.com", result.getPrincipal());
 
         verify(filterChain).doFilter(request, response);
     }
