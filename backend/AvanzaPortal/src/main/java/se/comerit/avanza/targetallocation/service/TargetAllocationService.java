@@ -1,5 +1,6 @@
 package se.comerit.avanza.targetallocation.service;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ public class TargetAllocationService {
         this.targetAllocationRepository = targetAllocationRepository;
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Transactional(readOnly = true)
     public Page<TargetAllocationResponse> getTargetAllocationsByUserId(
             Integer userId,
@@ -38,11 +40,13 @@ public class TargetAllocationService {
                 .map(this::toTargetAllocationResponse);
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Transactional(readOnly = true)
     public List<TargetAllocation> getTargetAllocationsByUserId(Integer userId) {
         return targetAllocationRepository.findByUserIdOrderByAccountTypeAsc(userId);
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Transactional(readOnly = true)
     public TargetAllocation getTargetAllocationByIdForUser(Integer targetAllocationId, Integer userId) {
         return targetAllocationRepository.findByIdAndUserId(targetAllocationId, userId)
@@ -52,6 +56,7 @@ public class TargetAllocationService {
                 ));
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getTargetMapsByUserId(Integer userId) {
         List<Map<String, Object>> result = new ArrayList<>();
