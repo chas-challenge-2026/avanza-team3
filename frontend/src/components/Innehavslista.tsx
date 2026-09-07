@@ -1,27 +1,50 @@
 import DataTable from "./DataTable";
 import { holdings, type Holding } from "../data/mockData";
-import { Paper, TableContainer } from "@mui/material";
+import { Button, Paper, TableContainer } from "@mui/material";
+import { useState } from "react";
 
 type InnehavsListaProps = {
   width?: string;
 };
 
-const holdingColumns = [
-  { field: "id", headerName: "ID" },
-  { field: "ticker", headerName: "Ticker" },
-  { field: "instrumentName", headerName: "Instrument" },
-  { field: "quantity", headerName: "Mängd" },
-  { field: "avgBuyPrice", headerName: "Köppris" },
-  {
-    field: "currentPrice",
-    headerName: "Aktuellt pris",
-    isBadge: true
-  },
-  { field: "currency", headerName: "Valuta" },
-  { field: "accountId", headerName: "Konto ID" }
-];
-
 const InnehavsLista = ({ width }: InnehavsListaProps) => {
+  const [currentHoldings, setCurrentHoldings] = useState(holdings);
+
+  const holdingColumns = [
+    { field: "id", headerName: "ID" },
+    { field: "ticker", headerName: "Ticker" },
+    { field: "instrumentName", headerName: "Instrument" },
+    { field: "quantity", headerName: "Mängd" },
+    { field: "avgBuyPrice", headerName: "Köppris" },
+    {
+      field: "currentPrice",
+      headerName: "Aktuellt pris",
+      isBadge: true
+    },
+    { field: "currency", headerName: "Valuta" },
+    { field: "accountId", headerName: "Konto ID" },
+    {
+      field: "actions",
+      headerName: "Åtgärder",
+      render: (row: Holding) => (
+        <Button
+          variant="outlined"
+          color="error"
+          size="small"
+          onClick={() => handleDelete(row.id)}
+        >
+          Ta bort
+        </Button>
+      )
+    }
+  ];
+
+  const handleDelete = (id: number) => {
+    setCurrentHoldings((previousHoldings) =>
+      previousHoldings.filter((holding) => holding.id !== id)
+    );
+  };
+
   const getReturnStatus = (holding: Holding) => {
     // avkastning i procent
     const returnPercent = calculateReturnPercent(holding);
@@ -43,7 +66,7 @@ const InnehavsLista = ({ width }: InnehavsListaProps) => {
     return procent;
   };
 
-  const rowsWithBadgeStatus = holdings.map((holding) => {
+  const rowsWithBadgeStatus = currentHoldings.map((holding) => {
     const badgeStatus = getReturnStatus(holding);
     const returnPercent = calculateReturnPercent(holding);
 
