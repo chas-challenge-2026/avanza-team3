@@ -17,6 +17,15 @@
   --text-error: #d0184d;
   --text-warning: #d66707;
 
+  /* Semantic aliases (used by page/layout CSS modules) */
+  --primary: var(--bg-green);
+  --foreground: var(--text-primary);
+  --muted-foreground: var(--text-gray);
+  --background: var(--bg-primary);
+  --secondary: #f1f4f3;
+  --border: #e5e7eb;
+  --positive: var(--text-green);
+
   --font-xs: 0.75rem; /* 12px */
   --font-sm: 0.875rem; /* 14px */
   --font-md: 1rem; /* 16px */

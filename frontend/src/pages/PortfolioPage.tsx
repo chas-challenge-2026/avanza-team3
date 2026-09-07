@@ -13,7 +13,7 @@ import CurrencyExposure from "../components/CurrencyExposure";
 function PortfolioPage() {
   return (
     <div className={styles.container}>
-      <div className={styles.row1}>
+      <div className={styles.titleRow}>
         <div className={styles.iconTitle}>
           <FontAwesomeIcon icon={faBriefcase} className={styles.icon} />
           <div className={styles.titleText}>
@@ -23,15 +23,17 @@ function PortfolioPage() {
             </h3>
           </div>
         </div>
+      </div>
 
-        <AppCard>
+      <AppCard>
+        <div className={styles.kpiCard}>
           <div className={styles.header}>
             <FontAwesomeIcon icon={faChartLine} className={styles.icon} />
             <p className={styles.label}>Totalt värde (SEK)</p>
           </div>
           <p className={styles.value}>712 567 kr</p>
-        </AppCard>
-      </div>
+        </div>
+      </AppCard>
 
       <div className={styles.row2}>
         <AllocationChart />

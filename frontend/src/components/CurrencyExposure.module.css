@@ -3,8 +3,12 @@
 }
 
 .currencyHeader h3 {
-  margin: 0;
-  font-size: 1.5rem;
+  margin: 0 0 4px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
 }
 
 .currencyHeader p {
@@ -16,7 +20,7 @@
 .currencyBar {
   display: flex;
   width: 100%;
-  height: 90px;
+  height: 50px;
   overflow: hidden;
   border-radius: 12px;
   margin-bottom: 1.5rem;
@@ -32,7 +36,7 @@
 }
 
 .currencySegment strong {
-  font-size: 1.5rem;
+  font-size: 1rem;
 }
 
 .currencySegment span {
@@ -51,39 +55,46 @@
   background-color: var(--text-blue);
 }
 
-.currencyTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 0.5rem;
+.gbp {
+  background-color: #7c5cfc;
 }
 
-.currencyTable th {
-  text-align: left;
-  padding: 0.75rem 1rem;
+.jpy {
+  background-color: #9ca3af;
+}
+
+.currencyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.currencyCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background-color: var(--bg-container);
+}
+
+.currencyValue {
+  font-size: 0.8125rem;
   color: var(--text-gray);
-  font-size: 0.8rem;
-  font-weight: 700;
-  border-bottom: 1px solid #e5e7eb;
+  margin: 0;
 }
 
-.currencyTable td {
-  padding: 1rem;
-  border-bottom: 1px solid #eeeeee;
-  vertical-align: middle;
-}
-
-.currencyTable tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.currencyTable tbody tr:hover {
-  background: #f8faf9;
-}
-
-.currencyInfo {
+.currencyCardTop {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.currencyPercentage {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--foreground);
 }
 
 .currencyIcon {
@@ -95,7 +106,7 @@
   align-items: center;
   justify-content: center;
 
-  border-radius: 8px;
+  border-radius: 50%;
   color: white;
   font-weight: 700;
   font-size: 1rem;
@@ -114,27 +125,4 @@
 .currencyText span {
   font-size: 0.8rem;
   color: var(--text-gray);
-}
-
-.percentageCell {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.percentageCell strong {
-  width: 42px;
-}
-
-.progressTrack {
-  width: 100px;
-  height: 6px;
-  background: #e5e7eb;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress {
-  height: 100%;
-  border-radius: 999px;
 }
