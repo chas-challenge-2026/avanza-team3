@@ -1,61 +1,45 @@
 package se.comerit.avanza.auth.controller;
 
-import java.util.Optional;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import java.util.Map;
 
-import se.comerit.avanza.auth.model.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import se.comerit.avanza.auth.dto.LoginRequest;
 import se.comerit.avanza.auth.service.AuthService;
 
-@Controller
+@RestController
+@RequestMapping("/api/auth")
 public class AuthController {
 
-    private AuthService authService;
+    private final AuthService authService;
 
-    @GetMapping("/login")
-    public String loginPage(HttpSession session, Model model) {
-        // If already logged in, go home
-        if (session.getAttribute("userId") != null) {
-            return "redirect:/";
-        }
-        return "login";
+    AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/login")
-    public String doLogin(@RequestParam String email,
-            @RequestParam String password,
-            HttpSession session,
-            Model model) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        String token = authService.authenticateAndGenerateToken(request.getEmail(), request.getPassword());
 
-        Optional<User> userOpt = authService.authenticate(email, password, model);
-
-        if (userOpt.isEmpty()) {
-            model.addAttribute("error", "Fel e-post eller lösenord.");
-            return "login";
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Fel e-post eller lösenord."));
         }
 
-        User user = userOpt.get();
-        Integer userId = user.getId();
-        String userName = user.getName();
-
-        // Store user info in session
-        session.setAttribute("userId", userId);
-        session.setAttribute("userName", userName);
-        session.setAttribute("userEmail", email);
-        // tenantId is just userId for now, multi-tenant is future work
-        session.setAttribute("tenantId", userId);
-
-        return "redirect:/";
+        return ResponseEntity.ok(Map.of(
+                "token", token,
+                "tokenType", "Bearer"));
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/login";
+    @DeleteMapping("/logout")
+    public ResponseEntity<?> logout() {
+        return ResponseEntity.ok(Map.of("message", "Utloggning lyckades."));
     }
 
 }
