@@ -10,13 +10,9 @@
   box-sizing: border-box;
 }
 
-/* ── Page header row (title + total value card) ─────────── */
-.row1 {
+/* ── Page header ─────────────────────────────────────── */
+.titleRow {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
   padding-bottom: 4px;
 }
 
@@ -52,12 +48,19 @@
   font-weight: 400;
 }
 
-/* ── Total value KPI card ─────────────────────────────────── */
+/* ── Total value KPI card (full-width strip) ───────────────── */
+.kpiCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
 .header {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 8px;
   color: var(--muted-foreground);
   font-size: 0.8125rem;
   text-transform: uppercase;
@@ -105,9 +108,10 @@
     grid-template-columns: 1fr;
   }
 
-  .row1 {
-    flex-direction: column;
+  .kpiCard {
     align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .value {

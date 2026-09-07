@@ -8,6 +8,11 @@
   border-right: 1px solid var(--border);
   font-family: "Roboto";
   font-weight: 400;
+  position: sticky;
+  top: 60px;
+  align-self: flex-start;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
 }
 
 .sidebarSection {
