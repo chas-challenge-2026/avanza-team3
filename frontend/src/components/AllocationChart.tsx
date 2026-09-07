@@ -4,10 +4,10 @@ import styles from "./AllocationChart.module.css";
 import AppCard from "./AppCard";
 
 const data = [
-  { label: "Aktier", value: 400, color: "#3B5FCB" },
-  { label: "Fonder", value: 300, color: "#7C5CFC" },
-  { label: "Ränteb", value: 300, color: "#E8952F" },
-  { label: "Övrigt", value: 100, color: "#9CA3AF" },
+  { label: "Aktier", value: 400, color: "#3E73B3" },
+  { label: "Fonder", value: 300, color: "#2D8F73" },
+  { label: "Ränteb", value: 300, color: "#63C9C5" },
+  { label: "Övrigt", value: 100, color: "#D9D9D9" },
 ];
 
 const total = data.reduce((sum, item) => sum + item.value, 0);
