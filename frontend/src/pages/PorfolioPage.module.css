@@ -1,123 +1,122 @@
+/* Root container for the portfolio page content (rendered inside BaseLayout's <main>) */
 .container {
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  max-width: 1300px;
+  gap: 20px;
+  padding: 32px 36px 40px;
+  width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 32px 40px;
+  box-sizing: border-box;
 }
 
+/* ── Page header row (title + total value card) ─────────── */
 .row1 {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 24px;
+  gap: 20px;
   flex-wrap: wrap;
-}
-
-.row2,
-.row3 {
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  gap: 24px;
-}
-
-.row2 > *,
-.row3 > * {
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-.row3 > *:first-child {
-  flex: 2 1 0;
-}
-.row3 > *:last-child {
-  flex: 1 1 0;
-}
-
-.row4 {
-  display: flex;
-  width: 100%;
+  padding-bottom: 4px;
 }
 
 .iconTitle {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  align-items: flex-start;
+  gap: 14px;
 }
 
 .icon {
-  background: #e6f4ef;
-  color: #0a8f5c;
-  padding: 15px;
-  border-radius: 50%;
-  font-size: 20px;
-  flex-shrink: 0;
+  color: var(--primary);
+}
+
+.titleText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .titleText h1 {
-  font-size: var(--font-2xl);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--foreground);
   margin: 0;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
 }
 
 .label {
-  color: #6b7280;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  margin: 0;
   font-weight: 400;
-  margin: 4px 0 0;
-  font-size: 14px;
 }
 
-.value {
-  font-size: 30px;
-  font-weight: 700;
-  margin: 4px 0 0;
-}
-
+/* ── Total value KPI card ─────────────────────────────────── */
 .header {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 6px;
+  margin-bottom: 8px;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-@media (max-width: 900px) {
+.value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+/* ── Content rows ─────────────────────────────────────────── */
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.row3 {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.row4 {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 1024px) {
   .container {
-    padding: 24px 20px;
-    gap: 24px;
+    padding: 24px 24px 36px;
+    gap: 16px;
   }
 
   .row2,
   .row3 {
-    flex-direction: column;
-  }
-
-  .row3 > *:first-child,
-  .row3 > *:last-child {
-    flex: 1 1 auto;
-  }
-}
-
-@media (max-width: 600px) {
-  .container {
-    padding: 16px;
-    gap: 20px;
+    grid-template-columns: 1fr;
   }
 
   .row1 {
     flex-direction: column;
-    align-items: stretch;
-  }
-
-  .titleText h1 {
-    font-size: 22px;
+    align-items: flex-start;
   }
 
   .value {
-    font-size: 24px;
+    font-size: 1.375rem;
   }
+}
 
-  .icon {
-    padding: 12px;
-    font-size: 16px;
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
   }
 }
