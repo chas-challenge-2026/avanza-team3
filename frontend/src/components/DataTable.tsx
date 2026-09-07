@@ -34,7 +34,9 @@ const DataTable = ({ title, rows, columns, width }: DataTableProps) => {
             <TableRow key={row.id}>
               {columns.map((col) => (
                 <TableCell key={col.field}>
-                  {col.isBadge ? (
+                  {col.render ? (
+                    col.render(row)
+                  ) : col.isBadge ? (
                     <Badge variant={row[col.field].toLowerCase()}>
                       {row.label}
                     </Badge>
