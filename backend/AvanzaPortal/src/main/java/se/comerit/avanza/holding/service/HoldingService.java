@@ -1,5 +1,6 @@
 package se.comerit.avanza.holding.service;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,7 @@ public class HoldingService {
         this.accountService = accountService;
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Cacheable(value = "holdingsByUser", key = "#userId")
     @Transactional
     public List<Map<String, Object>> getHoldingsByUserId(Integer userId) {
@@ -73,6 +75,7 @@ public class HoldingService {
         return result;
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Transactional
     @Cacheable(value = "holdingsByUser", key = "#userId + '-' + #page + '-' + #size")
     public Page<Map<String, Object>> getHoldingsByUserId(Integer userId, int page, int size) {
@@ -139,10 +142,12 @@ public class HoldingService {
         });
     }
 
+    @PreAuthorize("#userId == authentication.details")
     public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
         return accountService.getAccountMapsByUserId(userId);
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Transactional
     @CacheEvict(value = "holdingsByUser", allEntries = true)
     public void addHolding(Integer userId, Integer accountId, String ticker, String instrumentName, BigDecimal quantity, BigDecimal avgBuyPrice, String currency) {
@@ -161,6 +166,7 @@ public class HoldingService {
         holdingRepository.save(holding);
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Transactional
     @CacheEvict(value = "holdingsByUser", allEntries = true)
     public void deleteHolding(Integer holdingId, Integer userId)
