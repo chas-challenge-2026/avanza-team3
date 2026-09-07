@@ -13,6 +13,7 @@ import AppButton from "./AppButton";
 const Sidebar = () => {
   return (
     <aside className={styles.sidebar}>
+      <p className={styles.sidebarSection}>Meny</p>
       <nav>
         <NavLink to="/">
           <FontAwesomeIcon icon={faChartPie} /> Överblick

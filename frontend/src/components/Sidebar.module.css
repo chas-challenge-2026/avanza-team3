@@ -1,34 +1,55 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  padding: 2rem 0rem;
-  width: 190px;
-  background-color: var(--bg-green);
+  width: 210px;
+  flex-shrink: 0;
+  padding: 20px 12px 24px;
+  background-color: #ffffff;
+  border-right: 1px solid var(--border);
   font-family: "Roboto";
   font-weight: 400;
+}
+
+.sidebarSection {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+  padding: 0 10px;
+  margin: 4px 0 8px;
 }
 
 .sidebar nav {
   display: flex;
   flex-direction: column;
   margin-bottom: 1rem;
-  padding-left: 0.2rem;
+  gap: 2px;
 }
 
 .sidebar nav a {
-  color: rgb(227, 238, 223);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted-foreground);
   font-size: var(--font-sm);
   text-decoration: none;
-  padding: 8px;
-  margin: 10px;
-  border-radius: 5px;
-  transition: background-color 0.2s;
-  letter-spacing: 0.8px;
+  padding: 9px 10px;
+  border-radius: 7px;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
 }
 
 .sidebar nav a:hover {
-  color: rgb(34, 94, 34);
-  background-color: rgb(255, 255, 255);
+  color: var(--foreground);
+  background-color: var(--secondary);
+}
+
+.sidebar nav a:global(.active) {
+  color: var(--primary);
+  background-color: rgba(6, 142, 106, 0.08);
+  font-weight: 600;
 }
 
 .loginButton {
@@ -47,6 +68,13 @@
     position: fixed;
     bottom: 0;
     left: 0;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    z-index: 40;
+  }
+
+  .sidebarSection {
+    display: none;
   }
 
   .sidebar nav {
