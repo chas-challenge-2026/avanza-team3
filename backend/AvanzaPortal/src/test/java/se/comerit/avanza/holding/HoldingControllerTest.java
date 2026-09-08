@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,16 +39,18 @@ class HoldingControllerTest {
     }
 
     @Test
-    void listHoldingsShouldReturnUnauthorizedWithoutSessionUser() throws Exception {
-        mockMvc.perform(get("/api/holdings"))
-                .andExpect(status().isUnauthorized());
+    void listHoldingsShouldUseAuthenticatedUser() throws Exception {
+        when(holdingService.getHoldingsByUserId(7, 0, 20)).thenReturn(Page.empty());
 
-        verifyNoInteractions(holdingService);
+        mockMvc.perform(get("/api/holdings")
+                        .principal(authenticationForUser(7)))
+                .andExpect(status().isOk());
+
+        verify(holdingService).getHoldingsByUserId(7, 0, 20);
     }
 
     @Test
     void addHoldingShouldReturnCreatedAndPassSessionUserToService() throws Exception {
-        MockHttpSession session = sessionForUser(7);
         String body = """
                 {
                   "accountId": 11,
@@ -60,7 +63,7 @@ class HoldingControllerTest {
                 """;
 
         mockMvc.perform(post("/api/holdings")
-                        .session(session)
+                        .principal(authenticationForUser(7))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated());
@@ -75,7 +78,6 @@ class HoldingControllerTest {
 
     @Test
     void addHoldingShouldRejectInvalidRequestBeforeCallingService() throws Exception {
-        MockHttpSession session = sessionForUser(7);
         String body = """
                 {
                   "accountId": 11,
@@ -88,7 +90,7 @@ class HoldingControllerTest {
                 """;
 
         mockMvc.perform(post("/api/holdings")
-                        .session(session)
+                        .principal(authenticationForUser(7))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest());
@@ -98,9 +100,8 @@ class HoldingControllerTest {
 
     @Test
     void deleteHoldingShouldReturnNoContentAndPassUserIdForOwnershipCheck() throws Exception {
-        MockHttpSession session = sessionForUser(7);
+        mockMvc.perform(delete("/api/holdings/31").principal(authenticationForUser(7)))
 
-        mockMvc.perform(delete("/api/holdings/31").session(session))
                 .andExpect(status().isNoContent());
 
         verify(holdingService).deleteHolding(31, 7);
