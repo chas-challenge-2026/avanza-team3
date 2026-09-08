@@ -47,15 +47,15 @@ class AlertControllerTest {
     }
 
     @Test
-    void getAlertsShouldReturnAlertResponseForSessionUser() throws Exception {
-        MockHttpSession session = sessionForUser(7);
+    void getAlertsShouldReturnAlertResponseForAuthenticatedUser() throws Exception {
+
         AlertResponse response = new AlertResponse(
                 42, "DRIFT", "Rebalance", false,
                 LocalDateTime.of(2026, 9, 1, 10, 0)
         );
         when(alertService.getAlertsByUserId(7)).thenReturn(List.of(response));
 
-        mockMvc.perform(get("/api/alerts").session(session))
+        mockMvc.perform(get("/api/alerts").principal(authenticationForUser(7)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(42))
                 .andExpect(jsonPath("$[0].alertType").value("DRIFT"))
