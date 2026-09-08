@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.comerit.avanza.alert.controller.AlertController;
@@ -14,6 +15,7 @@ import se.comerit.avanza.alert.dto.AlertResponse;
 import se.comerit.avanza.alert.service.AlertService;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
@@ -88,5 +90,15 @@ class AlertControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("userId", userId);
         return session;
+    }
+
+    private UsernamePasswordAuthenticationToken authenticationForUser(Integer userId) {
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "test@example.com",
+                        null,
+                        Collections.emptyList());
+        authentication.setDetails(userId);
+        return authentication;
     }
 }
