@@ -8,11 +8,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.comerit.avanza.holding.controller.HoldingController;
 import se.comerit.avanza.holding.service.HoldingService;
 
+
+import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -107,5 +110,15 @@ class HoldingControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("userId", userId);
         return session;
+    }
+
+    private UsernamePasswordAuthenticationToken authenticationForUser(Integer userId) {
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "test@example.com",
+                        null,
+                        Collections.emptyList());
+        authentication.setDetails(userId);
+        return authentication;
     }
 }
