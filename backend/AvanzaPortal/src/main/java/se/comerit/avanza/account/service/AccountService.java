@@ -1,5 +1,6 @@
 package se.comerit.avanza.account.service;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Transactional
     public Page<AccountResponse> getAccountsByUserId(Integer userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -33,17 +35,20 @@ public class AccountService {
     }
 
     //lämna denna, behövs i backend utan pagination för att nå alla användarens konton, men låt inte frontend nå den. Finns version med pagination.
+    @PreAuthorize("#userId == authentication.details")
     @Transactional
     public List<Account> getAccountsByUserId(Integer userId) {
         return accountRepository.findByUserIdOrderByAccountTypeAscAccountNameAsc(userId);
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Transactional
     public Account getAccountByIdAndUserId(Integer accountId, Integer userId) {
         return accountRepository.findByIdAndUserId(accountId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Transactional
     public List<Map<String, Object>> getAccountMapsByUserId(Integer userId) {
         List<Map<String, Object>> result = new ArrayList<>();

@@ -1,10 +1,11 @@
 package se.comerit.avanza.alert.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import se.comerit.avanza.alert.dto.AlertResponse;
 import se.comerit.avanza.alert.service.AlertService;
-import jakarta.servlet.http.HttpSession;
+
 import java.util.List;
 import java.util.Map;
 
@@ -19,39 +20,22 @@ public class AlertController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AlertResponse>> getAlerts(HttpSession session) {
-
-        Integer userId = (Integer) session.getAttribute("userId");
-
-        if (userId == null) {
-            return ResponseEntity.status(401).build();
-        }
-
+    public ResponseEntity<List<AlertResponse>> getAlerts(Authentication authentication) {
+        Integer userId = (Integer) authentication.getDetails();
         return ResponseEntity.ok(alertService.getAlertsByUserId(userId));
     }
 
     @GetMapping("/live")
-    public ResponseEntity<List<Map<String, Object>>> getLiveAlerts(HttpSession session) {
-
-        Integer userId = (Integer) session.getAttribute("userId");
-
-        if (userId == null) {
-            return ResponseEntity.status(401).build();
-        }
-
+    public ResponseEntity<List<Map<String, Object>>> getLiveAlerts(Authentication authentication) {
+        Integer userId = (Integer) authentication.getDetails();
         return ResponseEntity.ok(alertService.getLiveAlertsByUserId(userId));
     }
 
     @PatchMapping("/{alertId}/dismiss")
     public ResponseEntity<Void> dismissAlert(@PathVariable Integer alertId,
-                               HttpSession session) {
+            Authentication authentication) {
 
-        Integer userId = (Integer) session.getAttribute("userId");
-
-        if (userId == null) {
-            return ResponseEntity.status(401).build();
-        }
-
+        Integer userId = (Integer) authentication.getDetails();
         alertService.dismissAlert(alertId, userId);
 
         return ResponseEntity.noContent().build();
