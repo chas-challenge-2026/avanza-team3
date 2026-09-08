@@ -31,6 +31,9 @@ typedef struct
  * 
  * @return Error code
  */
+#ifdef __cplusplus
+extern "C"
+#endif
 int risk_compute(const double *values, int length, double risk_free_rate, int periods_per_year, RiskResult *out);
 
 #endif // RISK_H
