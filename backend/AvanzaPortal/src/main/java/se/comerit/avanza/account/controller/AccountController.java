@@ -3,6 +3,7 @@ package se.comerit.avanza.account.controller;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,11 +25,10 @@ public class AccountController {
     public ResponseEntity<Page<AccountResponse>> getAccounts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            HttpSession httpSession) {
-        Integer userId = (Integer) httpSession.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401).build();
-        }
+            Authentication authentication) {
+
+        Integer userId = (Integer) authentication.getDetails();
+
         if (page < 0) {
             page = 0;
         }
