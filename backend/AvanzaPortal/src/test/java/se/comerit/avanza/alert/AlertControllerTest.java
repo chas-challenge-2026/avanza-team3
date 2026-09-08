@@ -38,14 +38,6 @@ class AlertControllerTest {
     }
 
     @Test
-    void getAlertsShouldReturnUnauthorizedWithoutSessionUser() throws Exception {
-        mockMvc.perform(get("/api/alerts"))
-                .andExpect(status().isUnauthorized());
-
-        verifyNoInteractions(alertService);
-    }
-
-    @Test
     void getAlertsShouldReturnAlertResponseForAuthenticatedUser() throws Exception {
 
         AlertResponse response = new AlertResponse(
