@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -82,12 +81,6 @@ class AlertControllerTest {
                 .andExpect(content().json("[]"));
 
         verify(alertService).getLiveAlertsByUserId(7);
-    }
-
-    private MockHttpSession sessionForUser(Integer userId) {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute("userId", userId);
-        return session;
     }
 
     private UsernamePasswordAuthenticationToken authenticationForUser(Integer userId) {
