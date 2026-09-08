@@ -66,9 +66,8 @@ class AlertControllerTest {
 
     @Test
     void dismissAlertShouldReturnNoContentAndPassUserIdForIdorCheck() throws Exception {
-        MockHttpSession session = sessionForUser(7);
 
-        mockMvc.perform(patch("/api/alerts/42/dismiss").session(session))
+        mockMvc.perform(patch("/api/alerts/42/dismiss").principal(authenticationForUser(7)))
                 .andExpect(status().isNoContent());
 
         verify(alertService).dismissAlert(42, 7);
@@ -76,10 +75,9 @@ class AlertControllerTest {
 
     @Test
     void getLiveAlertsShouldUseSessionUser() throws Exception {
-        MockHttpSession session = sessionForUser(7);
         when(alertService.getLiveAlertsByUserId(7)).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/alerts/live").session(session))
+        mockMvc.perform(get("/api/alerts/live").principal(authenticationForUser(7)))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
 
