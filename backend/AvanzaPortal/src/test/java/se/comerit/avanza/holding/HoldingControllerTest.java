@@ -7,8 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -40,8 +40,7 @@ class HoldingControllerTest {
 
     @Test
     void listHoldingsShouldUseAuthenticatedUser() throws Exception {
-        when(holdingService.getHoldingsByUserId(7, 0, 20)).thenReturn(Page.empty());
-
+        when(holdingService.getHoldingsByUserId(7, 0, 20)).thenReturn(Page.empty(PageRequest.of(0, 20)));
         mockMvc.perform(get("/api/holdings")
                         .principal(authenticationForUser(7)))
                 .andExpect(status().isOk());
@@ -105,12 +104,6 @@ class HoldingControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(holdingService).deleteHolding(31, 7);
-    }
-
-    private MockHttpSession sessionForUser(Integer userId) {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute("userId", userId);
-        return session;
     }
 
     private UsernamePasswordAuthenticationToken authenticationForUser(Integer userId) {
