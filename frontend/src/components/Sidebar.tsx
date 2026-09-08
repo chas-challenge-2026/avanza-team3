@@ -31,14 +31,6 @@ const Sidebar = () => {
           <FontAwesomeIcon icon={faBell} /> Notiser
         </NavLink>
       </nav>
-
-      {/* <button className={styles.loginButton}>Logga in</button> */}
-      <AppButton
-        sx={{ marginTop: "auto", backgroundColor: "white", color: "black" }}
-        variant="contained"
-      >
-        Logga In
-      </AppButton>
     </aside>
   );
 };
