@@ -18,11 +18,9 @@ import se.comerit.avanza.holding.model.Holding;
 import se.comerit.avanza.holding.repository.HoldingRepository;
 import se.comerit.avanza.market.service.MarketDataService;
 
-import javax.swing.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,20 +88,11 @@ public class HoldingService {
         Page<Holding> holdings =
                 holdingRepository.findByAccountUserId(userId, pageable);
 
-        Map<String, BigDecimal> prices = new HashMap<>();
-        prices.put("ERIC-B", new BigDecimal("74.20"));
-        prices.put("VOLV-B", new BigDecimal("268.50"));
-        prices.put("AAPL", new BigDecimal("187.32"));
-        prices.put("SWED-A", new BigDecimal("193.10"));
-        prices.put("SAND", new BigDecimal("212.80"));
 
         return holdings.map(holding -> {
 
             BigDecimal currentPrice =
-                    prices.getOrDefault(
-                            holding.getTicker(),
-                            BigDecimal.ZERO
-                    );
+                    marketDataService.getPrice(holding.getTicker());
 
             BigDecimal qty =
                     holding.getQuantity() != null
