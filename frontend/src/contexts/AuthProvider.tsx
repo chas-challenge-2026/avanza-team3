@@ -1,10 +1,18 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import AuthContext from "./AuthContext";
 import type { User, LoginCredentials } from "../types/auth";
 import { loginUser, logoutUser, getUser } from "../services/authService";
 
 function AuthProvider ({ children}: {children: ReactNode}) {
-    const [user, setUser] = useState<User | null>(() => getUser());
+    const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+      const loadUser = async () => {
+        const currentUser = await getUser();
+        setUser(currentUser);
+    };
+    loadUser();
+  }, []);
 
     const login = async (
         credentials: LoginCredentials

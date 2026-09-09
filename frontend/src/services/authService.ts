@@ -2,50 +2,36 @@ import type { LoginCredentials, User } from "../types/auth";
 
 const API_URL = "http://localhost:8082/api/auth";
 
-// MOCK STUFF
-// const mockUsers: User[] = [
-//   {
-//     id: 1,
-//     name: "Anna",
-//     email: "anna@example.com",
-//   },
-//   {
-//     id: 2,
-//     name: "Erik",
-//     email: "erik@example.com",
-//   },
-// ];
-
-// const mockPassword = "password";
-
-// export const loginUser = async ( credentials: LoginCredentials ): Promise<User> => {
-
-//   const user = mockUsers.find(
-//     (user) => user.email === credentials.email
-//   );
-
-//   if (!user || credentials.password !== mockPassword) {
-//     throw new Error("Fel e-post eller lösenord");
-//   }
-//     localStorage.setItem("user", JSON.stringify(user));
-
-//     return user;
-// }
-
 export const logoutUser = async (): Promise<void> => {
     localStorage.removeItem("user");
   };
 
-export const getUser = (): User | null => {
-    const storedUser = localStorage.getItem("user");
+  export const getUser = async (): Promise<User | null> => {
+    const token = localStorage.getItem("token");
   
-    if (!storedUser) {
+    if (!token) {
       return null;
     }
   
-    return JSON.parse(storedUser) as User;
+    const response = await fetch(`${API_URL}/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  
+    if (response.status === 401 || response.status === 403) {
+      localStorage.removeItem("token");
+      return null;
+    }
+  
+    if (!response.ok) {
+      throw new Error("Kunde inte hämta användare");
+    }
+  
+    return response.json();
   };
 
+  
   export const loginUser = async (credentials: LoginCredentials) => {
     const response = await fetch(`${API_URL}/login`, {
       method: "POST",
