@@ -1,6 +1,6 @@
 import type { LoginCredentials, User } from "../types/auth";
 
-const API_URL = "http://localhost:8082/api/auth";
+const API_URL = "/api/auth";
 
 export const logoutUser = async (): Promise<void> => {
     localStorage.removeItem("user");
@@ -31,7 +31,7 @@ export const logoutUser = async (): Promise<void> => {
     return response.json();
   };
 
-  
+
   export const loginUser = async (credentials: LoginCredentials) => {
     const response = await fetch(`${API_URL}/login`, {
       method: "POST",
