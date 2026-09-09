@@ -11,5 +11,6 @@ int fxConvert(double amount, const char *from, const char *to, double *outResult
     double toCurrencyValue = 0.10378;
 
     double rate = toCurrencyValue / fromCurrencyValue;
-    *outResult = amount *  rate;
+    *outResult = amount * rate;
+    return 0;
 }
