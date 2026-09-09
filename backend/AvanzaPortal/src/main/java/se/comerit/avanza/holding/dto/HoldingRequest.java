@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 
 public record HoldingRequest(
 
+        //Sen innan all backend slogs ihop. Ska plockas bort
         @NotNull
         Integer accountId,
 
