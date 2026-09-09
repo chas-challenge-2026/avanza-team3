@@ -50,6 +50,22 @@ public class HoldingController {
         return ResponseEntity.status(201).build();
     }
 
+    @PatchMapping("/{holdingId}")
+    public ResponseEntity<Void> updateHolding(@PathVariable("holdingId")
+                                                  Integer holdingId,
+                                              @Valid @RequestBody HoldingRequest request,
+                                              Authentication authentication) {
+        return null;
+    }
+
+
+    @GetMapping("/{holdingId}")
+    public ResponseEntity<Map<String, Object>> getHolding(@PathVariable("holdingId")
+                                                              Integer holdingId,
+                                                          Authentication authentication) {
+        return null;
+    }
+
     @DeleteMapping("/{holdingId}")
     public ResponseEntity<Void> deleteHolding(@PathVariable("holdingId") Integer holdingId,
             Authentication authentication) {
