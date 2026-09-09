@@ -1,6 +1,6 @@
 import DataTable from "./DataTable";
-import { holdings, type Holding } from "../data/mockData";
-import { Button, Paper, TableContainer } from "@mui/material";
+import { type Holding } from "../data/mockData";
+import { Paper, TableContainer } from "@mui/material";
 import type { ReactNode } from "react";
 import AppButton from "./AppButton";
 
