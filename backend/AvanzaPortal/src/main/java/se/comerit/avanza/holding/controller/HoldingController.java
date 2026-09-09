@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import se.comerit.avanza.holding.dto.HoldingRequest;
+import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.service.HoldingService;
 
 import java.util.Map;
@@ -60,10 +61,11 @@ public class HoldingController {
 
 
     @GetMapping("/{holdingId}")
-    public ResponseEntity<Map<String, Object>> getHolding(@PathVariable("holdingId")
+    public ResponseEntity<HoldingResponse> getHolding(@PathVariable("holdingId")
                                                               Integer holdingId,
-                                                          Authentication authentication) {
-        return null;
+                                                      Authentication authentication) {
+        Integer userId = (Integer) authentication.getDetails();
+        return ResponseEntity.ok(holdingService.getHoldingById(holdingId, userId));
     }
 
     @DeleteMapping("/{holdingId}")
