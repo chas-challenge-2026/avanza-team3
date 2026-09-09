@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import se.comerit.avanza.account.service.AccountService;
+import se.comerit.avanza.holding.dto.HoldingPatchRequest;
 import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.model.Holding;
 import se.comerit.avanza.holding.repository.HoldingRepository;
@@ -154,9 +155,29 @@ public class HoldingService {
 
     @PreAuthorize("#userId == authentication.details")
     @Transactional
-    public Holding updateHolding(Integer holdingId, Integer userId, Holding holding) {
+    public HoldingResponse updateHolding(Integer holdingId, Integer userId, HoldingPatchRequest request) {
+        Holding holding = getOwnedHolding(holdingId, userId);
 
-        return null;
+        if (request.ticker() != null) {
+            holding.setTicker(request.ticker());
+        }
+        if (request.instrumentName() != null) {
+            holding.setInstrumentName(request.instrumentName());
+        }
+        if (request.quantity() != null) {
+            holding.setQuantity(request.quantity());
+        }
+        if (request.avgBuyPrice() != null) {
+            holding.setAvgBuyPrice(request.avgBuyPrice());
+        }
+        if (request.currency() != null) {
+            holding.setCurrency(request.currency());
+        }
+
+        Holding updatedHolding = holdingRepository.save(holding);
+        return toHoldingResponse(updatedHolding);
+
+
     }
 
     @PreAuthorize("#userId == authentication.details")
