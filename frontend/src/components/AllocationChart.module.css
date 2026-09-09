@@ -17,6 +17,9 @@
 
 h2 {
   margin-bottom: 0rem;
-  font-weight: 500;
-  font-size: var(--font-md);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
 }

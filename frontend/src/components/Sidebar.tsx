@@ -13,6 +13,7 @@ import AppButton from "./AppButton";
 const Sidebar = () => {
   return (
     <aside className={styles.sidebar}>
+      <p className={styles.sidebarSection}>Meny</p>
       <nav>
         <NavLink to="/">
           <FontAwesomeIcon icon={faChartPie} /> Överblick
@@ -30,14 +31,6 @@ const Sidebar = () => {
           <FontAwesomeIcon icon={faBell} /> Notiser
         </NavLink>
       </nav>
-
-      {/* <button className={styles.loginButton}>Logga in</button> */}
-      <AppButton
-        sx={{ marginTop: "auto", backgroundColor: "white", color: "black" }}
-        variant="contained"
-      >
-        Logga In
-      </AppButton>
     </aside>
   );
 };

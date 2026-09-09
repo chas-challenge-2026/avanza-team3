@@ -6,21 +6,33 @@ function CurrencyExposure(){
     const mockCurrencyExposure = [
         {
           currency: "SEK",
-          name: "Svensk krona",
-          percentage: 65,
-          value: 160875,
+          name: "Svenska kronor",
+          percentage: 48,
+          value: 342032,
         },
         {
           currency: "USD",
-          name: "Amerikansk dollar",
-          percentage: 25,
-          value: 61875,
+          name: "Amerikanska dollar",
+          percentage: 31,
+          value: 220896,
         },
         {
           currency: "EUR",
           name: "Euro",
-          percentage: 10,
-          value: 24750,
+          percentage: 13,
+          value: 92634,
+        },
+        {
+          currency: "GBP",
+          name: "Brittiska pund",
+          percentage: 5,
+          value: 35628,
+        },
+        {
+          currency: "JPY",
+          name: "Japanska yen",
+          percentage: 3,
+          value: 21377,
         },
       ];
 
@@ -48,51 +60,33 @@ function CurrencyExposure(){
                 ))}
             </div>  
 
-            <table className={styles.currencyTable}>
-  <thead>
-    <tr>
-      <th>Valuta</th>
-      <th>Värde</th>
-      <th>Procent av totala</th>
-    </tr>
-  </thead>
+            <div className={styles.currencyGrid}>
+              {mockCurrencyExposure.map((item) => (
+                <div key={item.currency} className={styles.currencyCard}>
+                  <div className={styles.currencyCardTop}>
+                    <div
+                      className={`${styles.currencyIcon} ${
+                        styles[item.currency.toLowerCase()]
+                      }`}
+                    >
+                      {item.currency.slice(0, 2)}
+                    </div>
+                    <span className={styles.currencyPercentage}>
+                      {item.percentage}%
+                    </span>
+                  </div>
 
-  <tbody>
-    {mockCurrencyExposure.map((item) => (
-      <tr key={item.currency}>
-        <td>
-          <div className={styles.currencyInfo}>
-            <div className={`${styles.currencyIcon} ${styles[item.currency.toLowerCase()]}`}>
-              {item.currency === "SEK" ? "kr" : item.currency === "USD" ? "$" : "€"}
+                  <div className={styles.currencyText}>
+                    <strong>{item.currency}</strong>
+                    <span>{item.name}</span>
+                  </div>
+
+                  <p className={styles.currencyValue}>
+                    {item.value.toLocaleString("sv-SE")} kr
+                  </p>
+                </div>
+              ))}
             </div>
-
-            <div className={styles.currencyText}>
-              <strong>{item.currency}</strong>
-              <span>{item.name}</span>
-            </div>
-          </div>
-        </td>
-
-        <td>
-          {item.value.toLocaleString("sv-SE")} SEK
-        </td>
-
-        <td>
-          <div className={styles.percentageCell}>
-            <strong>{item.percentage}%</strong>
-
-            <div className={styles.progressTrack}>
-              <div
-                className={`${styles.progress} ${styles[item.currency.toLowerCase()]}`}
-                style={{ width: `${item.percentage}%` }}
-              />
-            </div>
-          </div>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
         </AppCard>
       );
 

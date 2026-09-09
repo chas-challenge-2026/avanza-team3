@@ -18,20 +18,44 @@ const DataTable = ({ title, rows, columns, width }: DataTableProps) => {
   return (
     <TableContainer
       component={Paper}
-      sx={{ width: width || "fit-content", padding: 3 }}
+      elevation={0}
+      sx={{
+        width: width || "100%",
+        padding: 3,
+        borderRadius: "12px",
+        border: "1px solid var(--border)",
+      }}
     >
       <h2>{title}</h2>
       <Table size="small">
         <TableHead>
-          <TableRow sx={{ backgroundColor: "#dae0dd" }}>
+          <TableRow sx={{ backgroundColor: "var(--secondary)" }}>
             {columns.map((col) => (
-              <TableCell key={col.field}>{col.headerName}</TableCell>
+              <TableCell
+                key={col.field}
+                sx={{
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  color: "var(--muted-foreground)",
+                  borderBottom: "1px solid var(--border)",
+                }}
+              >
+                {col.headerName}
+              </TableCell>
             ))}
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row) => (
-            <TableRow key={row.id}>
+            <TableRow
+              key={row.id}
+              sx={{
+                "&:hover": { backgroundColor: "#f8faf9" },
+                "&:last-child td": { borderBottom: "none" },
+              }}
+            >
               {columns.map((col) => (
                 <TableCell key={col.field}>
                   {col.render ? (

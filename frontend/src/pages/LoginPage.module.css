@@ -1,9 +1,33 @@
-.loginContainer {
+.loginPage {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+  gap: 50px;
+  padding-top: 10vh;
+  background-color: var(--bg-primary);
+}
+
+.loginHeader {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 10px;
-  padding-top: 20vh;
+}
+
+.loginHeader span {
+  color: var(--text-green);
+  font-size: var(--font-lg);
+  font-weight: 800;
+}
+.loginHeader h1 {
+  color: var(--text-primary);
+  font-size: var(--font-3xl);
+}
+
+.loginHeader p {
+  color: var(--text-gray);
+  font-weight: 700;
 }
