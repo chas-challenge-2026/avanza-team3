@@ -16,6 +16,7 @@ import se.comerit.avanza.holding.dto.HoldingPatchRequest;
 import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.model.Holding;
 import se.comerit.avanza.holding.repository.HoldingRepository;
+import se.comerit.avanza.market.service.MarketDataService;
 
 import javax.swing.*;
 import java.math.BigDecimal;
@@ -31,10 +32,12 @@ public class HoldingService {
 
     private final HoldingRepository holdingRepository;
     private final AccountService accountService;
+    private final MarketDataService marketDataService;
 
-    public HoldingService(HoldingRepository holdingRepository, AccountService accountService) {
+    public HoldingService(HoldingRepository holdingRepository, AccountService accountService, MarketDataService marketDataService) {
         this.holdingRepository = holdingRepository;
         this.accountService = accountService;
+        this.marketDataService = marketDataService;
     }
 
     @PreAuthorize("#userId == authentication.details")
@@ -44,16 +47,9 @@ public class HoldingService {
 
         List<Holding> holdings = holdingRepository.findByAccountUserIdOrderByAccountAccountTypeAscTickerAsc(userId);
 
-        Map<String, BigDecimal> prices = new HashMap<>();
-        prices.put("ERIC-B", new BigDecimal("74.20"));
-        prices.put("VOLV-B", new BigDecimal("268.50"));
-        prices.put("AAPL", new BigDecimal("187.32"));
-        prices.put("SWED-A", new BigDecimal("193.10"));
-        prices.put("SAND", new BigDecimal("212.80"));
-
         List<Map<String, Object>> result = new ArrayList<>();
         for (Holding holding : holdings) {
-            BigDecimal currentPrice = prices.getOrDefault(holding.getTicker(), BigDecimal.ZERO);
+            BigDecimal currentPrice = marketDataService.getPrice(holding.getTicker());
             BigDecimal qty = holding.getQuantity() != null ? holding.getQuantity() : BigDecimal.ZERO;
             BigDecimal avgBuy = holding.getAvgBuyPrice() != null ? holding.getAvgBuyPrice() : BigDecimal.ZERO;
             BigDecimal marketValue = qty.multiply(currentPrice);
