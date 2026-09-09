@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import se.comerit.avanza.holding.dto.HoldingPatchRequest;
 import se.comerit.avanza.holding.dto.HoldingRequest;
 import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.service.HoldingService;
@@ -52,11 +53,12 @@ public class HoldingController {
     }
 
     @PatchMapping("/{holdingId}")
-    public ResponseEntity<Void> updateHolding(@PathVariable("holdingId")
+    public ResponseEntity<HoldingResponse> updateHolding(@PathVariable("holdingId")
                                                   Integer holdingId,
-                                              @Valid @RequestBody HoldingRequest request,
-                                              Authentication authentication) {
-        return null;
+                                              @Valid @RequestBody HoldingPatchRequest request,
+                                                         Authentication authentication) {
+        Integer userId = (Integer) authentication.getDetails();
+        return ResponseEntity.ok(holdingService.updateHolding(holdingId, userId, request));
     }
 
 
