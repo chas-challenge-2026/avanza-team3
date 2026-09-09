@@ -31,7 +31,7 @@ function PortfolioPage() {
             <FontAwesomeIcon icon={faChartLine} className={styles.icon} />
             <p className={styles.label}>Totalt värde (SEK)</p>
           </div>
-          <p className={styles.value}>712 567 kr</p>
+          <p className={styles.value}>712 568 kr</p>
         </div>
       </AppCard>
 

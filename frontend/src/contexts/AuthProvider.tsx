@@ -17,8 +17,15 @@ function AuthProvider ({ children}: {children: ReactNode}) {
     const login = async (
         credentials: LoginCredentials
       ): Promise<User> => {
-        const loggedInUser = await loginUser(credentials);
+       await loginUser(credentials);
       
+       const loggedInUser = await getUser();
+
+       console.log("loggedInUser from /me:", loggedInUser);
+
+       if (!loggedInUser) {
+        throw new Error("Kunde inte hämta användaren.");
+      }
         setUser(loggedInUser);
       
         return loggedInUser;
