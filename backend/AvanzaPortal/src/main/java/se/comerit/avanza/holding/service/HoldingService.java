@@ -142,10 +142,14 @@ public class HoldingService {
         });
     }
 
+    @PreAuthorize("#userId == authentication.details")
+    @Transactional
     public Holding getHoldingById(Integer userId, Integer holdingId) {
         return null;
     }
 
+    @PreAuthorize("#userId == authentication.details")
+    @Transactional
     public Holding updateHolding(Integer holdingId, Integer userId, Holding holding) {
 
         return null;
