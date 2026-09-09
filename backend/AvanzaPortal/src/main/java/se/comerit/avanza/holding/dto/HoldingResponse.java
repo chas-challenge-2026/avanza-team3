@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 public record HoldingResponse(
         Integer id,
         Integer accountId,
-        String Ticker,
+        String ticker,
         String instrumentName,
         BigDecimal quantity,
         BigDecimal avgBuyPrice,
