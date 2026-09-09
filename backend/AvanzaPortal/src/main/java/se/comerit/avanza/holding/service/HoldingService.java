@@ -148,7 +148,7 @@ public class HoldingService {
 
     @PreAuthorize("#userId == authentication.details")
     @Transactional
-    public HoldingResponse getHoldingById(Integer userId, Integer holdingId) {
+    public HoldingResponse getHoldingById(Integer holdingId, Integer userId) {
         Holding holding = getOwnedHolding(holdingId, userId);
         return toHoldingResponse(holding);
     }
