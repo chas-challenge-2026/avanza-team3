@@ -1,4 +1,5 @@
 #include "fx.hpp"
+#include <curl/curl.h>
 
 int fxConvert(double amount, const char *from, const char *to, double *outResult)
 {
@@ -13,4 +14,9 @@ int fxConvert(double amount, const char *from, const char *to, double *outResult
     double rate = toCurrencyValue / fromCurrencyValue;
     *outResult = amount * rate;
     return 0;
+}
+
+int main()
+{
+
 }
