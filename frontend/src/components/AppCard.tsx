@@ -18,6 +18,9 @@ const AppCard = ({ children, variant, sx, width }: AppCardProps) => {
         marginBottom: 0,
         width,
         overflow: "visible",
+        borderRadius: "12px",
+        border: "1px solid var(--border)",
+        boxShadow: "none",
         ...sx,
       }}
       variant={variant}
