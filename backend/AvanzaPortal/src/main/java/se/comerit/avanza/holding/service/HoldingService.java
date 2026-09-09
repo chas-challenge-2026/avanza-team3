@@ -1,5 +1,6 @@
 package se.comerit.avanza.holding.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -9,7 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import se.comerit.avanza.account.service.AccountService;
+import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.model.Holding;
 import se.comerit.avanza.holding.repository.HoldingRepository;
 
@@ -144,8 +147,9 @@ public class HoldingService {
 
     @PreAuthorize("#userId == authentication.details")
     @Transactional
-    public Holding getHoldingById(Integer userId, Integer holdingId) {
-        return null;
+    public HoldingResponse getHoldingById(Integer userId, Integer holdingId) {
+        Holding holding = getOwnedHolding(holdingId, userId);
+        return toHoldingResponse(holding);
     }
 
     @PreAuthorize("#userId == authentication.details")
@@ -188,5 +192,22 @@ public class HoldingService {
                 .findByIdAndAccountUserId(holdingId, userId)
                         .orElseThrow(() -> new IllegalArgumentException("Holding not Found"));
         holdingRepository.delete(holdingToDelete);
+    }
+
+    private HoldingResponse toHoldingResponse(Holding holding) {
+        return new HoldingResponse(
+                holding.getId(),
+                holding.getAccountId(),
+                holding.getTicker(),
+                holding.getInstrumentName(),
+                holding.getQuantity(),
+                holding.getAvgBuyPrice(),
+                holding.getCurrency()
+        );
+    }
+
+    private Holding getOwnedHolding(Integer holdingId, Integer userId) {
+        return holdingRepository.findByIdAndAccountUserId(holdingId, userId)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Holding not found"));
     }
 }

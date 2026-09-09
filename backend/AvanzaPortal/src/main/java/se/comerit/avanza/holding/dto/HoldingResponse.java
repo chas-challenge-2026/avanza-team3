@@ -9,10 +9,10 @@ public record HoldingResponse(
         String instrumentName,
         BigDecimal quantity,
         BigDecimal avgBuyPrice,
-        String currency,
-        BigDecimal currentPrice,
-        BigDecimal marketValueSek,
-        BigDecimal pnlSek,
-        BigDecimal pnlPct
+        String currency
+//        BigDecimal currentPrice,
+//        BigDecimal marketValueSek,
+//        BigDecimal pnlSek,
+//        BigDecimal pnlPct
 ) {
 }
