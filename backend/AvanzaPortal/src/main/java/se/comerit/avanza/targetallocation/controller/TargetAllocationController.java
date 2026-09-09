@@ -1,9 +1,9 @@
 package se.comerit.avanza.targetallocation.controller;
 
 
-import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,12 +25,9 @@ public class TargetAllocationController {
     public ResponseEntity<Page<TargetAllocationResponse>> getTargetAllocations(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            HttpSession session) {
-        Integer userId = (Integer) session.getAttribute("userId");
+            Authentication authentication) {
 
-        if (userId == null) {
-            return ResponseEntity.status(401).build();
-        }
+        Integer userId = (Integer) authentication.getDetails();
 
         if (page < 0) {
             page = 0;

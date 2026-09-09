@@ -1,5 +1,6 @@
 package se.comerit.avanza.alert.service;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.comerit.avanza.account.service.AccountService;
@@ -34,14 +35,17 @@ public class AlertService {
         this.targetAllocationService = targetAllocationService;
     }
 
+    @PreAuthorize("#userId == authentication.details")
     public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
         return accountService.getAccountMapsByUserId(userId);
     }
 
+    @PreAuthorize("#userId == authentication.details")
     public List<Map<String, Object>> getHoldingsForAlertByUserId(Integer userId) {
         return holdingService.getHoldingsByUserId(userId);
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Transactional
     public List<AlertResponse> getAlertsByUserId(Integer userId) {
 
@@ -58,16 +62,19 @@ public class AlertService {
                 .toList();
     }
 
+    @PreAuthorize("#userId == authentication.details")
     public List<Map<String, Object>> getTargetByUserId(Integer userId) {
         return targetAllocationService.getTargetMapsByUserId(userId);
     }
 
+    @PreAuthorize("#userId == authentication.details")
     @Transactional
     public void dismissAlert(Integer alertId, Integer userId) {
         Alert alert = alertRepository.findByIdAndUserId(alertId, userId).orElseThrow(() -> new IllegalArgumentException("Alert not found"));
-            alert.setDismissed(true);
+        alert.setDismissed(true);
     }
 
+    @PreAuthorize("#userId == authentication.details")
     public List<Map<String, Object>> getLiveAlertsByUserId(Integer userId) {
         List<Map<String, Object>> accounts =
                 accountService.getAccountMapsByUserId(userId);

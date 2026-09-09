@@ -6,13 +6,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.comerit.avanza.holding.controller.HoldingController;
 import se.comerit.avanza.holding.service.HoldingService;
 
+
+import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -35,16 +39,17 @@ class HoldingControllerTest {
     }
 
     @Test
-    void listHoldingsShouldReturnUnauthorizedWithoutSessionUser() throws Exception {
-        mockMvc.perform(get("/api/holdings"))
-                .andExpect(status().isUnauthorized());
+    void listHoldingsShouldUseAuthenticatedUser() throws Exception {
+        when(holdingService.getHoldingsByUserId(7, 0, 20)).thenReturn(Page.empty(PageRequest.of(0, 20)));
+        mockMvc.perform(get("/api/holdings")
+                        .principal(authenticationForUser(7)))
+                .andExpect(status().isOk());
 
-        verifyNoInteractions(holdingService);
+        verify(holdingService).getHoldingsByUserId(7, 0, 20);
     }
 
     @Test
     void addHoldingShouldReturnCreatedAndPassSessionUserToService() throws Exception {
-        MockHttpSession session = sessionForUser(7);
         String body = """
                 {
                   "accountId": 11,
@@ -57,7 +62,7 @@ class HoldingControllerTest {
                 """;
 
         mockMvc.perform(post("/api/holdings")
-                        .session(session)
+                        .principal(authenticationForUser(7))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated());
@@ -72,7 +77,6 @@ class HoldingControllerTest {
 
     @Test
     void addHoldingShouldRejectInvalidRequestBeforeCallingService() throws Exception {
-        MockHttpSession session = sessionForUser(7);
         String body = """
                 {
                   "accountId": 11,
@@ -85,7 +89,7 @@ class HoldingControllerTest {
                 """;
 
         mockMvc.perform(post("/api/holdings")
-                        .session(session)
+                        .principal(authenticationForUser(7))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest());
@@ -95,17 +99,20 @@ class HoldingControllerTest {
 
     @Test
     void deleteHoldingShouldReturnNoContentAndPassUserIdForOwnershipCheck() throws Exception {
-        MockHttpSession session = sessionForUser(7);
+        mockMvc.perform(delete("/api/holdings/31").principal(authenticationForUser(7)))
 
-        mockMvc.perform(delete("/api/holdings/31").session(session))
                 .andExpect(status().isNoContent());
 
         verify(holdingService).deleteHolding(31, 7);
     }
 
-    private MockHttpSession sessionForUser(Integer userId) {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute("userId", userId);
-        return session;
+    private UsernamePasswordAuthenticationToken authenticationForUser(Integer userId) {
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "test@example.com",
+                        null,
+                        Collections.emptyList());
+        authentication.setDetails(userId);
+        return authentication;
     }
 }
