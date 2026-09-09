@@ -45,37 +45,9 @@ public class HoldingService {
 
         List<Holding> holdings = holdingRepository.findByAccountUserIdOrderByAccountAccountTypeAscTickerAsc(userId);
 
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (Holding holding : holdings) {
-            BigDecimal currentPrice = marketDataService.getPrice(holding.getTicker());
-            BigDecimal qty = holding.getQuantity() != null ? holding.getQuantity() : BigDecimal.ZERO;
-            BigDecimal avgBuy = holding.getAvgBuyPrice() != null ? holding.getAvgBuyPrice() : BigDecimal.ZERO;
-            BigDecimal marketValue = qty.multiply(currentPrice);
-            BigDecimal costBasis = qty.multiply(avgBuy);
-            BigDecimal pnl = marketValue.subtract(costBasis);
-            BigDecimal pnlPct = costBasis.compareTo(BigDecimal.ZERO) > 0
-                    ? pnl.divide(costBasis, 6, RoundingMode.HALF_UP)
-                    .multiply(new BigDecimal("100"))
-                    : BigDecimal.ZERO;
-
-            Map<String, Object> h = new LinkedHashMap<>();
-            h.put("id", holding.getId());
-            h.put("account_id", holding.getAccountId());
-            h.put("ticker", holding.getTicker());
-            h.put("instrument_name", holding.getInstrumentName());
-            h.put("quantity", holding.getQuantity());
-            h.put("avg_buy_price", holding.getAvgBuyPrice());
-            h.put("currency", holding.getCurrency());
-            h.put("account_type", holding.getAccount().getAccountType());
-            h.put("account_name", holding.getAccount().getAccountName());
-            h.put("currentPrice", currentPrice.setScale(2, RoundingMode.HALF_UP));
-            h.put("marketValue", marketValue.setScale(2, RoundingMode.HALF_UP));
-            h.put("pnl", pnl.setScale(2, RoundingMode.HALF_UP));
-            h.put("pnlPct", pnlPct.setScale(2, RoundingMode.HALF_UP));
-            result.add(h);
-        }
-
-        return result;
+        return holdings.stream()
+                .map(this::toHoldingMap)
+                .toList();
     }
 
     @PreAuthorize("#userId == authentication.details")
@@ -93,54 +65,7 @@ public class HoldingService {
         Page<Holding> holdings =
                 holdingRepository.findByAccountUserId(userId, pageable);
 
-
-        return holdings.map(holding -> {
-
-            BigDecimal currentPrice =
-                    marketDataService.getPrice(holding.getTicker());
-
-            BigDecimal qty =
-                    holding.getQuantity() != null
-                            ? holding.getQuantity()
-                            : BigDecimal.ZERO;
-
-            BigDecimal avgBuy =
-                    holding.getAvgBuyPrice() != null
-                            ? holding.getAvgBuyPrice()
-                            : BigDecimal.ZERO;
-
-            BigDecimal marketValue =
-                    qty.multiply(currentPrice);
-
-            BigDecimal costBasis =
-                    qty.multiply(avgBuy);
-
-            BigDecimal pnl =
-                    marketValue.subtract(costBasis);
-
-            BigDecimal pnlPct = costBasis.compareTo(BigDecimal.ZERO) > 0
-                    ? pnl.divide(costBasis, 6, RoundingMode.HALF_UP)
-                    .multiply(new BigDecimal("100"))
-                    : BigDecimal.ZERO;
-
-
-            Map<String, Object> h = new LinkedHashMap<>();
-
-            h.put("id", holding.getId());
-            h.put("account_id", holding.getAccountId());
-            h.put("ticker", holding.getTicker());
-            h.put("instrument_name", holding.getInstrumentName());
-            h.put("quantity", holding.getQuantity());
-            h.put("avg_buy_price", holding.getAvgBuyPrice());
-            h.put("currency", holding.getCurrency());
-            h.put("account_type", holding.getAccount().getAccountType());
-            h.put("account_name", holding.getAccount().getAccountName());
-            h.put("currentPrice", currentPrice.setScale(2, RoundingMode.HALF_UP));
-            h.put("marketValue", marketValue.setScale(2, RoundingMode.HALF_UP));
-            h.put("pnl", pnl.setScale(2, RoundingMode.HALF_UP));
-            h.put("pnlPct", pnlPct.setScale(2, RoundingMode.HALF_UP));
-            return h;
-        });
+        return holdings.map(this::toHoldingMap);
     }
 
     @PreAuthorize("#userId == authentication.details")
@@ -215,25 +140,8 @@ public class HoldingService {
 
     private HoldingResponse toHoldingResponse(Holding holding) {
 
-        BigDecimal currentPrice =
-                marketDataService.getPrice(holding.getTicker());
-
-        BigDecimal qty = holding.getQuantity() != null
-                ? holding.getQuantity()
-                : BigDecimal.ZERO;
-
-        BigDecimal avgBuy = holding.getAvgBuyPrice() != null
-                ? holding.getAvgBuyPrice()
-                : BigDecimal.ZERO;
-
-        BigDecimal marketValue = qty.multiply(currentPrice);
-        BigDecimal costBasis = qty.multiply(avgBuy);
-        BigDecimal pnl = marketValue.subtract(costBasis);
-
-        BigDecimal pnlPct = costBasis.compareTo(BigDecimal.ZERO) > 0
-                ? pnl.divide(costBasis, 6, RoundingMode.HALF_UP)
-                .multiply(new BigDecimal("100"))
-                : BigDecimal.ZERO;
+        HoldingValues values =
+                calculateHoldingValues(holding);
 
         return new HoldingResponse(
                 holding.getId(),
@@ -243,6 +151,53 @@ public class HoldingService {
                 holding.getQuantity(),
                 holding.getAvgBuyPrice(),
                 holding.getCurrency(),
+                values.currentPrice(),
+                values.marketValue(),
+                values.pnl(),
+                values.pnlPct()
+        );
+    }
+
+    private Holding getOwnedHolding(Integer holdingId, Integer userId) {
+        return holdingRepository.findByIdAndAccountUserId(holdingId, userId)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Holding not found"));
+    }
+
+    private record HoldingValues(
+            BigDecimal currentPrice,
+            BigDecimal marketValue,
+            BigDecimal pnl,
+            BigDecimal pnlPct
+    ) {}
+
+    private HoldingValues calculateHoldingValues(Holding holding) {
+
+        BigDecimal currentPrice =
+                marketDataService.getPrice(holding.getTicker());
+
+        BigDecimal quantity = holding.getQuantity() != null
+                ? holding.getQuantity()
+                : BigDecimal.ZERO;
+
+        BigDecimal avgBuyPrice = holding.getAvgBuyPrice() != null
+                ? holding.getAvgBuyPrice()
+                : BigDecimal.ZERO;
+
+        BigDecimal marketValue =
+                quantity.multiply(currentPrice);
+
+        BigDecimal costBasis =
+                quantity.multiply(avgBuyPrice);
+
+        BigDecimal pnl =
+                marketValue.subtract(costBasis);
+
+        BigDecimal pnlPct = costBasis.compareTo(BigDecimal.ZERO) > 0
+                ? pnl.divide(costBasis, 6, RoundingMode.HALF_UP)
+                .multiply(new BigDecimal("100"))
+                : BigDecimal.ZERO;
+
+        return new HoldingValues(
                 currentPrice.setScale(2, RoundingMode.HALF_UP),
                 marketValue.setScale(2, RoundingMode.HALF_UP),
                 pnl.setScale(2, RoundingMode.HALF_UP),
@@ -250,8 +205,28 @@ public class HoldingService {
         );
     }
 
-    private Holding getOwnedHolding(Integer holdingId, Integer userId) {
-        return holdingRepository.findByIdAndAccountUserId(holdingId, userId)
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Holding not found"));
+    private Map<String, Object> toHoldingMap(Holding holding) {
+
+        HoldingValues values =
+                calculateHoldingValues(holding);
+
+        Map<String, Object> result =
+                new LinkedHashMap<>();
+
+        result.put("id", holding.getId());
+        result.put("account_id", holding.getAccountId());
+        result.put("ticker", holding.getTicker());
+        result.put("instrument_name", holding.getInstrumentName());
+        result.put("quantity", holding.getQuantity());
+        result.put("avg_buy_price", holding.getAvgBuyPrice());
+        result.put("currency", holding.getCurrency());
+        result.put("account_type", holding.getAccount().getAccountType());
+        result.put("account_name", holding.getAccount().getAccountName());
+        result.put("currentPrice", values.currentPrice());
+        result.put("marketValue", values.marketValue());
+        result.put("pnl", values.pnl());
+        result.put("pnlPct", values.pnlPct());
+
+        return result;
     }
 }
