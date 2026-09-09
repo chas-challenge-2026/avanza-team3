@@ -1,89 +1,65 @@
 import DataTable from "./DataTable";
 import { holdings, type Holding } from "../data/mockData";
 import { Button, Paper, TableContainer } from "@mui/material";
-import { useState } from "react";
+import type { ReactNode } from "react";
+import AppButton from "./AppButton";
 
-type InnehavsListaProps = {
-  width?: string;
+type Column<T> = {
+  field: string;
+  headerName: string;
+  render?: (row: T) => ReactNode;
+  isBadge?: boolean;
 };
 
-const InnehavsLista = ({ width }: InnehavsListaProps) => {
-  const [currentHoldings, setCurrentHoldings] = useState(holdings);
+type InnehavsListaProps = {
+  holdings: Holding[];
+  width?: string | number;
+  showDelete?: boolean;
+  onDelete?: (id: number) => void;
+  detailed?: boolean;
+};
 
-  const holdingColumns = [
-    { field: "id", headerName: "ID" },
+const InnehavsLista = ({
+  holdings,
+  width,
+
+  onDelete,
+  detailed = false,
+  showDelete
+}: InnehavsListaProps) => {
+  const columns: Column<Holding>[] = [
     { field: "ticker", headerName: "Ticker" },
     { field: "instrumentName", headerName: "Instrument" },
-    { field: "quantity", headerName: "Mängd" },
-    { field: "avgBuyPrice", headerName: "Köppris" },
-    {
-      field: "currentPrice",
-      headerName: "Aktuellt pris",
-      isBadge: true
-    },
-    { field: "currency", headerName: "Valuta" },
-    { field: "accountId", headerName: "Konto ID" },
-    {
-      field: "actions",
-      headerName: "Åtgärder",
-      render: (row: Holding) => (
-        <Button
-          variant="outlined"
-          color="error"
-          size="small"
-          onClick={() => handleDelete(row.id)}
-        >
-          Ta bort
-        </Button>
-      )
-    }
+    { field: "accountId", headerName: "konto" },
+    { field: "accountType", headerName: "typ" },
+    { field: "quantity", headerName: "Antal" },
+    { field: "avgBuyPrice", headerName: "Köppris" }
   ];
 
-  const handleDelete = (id: number) => {
-    setCurrentHoldings((previousHoldings) =>
-      previousHoldings.filter((holding) => holding.id !== id)
+  if (detailed) {
+    columns.push(
+      { field: "currentPrice", headerName: "Aktuellt pris" },
+      { field: "risk", headerName: "Risk" },
+      { field: "allocation", headerName: "Allokering" },
+      { field: "value", headerName: "Värde" }
     );
-  };
+  }
 
-  const getReturnStatus = (holding: Holding) => {
-    // avkastning i procent
-    const returnPercent = calculateReturnPercent(holding);
-
-    if (returnPercent > 0) {
-      return "over";
-    } else if (returnPercent < 0) {
-      return "under";
-    } else {
-      return "ok";
-    }
-  };
-
-  const calculateReturnPercent = (holding: Holding) => {
-    if (!holding.avgBuyPrice || holding.avgBuyPrice === 0) return 0;
-    const procent =
-      ((holding.currentPrice - holding.avgBuyPrice) / holding.avgBuyPrice) *
-      100;
-    return procent;
-  };
-
-  const rowsWithBadgeStatus = currentHoldings.map((holding) => {
-    const badgeStatus = getReturnStatus(holding);
-    const returnPercent = calculateReturnPercent(holding);
-
-    // akutuellt värde
-    const currentValue = holding.currentPrice * holding.quantity;
-    // investerat värde
-    const investedValue = holding.avgBuyPrice * holding.quantity;
-    // avkastning
-    const profit = currentValue - investedValue;
-
-    return {
-      ...holding,
-      currentPrice: badgeStatus,
-      label: `${returnPercent > 0 ? "+" : ""}${returnPercent.toFixed(1)}%`
-    };
-  });
-
+  if (showDelete) {
+    columns.push({
+      field: "actions",
+      headerName: "",
+      render: (holdings: Holding) => (
+        <AppButton
+          color="error"
+          variant="outlined"
+          onClick={() => onDelete?.(holdings.id)}
+        >
+          Ta bort
+        </AppButton>
+      )
+    });
+  }
   return (
     <TableContainer
       component={Paper}
@@ -97,9 +73,9 @@ const InnehavsLista = ({ width }: InnehavsListaProps) => {
     >
       <DataTable
         width="100%"
+        rows={holdings}
+        columns={columns}
         title="Nuvarande innehav"
-        rows={rowsWithBadgeStatus}
-        columns={holdingColumns}
       />
     </TableContainer>
   );
