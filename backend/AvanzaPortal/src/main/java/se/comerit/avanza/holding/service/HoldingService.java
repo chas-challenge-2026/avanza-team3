@@ -142,6 +142,15 @@ public class HoldingService {
         });
     }
 
+    public Holding getHoldingById(Integer userId, Integer holdingId) {
+        return null;
+    }
+
+    public Holding updateHolding(Integer holdingId, Integer userId, Holding holding) {
+
+        return null;
+    }
+
     @PreAuthorize("#userId == authentication.details")
     public List<Map<String, Object>> getAccountsByUserId(Integer userId) {
         return accountService.getAccountMapsByUserId(userId);
