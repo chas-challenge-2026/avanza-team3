@@ -120,7 +120,7 @@ List-endpoints använder Page. Tex ?page=0&size=20 för användare inte ska kunn
 ## Ownership(IDOR)
 
 begränsat användares åtkomst åt andras resurser genom att kontrollera att id tex accountId tillhör inloggad user.
-Detta ska kompleteras med @PreAuthorize enligt instruktioner efter Spring Security/JWT är implementerat.
+Detta ska kompleteras med @PreAuthorize enligt instruktioner efter Spring Security/JWT är implementerat. När @EnableMethodSecurity läggs till bör det fungera.
 
 ## Transactional
 
