@@ -39,15 +39,15 @@
   font-size: 0.8125rem;
   color: var(--muted-foreground);
   margin: 0;
-  font-weight: 400;
+  font-weight: 500;
 }
 
-.value.good {
+.label.good {
   color: #16a34a;
 }
-.value.warning {
+.label.warning {
   color: #d97706;
 }
-.value.danger {
+.label.danger {
   color: #dc2626;
 }
