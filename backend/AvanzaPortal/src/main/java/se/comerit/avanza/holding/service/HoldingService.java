@@ -155,6 +155,7 @@ public class HoldingService {
 
     @PreAuthorize("#userId == authentication.details")
     @Transactional
+    @CacheEvict(value = "holdingsByUser", allEntries = true)
     public HoldingResponse updateHolding(Integer holdingId, Integer userId, HoldingPatchRequest request) {
         Holding holding = getOwnedHolding(holdingId, userId);
 
