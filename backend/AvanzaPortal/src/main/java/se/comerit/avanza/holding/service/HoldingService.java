@@ -53,6 +53,10 @@ public class HoldingService {
             BigDecimal marketValue = qty.multiply(currentPrice);
             BigDecimal costBasis = qty.multiply(avgBuy);
             BigDecimal pnl = marketValue.subtract(costBasis);
+            BigDecimal pnlPct = costBasis.compareTo(BigDecimal.ZERO) > 0
+                    ? pnl.divide(costBasis, 6, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100"))
+                    : BigDecimal.ZERO;
 
             Map<String, Object> h = new LinkedHashMap<>();
             h.put("id", holding.getId());
@@ -67,6 +71,7 @@ public class HoldingService {
             h.put("currentPrice", currentPrice.setScale(2, RoundingMode.HALF_UP));
             h.put("marketValue", marketValue.setScale(2, RoundingMode.HALF_UP));
             h.put("pnl", pnl.setScale(2, RoundingMode.HALF_UP));
+            h.put("pnlPct", pnlPct.setScale(2, RoundingMode.HALF_UP));
             result.add(h);
         }
 
@@ -113,6 +118,12 @@ public class HoldingService {
             BigDecimal pnl =
                     marketValue.subtract(costBasis);
 
+            BigDecimal pnlPct = costBasis.compareTo(BigDecimal.ZERO) > 0
+                    ? pnl.divide(costBasis, 6, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100"))
+                    : BigDecimal.ZERO;
+
+
             Map<String, Object> h = new LinkedHashMap<>();
 
             h.put("id", holding.getId());
@@ -127,6 +138,7 @@ public class HoldingService {
             h.put("currentPrice", currentPrice.setScale(2, RoundingMode.HALF_UP));
             h.put("marketValue", marketValue.setScale(2, RoundingMode.HALF_UP));
             h.put("pnl", pnl.setScale(2, RoundingMode.HALF_UP));
+            h.put("pnlPct", pnlPct.setScale(2, RoundingMode.HALF_UP));
             return h;
         });
     }
@@ -202,6 +214,27 @@ public class HoldingService {
     }
 
     private HoldingResponse toHoldingResponse(Holding holding) {
+
+        BigDecimal currentPrice =
+                marketDataService.getPrice(holding.getTicker());
+
+        BigDecimal qty = holding.getQuantity() != null
+                ? holding.getQuantity()
+                : BigDecimal.ZERO;
+
+        BigDecimal avgBuy = holding.getAvgBuyPrice() != null
+                ? holding.getAvgBuyPrice()
+                : BigDecimal.ZERO;
+
+        BigDecimal marketValue = qty.multiply(currentPrice);
+        BigDecimal costBasis = qty.multiply(avgBuy);
+        BigDecimal pnl = marketValue.subtract(costBasis);
+
+        BigDecimal pnlPct = costBasis.compareTo(BigDecimal.ZERO) > 0
+                ? pnl.divide(costBasis, 6, RoundingMode.HALF_UP)
+                .multiply(new BigDecimal("100"))
+                : BigDecimal.ZERO;
+
         return new HoldingResponse(
                 holding.getId(),
                 holding.getAccountId(),
@@ -209,7 +242,11 @@ public class HoldingService {
                 holding.getInstrumentName(),
                 holding.getQuantity(),
                 holding.getAvgBuyPrice(),
-                holding.getCurrency()
+                holding.getCurrency(),
+                currentPrice.setScale(2, RoundingMode.HALF_UP),
+                marketValue.setScale(2, RoundingMode.HALF_UP),
+                pnl.setScale(2, RoundingMode.HALF_UP),
+                pnlPct.setScale(2, RoundingMode.HALF_UP)
         );
     }
 
