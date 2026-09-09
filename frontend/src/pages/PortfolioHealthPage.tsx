@@ -2,7 +2,7 @@ import AppCard from "../components/AppCard";
 import styles from "./PortfolioHealthPage.module.css";
 
 function PortfolioHealthPage() {
-  let riskPoint = 30;
+  let riskPoint = 42;
 
   const riskLevel = () => {
     if (riskPoint < 30) {
@@ -14,7 +14,13 @@ function PortfolioHealthPage() {
     }
   };
 
-  const diversification = 0;
+  const riskLevelText = {
+    good: "Låg Risk",
+    warning: "Måttlig Risk",
+    danger: "Hög Risk",
+  };
+
+  const diversification = 72;
 
   const diversificationLevel = () => {
     if (diversification >= 70) {
@@ -24,6 +30,12 @@ function PortfolioHealthPage() {
     } else {
       return "danger";
     }
+  };
+
+  const diversificationText = {
+    good: "God spridning",
+    warning: "Måttlig spridning",
+    danger: "Låg spridning",
   };
 
   return (
@@ -45,7 +57,7 @@ function PortfolioHealthPage() {
             </div>
             <p className={styles.value}>42/100</p>
             <p className={styles.label + " " + styles[riskLevel()]}>
-              Måttlig risk
+              {riskLevelText[riskLevel()]}
             </p>
           </div>
         </AppCard>
@@ -64,7 +76,7 @@ function PortfolioHealthPage() {
             </div>
             <p className={styles.value}>72%</p>
             <p className={styles.label + " " + styles[diversificationLevel()]}>
-              God spridning
+              {diversificationText[diversificationLevel()]}
             </p>
           </div>
         </AppCard>
