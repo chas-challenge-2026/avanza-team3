@@ -10,11 +10,12 @@ import NotificationCard from "../components/NotificationCard";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
 import { useState, useEffect } from "react";
-import type { Account } from "../types/dashboard";
+import type { Account, Alert } from "../types/dashboard";
 import { getDashboard } from "../services/dashboardService";
 
 function PortfolioPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -27,6 +28,7 @@ function PortfolioPage() {
       const data = await getDashboard(token);
 
       setAccounts(data.accounts);
+      setAlerts(data.recentAlerts);
     };
 
     fetchAccounts();
@@ -63,7 +65,7 @@ function PortfolioPage() {
 
       <div className={styles.row3}>
         <DataTable title="Konton" rows={accounts} columns={accountColumns} />
-        <NotificationCard />
+        <NotificationCard alerts={alerts} />
       </div>
 
       <div className={styles.row4}>
