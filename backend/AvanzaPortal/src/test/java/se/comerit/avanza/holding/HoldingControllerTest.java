@@ -176,6 +176,36 @@ class HoldingControllerTest {
         );
     }
 
+    @Test
+    void updateHoldingShouldRejectInvalidPatchBeforeCallingService() throws Exception {
+        String body = """
+                {
+                  "quantity": 0
+                }
+                """;
+
+        mockMvc.perform(patch("/api/holdings/31")
+                        .principal(authenticationForUser(7))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(holdingService);
+    }
+
+    @Test
+    void listHoldingsShouldNormalizeInvalidPageAndLimitSizeToOneHundred() throws Exception {
+        when(holdingService.getHoldingsByUserId(7, 0, 100))
+                .thenReturn(Page.empty(PageRequest.of(0, 100)));
+
+        mockMvc.perform(get("/api/holdings")
+                        .param("page", "-3")
+                        .param("size", "500")
+                        .principal(authenticationForUser(7)))
+                .andExpect(status().isOk());
+
+        verify(holdingService).getHoldingsByUserId(7, 0, 100);
+    }
 
     private HoldingResponse holdingResponse(Integer holdingId, BigDecimal quantity) {
         BigDecimal currentPrice = new BigDecimal("74.20");
