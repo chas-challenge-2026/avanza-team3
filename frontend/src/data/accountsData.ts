@@ -34,8 +34,7 @@ export const accountRows = [
 ];
 
 export const accountColumns = [
-  { field: "account", headerName: "Konto" },
-  { field: "type", headerName: "Typ", isBadge: true },
-  { field: "value", headerName: "Värde" },
-  { field: "share", headerName: "Andel" },
+  { field: "accountName", headerName: "Konto" },
+  { field: "accountType", headerName: "Typ", isBadge: true },
+  { field: "totalValueSek", headerName: "Värde" },
 ];
