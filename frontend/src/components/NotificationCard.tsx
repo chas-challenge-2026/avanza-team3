@@ -45,9 +45,15 @@ const NotificationCard = ({ alerts }: NotificationCardProps) => {
       <p className={styles.title}>Notifikationer</p>
       <div className={styles.list}>
         {alerts.map((n) => (
-          <div key={n.id} className={styles.textWrapper}>
-            <p>{n.message}</p>
-            <p>{n.createdAt}</p>
+          <div key={n.id} className={`${styles.card} ${styles.warning}`}>
+            <FontAwesomeIcon
+              icon={faTriangleExclamation}
+              className={styles.icon}
+            />
+            <div className={styles.textWrapper}>
+              <p>{n.message}</p>
+              <p className={styles.time}>{n.createdAt}</p>
+            </div>
           </div>
         ))}
       </div>
