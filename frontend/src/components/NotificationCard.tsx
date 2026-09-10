@@ -52,7 +52,14 @@ const NotificationCard = ({ alerts }: NotificationCardProps) => {
             />
             <div className={styles.textWrapper}>
               <p>{n.message}</p>
-              <p className={styles.time}>{n.createdAt}</p>
+              <p className={styles.time}>
+                {new Date(n.createdAt).toLocaleDateString("sv-SE", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
             </div>
           </div>
         ))}
