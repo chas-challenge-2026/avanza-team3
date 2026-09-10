@@ -1,4 +1,4 @@
-import { accountRows, accountColumns } from "../data/accountsData";
+import { accountColumns } from "../data/accountsData";
 import DataTable from "../components/DataTable";
 import AppCard from "../components/AppCard";
 import PortfolioHealth from "../components/PortfolioHealth";
@@ -9,8 +9,31 @@ import AllocationChart from "../components/AllocationChart";
 import NotificationCard from "../components/NotificationCard";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
+import { useState, useEffect } from "react";
+import type { Account, Alert } from "../types/dashboard";
+import { getDashboard } from "../services/dashboardService";
 
 function PortfolioPage() {
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return;
+    }
+
+    const fetchAccounts = async () => {
+      const data = await getDashboard(token);
+
+      setAccounts(data.accounts);
+      setAlerts(data.recentAlerts);
+    };
+
+    fetchAccounts();
+  }, []);
+
   return (
     <div className={styles.container}>
       <div className={styles.titleRow}>
@@ -41,8 +64,8 @@ function PortfolioPage() {
       </div>
 
       <div className={styles.row3}>
-        <DataTable title="Konton" rows={accountRows} columns={accountColumns} />
-        <NotificationCard />
+        <DataTable title="Konton" rows={accounts} columns={accountColumns} />
+        <NotificationCard alerts={alerts} />
       </div>
 
       <div className={styles.row4}>
