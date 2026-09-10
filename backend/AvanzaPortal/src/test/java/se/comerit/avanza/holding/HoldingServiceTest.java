@@ -179,4 +179,120 @@ class HoldingServiceTest {
         ReflectionTestUtils.setField(holding, "account", account);
         return holding;
     }
+
+    @Test
+    void getHoldingByIdShouldReturnHoldingOwnedByUserWithCalculatedValues() {
+        Holding holding = holdingWithAccount(
+                31, 11, 7, "ISK", "Main ISK",
+                "ERIC-B", "Ericsson B",
+                new BigDecimal("10"), new BigDecimal("70.00"), "SEK"
+        );
+
+        when(holdingRepository.findByIdAndAccountUserId(31, 7))
+                .thenReturn(Optional.of(holding));
+        when(marketDataService.getPrice("ERIC-B"))
+                .thenReturn(new BigDecimal("74.20"));
+
+        HoldingResponse response = holdingService.getHoldingById(31, 7);
+
+        assertEquals(31, response.id());
+        assertEquals(11, response.accountId());
+        assertEquals("ERIC-B", response.ticker());
+        assertEquals("Ericsson B", response.instrumentName());
+        assertEquals(new BigDecimal("10"), response.quantity());
+        assertEquals(new BigDecimal("70.00"), response.avgBuyPrice());
+        assertEquals("SEK", response.currency());
+        assertEquals(new BigDecimal("74.20"), response.currentPrice());
+        assertEquals(new BigDecimal("742.00"), response.marketValueSek());
+        assertEquals(new BigDecimal("42.00"), response.pnlSek());
+        assertEquals(new BigDecimal("6.00"), response.pnlPct());
+
+        verify(holdingRepository).findByIdAndAccountUserId(31, 7);
+        verify(marketDataService).getPrice("ERIC-B");
+    }
+
+    @Test
+    void getHoldingByIdShouldRejectHoldingNotOwnedByUserWithoutRequestingMarketPrice() {
+        when(holdingRepository.findByIdAndAccountUserId(31, 7))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ResponseStatusException.class,
+                () -> holdingService.getHoldingById(31, 7)
+        );
+
+        verifyNoInteractions(marketDataService);
+    }
+
+    @Test
+    void updateHoldingShouldOnlyChangeFieldsIncludedInPatch() {
+        Holding holding = holdingWithAccount(
+                31, 11, 7, "ISK", "Main ISK",
+                "ERIC-B", "Ericsson B",
+                new BigDecimal("10"), new BigDecimal("70.00"), "SEK"
+        );
+
+        when(holdingRepository.findByIdAndAccountUserId(31, 7))
+                .thenReturn(Optional.of(holding));
+        when(holdingRepository.save(any(Holding.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(marketDataService.getPrice("ERIC-B"))
+                .thenReturn(new BigDecimal("74.20"));
+
+        HoldingPatchRequest request = new HoldingPatchRequest(
+                null,
+                null,
+                new BigDecimal("15"),
+                null,
+                null
+        );
+
+        HoldingResponse response = holdingService.updateHolding(31, 7, request);
+
+        assertEquals(new BigDecimal("15"), response.quantity());
+        assertEquals("ERIC-B", response.ticker());
+        assertEquals("Ericsson B", response.instrumentName());
+        assertEquals(new BigDecimal("70.00"), response.avgBuyPrice());
+        assertEquals("SEK", response.currency());
+        assertEquals(new BigDecimal("1113.00"), response.marketValueSek());
+        assertEquals(new BigDecimal("63.00"), response.pnlSek());
+        assertEquals(new BigDecimal("6.00"), response.pnlPct());
+
+        verify(holdingRepository).save(holding);
+        verify(marketDataService).getPrice("ERIC-B");
+    }
+
+    @Test
+    void updateHoldingShouldRejectHoldingNotOwnedByUserWithoutSavingOrRequestingMarketPrice() {
+        when(holdingRepository.findByIdAndAccountUserId(31, 7))
+                .thenReturn(Optional.empty());
+
+        HoldingPatchRequest request = new HoldingPatchRequest(
+                null, null, new BigDecimal("15"), null, null
+        );
+
+        assertThrows(
+                ResponseStatusException.class,
+                () -> holdingService.updateHolding(31, 7, request)
+        );
+
+        verify(holdingRepository, never()).save(any());
+        verifyNoInteractions(marketDataService);
+    }
+
+    @Test
+    void addHoldingShouldNotSaveWhenAccountOwnershipCheckFails() {
+        when(accountService.getAccountByIdAndUserId(11, 7))
+                .thenThrow(new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
+
+        assertThrows(
+                ResponseStatusException.class,
+                () -> holdingService.addHolding(
+                        7, 11, "ERIC-B", "Ericsson B",
+                        new BigDecimal("5"), new BigDecimal("71.50"), "SEK"
+                )
+        );
+
+        verify(holdingRepository, never()).save(any());
+    }
 }
