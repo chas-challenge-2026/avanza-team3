@@ -9,8 +9,28 @@ import AllocationChart from "../components/AllocationChart";
 import NotificationCard from "../components/NotificationCard";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
+import { useState, useEffect } from "react";
+import type { Account } from "../types/dashboard";
+import { getDashboard } from "../services/dashboardService";
 
 function PortfolioPage() {
+  const [accounts, setAccounts] = useState<Account[]>([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return;
+    }
+
+    const fetchAccounts = async () => {
+      const data = await getDashboard(token);
+      setAccounts(data.accounts);
+    };
+
+    fetchAccounts();
+  }, []);
+
   return (
     <div className={styles.container}>
       <div className={styles.titleRow}>
