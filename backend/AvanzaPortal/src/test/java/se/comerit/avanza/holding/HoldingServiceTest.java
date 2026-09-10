@@ -3,6 +3,7 @@ package se.comerit.avanza.holding;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -10,11 +11,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.server.ResponseStatusException;
 import se.comerit.avanza.account.model.Account;
 import se.comerit.avanza.account.service.AccountService;
+import se.comerit.avanza.holding.dto.HoldingPatchRequest;
+import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.model.Holding;
 import se.comerit.avanza.holding.repository.HoldingRepository;
 import se.comerit.avanza.holding.service.HoldingService;
+import se.comerit.avanza.market.service.MarketDataService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,6 +38,9 @@ class HoldingServiceTest {
     @Mock
     private AccountService accountService;
 
+    @Mock
+    private MarketDataService marketDataService;
+
     @InjectMocks
     private HoldingService holdingService;
 
@@ -46,16 +54,25 @@ class HoldingServiceTest {
 
         when(holdingRepository.findByAccountUserIdOrderByAccountAccountTypeAscTickerAsc(7))
                 .thenReturn(List.of(holding));
+        when(marketDataService.getPrice("ERIC-B"))
+                .thenReturn(new BigDecimal("74.20"));
 
         List<Map<String, Object>> result = holdingService.getHoldingsByUserId(7);
 
         assertEquals(1, result.size());
         Map<String, Object> row = result.getFirst();
+        assertEquals(31, row.get("id"));
+        assertEquals(11, row.get("account_id"));
         assertEquals("ERIC-B", row.get("ticker"));
+        assertEquals("Ericsson B", row.get("instrument_name"));
         assertEquals(new BigDecimal("74.20"), row.get("currentPrice"));
         assertEquals(new BigDecimal("742.00"), row.get("marketValue"));
         assertEquals(new BigDecimal("42.00"), row.get("pnl"));
+        assertEquals(new BigDecimal("6.00"), row.get("pnlPct"));
         assertEquals("ISK", row.get("account_type"));
+        assertEquals("Main ISK", row.get("account_name"));
+
+        verify(marketDataService).getPrice("ERIC-B");
     }
 
     @Test
@@ -68,6 +85,8 @@ class HoldingServiceTest {
 
         when(holdingRepository.findByAccountUserId(eq(7), any(Pageable.class)))
                 .thenAnswer(invocation -> new PageImpl<>(List.of(holding), invocation.getArgument(1), 1));
+        when(marketDataService.getPrice("ERIC-B"))
+                .thenReturn(new BigDecimal("74.20"));
 
         Page<Map<String, Object>> result = holdingService.getHoldingsByUserId(7, 2, 15);
 
@@ -79,7 +98,14 @@ class HoldingServiceTest {
         assertEquals(15, pageable.getPageSize());
         assertNotNull(pageable.getSort().getOrderFor("account.accountType"));
         assertNotNull(pageable.getSort().getOrderFor("ticker"));
-        assertEquals(new BigDecimal("148.40"), result.getContent().getFirst().get("marketValue"));
+        assertTrue(pageable.getSort().getOrderFor("account.accountType").isAscending());
+        assertTrue(pageable.getSort().getOrderFor("ticker").isAscending());
+
+        Map<String, Object> row = result.getContent().getFirst();
+        assertEquals(new BigDecimal("148.40"), row.get("marketValue"));
+        assertEquals(new BigDecimal("8.40"), row.get("pnl"));
+        assertEquals(new BigDecimal("6.00"), row.get("pnlPct"));
+        verify(marketDataService).getPrice("ERIC-B");
     }
 
     @Test
@@ -92,15 +118,18 @@ class HoldingServiceTest {
                 new BigDecimal("5"), new BigDecimal("71.50"), "SEK"
         );
 
-        verify(accountService).getAccountByIdAndUserId(11, 7);
+        InOrder inOrder = inOrder(accountService, holdingRepository);
+        inOrder.verify(accountService).getAccountByIdAndUserId(11, 7);
 
         ArgumentCaptor<Holding> holdingCaptor = ArgumentCaptor.forClass(Holding.class);
-        verify(holdingRepository).save(holdingCaptor.capture());
+        inOrder.verify(holdingRepository).save(holdingCaptor.capture());
         Holding saved = holdingCaptor.getValue();
         assertEquals(11, saved.getAccountId());
         assertEquals("ERIC-B", saved.getTicker());
+        assertEquals("Ericsson B", saved.getInstrumentName());
         assertEquals(new BigDecimal("5"), saved.getQuantity());
         assertEquals(new BigDecimal("71.50"), saved.getAvgBuyPrice());
+        assertEquals("SEK", saved.getCurrency());
     }
 
     @Test
@@ -113,6 +142,7 @@ class HoldingServiceTest {
 
         holdingService.deleteHolding(31, 7);
 
+        verify(holdingRepository).findByIdAndAccountUserId(31, 7);
         verify(holdingRepository).delete(holding);
     }
 
