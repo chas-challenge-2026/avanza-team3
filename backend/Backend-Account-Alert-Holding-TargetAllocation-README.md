@@ -120,15 +120,15 @@ Tester täcker bland annat:
 ### Alert
 
 #### GET /api/alerts?dismissed=false&page=0&size=20
--gick över allt precis. denna stämmer inte, hade för mig att jag fixade detta redan förra veckan. 
 
 -returnerar alerts för användaren
 -filtrerar på dismissed först
 
 -OBS här kan vara en bra plats att fundera på unik implementation(tex vissa alerts kanske är viktigare än andra och visas alltid först, vissa kanske kräver åtgärd innan dom försvinner)
 
-#### PUT /api/alerts/{alertId}/dismiss
+#### PATCH /api/alerts/{alertId}/dismiss
 -markera ett alert som dismissed
+-i uppgiften står det PUT, jag skrev put här ursprungligen för jag va helt säker på att jag ändrade till PUT, men versionen jag skickat vidare till frontend var med patch, så låter det vara tills vidare.
 
 
 #### GET /api/alerts/live
