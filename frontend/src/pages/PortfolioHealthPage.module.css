@@ -12,8 +12,16 @@
 .kpiCard {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 8px;
-  padding: 4px;
+  min-height: 100px;
+}
+
+.kpiCard .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .header {

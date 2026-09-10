@@ -1,7 +1,14 @@
 import AppCard from "../components/AppCard";
 import styles from "./PortfolioHealthPage.module.css";
+import { Gauge } from "@mui/x-charts/Gauge";
 
 function PortfolioHealthPage() {
+  const statusColors = {
+    good: "#16a34a",
+    warning: "#d97706",
+    danger: "#dc2626",
+  };
+
   const changePercent = 5;
 
   const trendStatus = () => {
@@ -49,6 +56,32 @@ function PortfolioHealthPage() {
       <h1>Portföljhälsa</h1>
       <div className={styles.container}>
         <AppCard>
+          <div className={styles.kpiCard + " " + styles[riskLevel()]}>
+            <div className={styles.header}>
+              <p className={styles.label}>Riskpoäng</p>
+            </div>
+            <div className={styles.row}>
+              <div>
+                <p className={styles.value}>{riskPoint}/100</p>
+                <p className={styles.label + " " + styles[riskLevel()]}>
+                  {riskLevelText[riskLevel()]}
+                </p>
+              </div>
+              <Gauge
+                sx={{
+                  "& .MuiGauge-valueArc": { fill: statusColors[riskLevel()] },
+                  "& .MuiGauge-valueText": { display: "none" },
+                }}
+                width={90}
+                height={90}
+                innerRadius="40%"
+                outerRadius="80%"
+                value={riskPoint}
+              />
+            </div>
+          </div>
+        </AppCard>
+        <AppCard>
           <div className={styles.kpiCard}>
             <div className={styles.header}>
               <p className={styles.label}>Totalt Portföljvärde</p>
@@ -60,17 +93,7 @@ function PortfolioHealthPage() {
             </p>
           </div>
         </AppCard>
-        <AppCard>
-          <div className={styles.kpiCard}>
-            <div className={styles.header}>
-              <p className={styles.label}>Riskpoäng</p>
-            </div>
-            <p className={styles.value}>42/100</p>
-            <p className={styles.label + " " + styles[riskLevel()]}>
-              {riskLevelText[riskLevel()]}
-            </p>
-          </div>
-        </AppCard>
+
         <AppCard>
           <div className={styles.kpiCard}>
             <div className={styles.header}>
@@ -85,10 +108,33 @@ function PortfolioHealthPage() {
             <div className={styles.header}>
               <p className={styles.label}>Diversifieringsgrad</p>
             </div>
-            <p className={styles.value}>72%</p>
-            <p className={styles.label + " " + styles[diversificationLevel()]}>
-              {diversificationText[diversificationLevel()]}
-            </p>
+            <div className={styles.row}>
+              <div>
+                <p className={styles.value}>{diversification}%</p>
+                <p
+                  className={
+                    styles.label + " " + styles[diversificationLevel()]
+                  }
+                >
+                  {diversificationText[diversificationLevel()]}
+                </p>
+              </div>
+              <Gauge
+                sx={{
+                  "& .MuiGauge-valueArc": {
+                    fill: statusColors[diversificationLevel()],
+                  },
+                  "& .MuiGauge-valueText": { display: "none" },
+                }}
+                width={90}
+                height={60}
+                value={diversification}
+                startAngle={-90}
+                endAngle={90}
+                innerRadius="65%"
+                outerRadius="100%"
+              />
+            </div>
           </div>
         </AppCard>
       </div>
