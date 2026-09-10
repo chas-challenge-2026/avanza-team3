@@ -120,6 +120,7 @@ Tester täcker bland annat:
 ### Alert
 
 #### GET /api/alerts?dismissed=false&page=0&size=20
+-gick över allt precis. denna stämmer inte, hade för mig att jag fixade detta redan förra veckan. 
 
 -returnerar alerts för användaren
 -filtrerar på dismissed först
