@@ -1,6 +1,7 @@
 import AppCard from "../components/AppCard";
 import styles from "./PortfolioHealthPage.module.css";
 import { Gauge } from "@mui/x-charts/Gauge";
+import AllocationChart from "../components/AllocationChart";
 
 function PortfolioHealthPage() {
   const statusColors = {
@@ -138,6 +139,7 @@ function PortfolioHealthPage() {
           </div>
         </AppCard>
       </div>
+      <AllocationChart />
     </>
   );
 }

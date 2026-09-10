@@ -2,17 +2,31 @@ import { PieChart } from "@mui/x-charts";
 import { useMediaQuery, useTheme } from "@mui/material";
 import styles from "./AllocationChart.module.css";
 import AppCard from "./AppCard";
-
-const data = [
-  { label: "Aktier", value: 400, color: "#3B5FCB" },
-  { label: "Fonder", value: 300, color: "#7C5CFC" },
-  { label: "Ränteb", value: 300, color: "#E8952F" },
-  { label: "Övrigt", value: 100, color: "#9CA3AF" },
-];
-
-const total = data.reduce((sum, item) => sum + item.value, 0);
+import { getPortfolio } from "../services/portfolioService";
+import { useEffect, useState } from "react";
+import type { AllocationRow } from "../types/portfolio";
 
 const AllocationChart = () => {
+  const [allocationRows, setAllocationRows] = useState<AllocationRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getPortfolio()
+      .then((portfolio) => {
+        setAllocationRows(portfolio.allocationRows);
+      })
+      .catch(() => {
+        setError("Kunde inte hämta fördelningen");
+      });
+  }, []);
+
+  const total = allocationRows.reduce((sum, row) => sum + row.actual, 0);
+
+  const data = allocationRows.map((row) => ({
+    label: `${row.accountType} (${((row.actual / total) * 100).toFixed(0)}%)`,
+    value: row.actual
+  }));
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -33,8 +47,8 @@ const AllocationChart = () => {
                 outerRadius,
                 data,
                 valueFormatter: (item) =>
-                  item ? `${((item.value / total) * 100).toFixed(0)}%` : "",
-              },
+                  item ? `${((item.value / total) * 100).toFixed(0)}%` : ""
+              }
             ]}
             margin={{ right: 5 }}
             hideLegend={false}
