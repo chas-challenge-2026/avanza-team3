@@ -20,7 +20,10 @@ typedef struct
     double max_drawdown;
 } RiskResult;
 
-/** 
+#ifdef __cplusplus
+extern "C"
+#endif
+/**
  * @brief Calculates volatility, sharpe ratio and max drawdown
  *
  * @param[in]  values Array of closing asset value (index [x]-[y], oldest to newest)
@@ -31,9 +34,6 @@ typedef struct
  * 
  * @return Error code
  */
-#ifdef __cplusplus
-extern "C"
-#endif
 int risk_compute(const double *values, int length, double risk_free_rate, int periods_per_year, RiskResult *out);
 
 #endif // RISK_H
