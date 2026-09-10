@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.comerit.avanza.holding.controller.HoldingController;
+import se.comerit.avanza.holding.dto.HoldingPatchRequest;
 import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.service.HoldingService;
 
@@ -140,6 +141,41 @@ class HoldingControllerTest {
 
         verify(holdingService).getHoldingById(31, 7);
     }
+
+    @Test
+    void updateHoldingShouldReturnUpdatedHoldingAndPassAuthenticatedUserToService() throws Exception {
+        HoldingResponse response = holdingResponse(31, new BigDecimal("15"));
+        when(holdingService.updateHolding(eq(31), eq(7), any(HoldingPatchRequest.class)))
+                .thenReturn(response);
+
+        String body = """
+                {
+                  "quantity": 15
+                }
+                """;
+
+        mockMvc.perform(patch("/api/holdings/31")
+                        .principal(authenticationForUser(7))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(31))
+                .andExpect(jsonPath("$.quantity").value(15))
+                .andExpect(jsonPath("$.ticker").value("ERIC-B"));
+
+        verify(holdingService).updateHolding(
+                eq(31),
+                eq(7),
+                argThat(request ->
+                        new BigDecimal("15").compareTo(request.quantity()) == 0
+                                && request.ticker() == null
+                                && request.instrumentName() == null
+                                && request.avgBuyPrice() == null
+                                && request.currency() == null
+                )
+        );
+    }
+
 
     private HoldingResponse holdingResponse(Integer holdingId, BigDecimal quantity) {
         BigDecimal currentPrice = new BigDecimal("74.20");
