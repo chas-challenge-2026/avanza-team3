@@ -60,7 +60,7 @@ const DataTable = ({ title, rows, columns, width }: DataTableProps) => {
                 <TableCell key={col.field}>
                   {col.isBadge ? (
                     <Badge variant={row[col.field].toLowerCase()}>
-                      {row.label}
+                      {row[col.field]}
                     </Badge>
                   ) : (
                     row[col.field]

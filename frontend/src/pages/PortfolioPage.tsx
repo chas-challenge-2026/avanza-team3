@@ -1,4 +1,4 @@
-import { accountRows, accountColumns } from "../data/accountsData";
+import { accountColumns } from "../data/accountsData";
 import DataTable from "../components/DataTable";
 import AppCard from "../components/AppCard";
 import PortfolioHealth from "../components/PortfolioHealth";
@@ -61,7 +61,7 @@ function PortfolioPage() {
       </div>
 
       <div className={styles.row3}>
-        <DataTable title="Konton" rows={accountRows} columns={accountColumns} />
+        <DataTable title="Konton" rows={accounts} columns={accountColumns} />
         <NotificationCard />
       </div>
 
