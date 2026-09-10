@@ -48,6 +48,11 @@ public class DashboardController {
             return null;
         }
 
+        Object details = authentication.getDetails();
+        if (details instanceof Integer userId) {
+            return userId;
+        }
+
         try {
             return Integer.valueOf(authentication.getName());
         } catch (NumberFormatException exception) {
