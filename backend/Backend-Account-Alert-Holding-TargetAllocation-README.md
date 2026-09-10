@@ -67,6 +67,24 @@ Spring-Security/JWT kommer senare och då också  @PreAuthorize. Tills dess anv�
 
 ### Holding
 
+currentPrice hämtas via MarketDataService, det kan behöva ändras när fx-rate är klart.
+
+marketValue, pnl och pnlPct beräknas i HoldingService.
+Samma beräkning används för listan av holdings, GET för ett specifikt holding och responsen efter PATCH.
+
+#### GET /api/holdings/{holdingId}
+-returnerar ett specifikt holding för inloggad användare
+-holding hämtas med både holdingId och userId så man inte kan läsa annan användares holdings
+-returnerar HoldingResponse
+
+#### PATCH /api/holdings/{holdingId}
+-uppdaterar ett befintligt holding
+-partial update används, endast fält som skickas i requesten ändras
+-holding hämtas med både holdingId och userId så man inte kan ändra annan användares holdings
+-HoldingPatchRequest används för input och validering
+-returnerar uppdaterad HoldingResponse
+-cacheevict eftersom cachade holdings kan ha ändrats
+
 #### GET /api/accounts/{accountId}/holdings?page=0&size=20
 -returnerar holdings för ett specifikt konto
 -innan holdings hämtas kontrolleras att account tillhör användaren
@@ -81,6 +99,23 @@ Spring-Security/JWT kommer senare och då också  @PreAuthorize. Tills dess anv�
 -ta bort en holding
 -holding hämtas med både holdingId och userId så man inte kan ta bort annan användares holdings
 -cacheevict
+
+### Tester
+
+HoldingServiceTest och HoldingControllerTest har uppdaterats för de nya ändringarna.
+
+Tester täcker bland annat:
+-hämtning av specifikt holding
+-PATCH av holding
+-att PATCH endast ändrar fält som skickas
+-ownership-kontroll för GET/PATCH
+-att MarketDataService används för pris
+-marketValue
+-pnl
+-pnlPct
+-pagination och sortering
+-cache-relaterade serviceflöden vid ändringar
+
 
 ### Alert
 
@@ -121,6 +156,7 @@ List-endpoints använder Page. Tex ?page=0&size=20 för användare inte ska kunn
 
 begränsat användares åtkomst åt andras resurser genom att kontrollera att id tex accountId tillhör inloggad user.
 Detta ska kompleteras med @PreAuthorize enligt instruktioner efter Spring Security/JWT är implementerat.
+Detta är fortfarande inte klart, saknas @EnableMethodSecurity i config.
 
 ## Transactional
 
@@ -147,7 +183,7 @@ GET /api/alerts/live
 Detta ligger kvar sen tidigare med hårdkodade värden. behöver kopplas till värden som ska skickas från C/C++ utvecklare.
 
 Tester
-Det saknas integrationstester och unittests som täcker större delar av koden i dessa metoder och klasser.
+Det saknas integrationstester unittester för targetallocation.
 
 
 
