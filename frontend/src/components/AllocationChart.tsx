@@ -2,10 +2,7 @@ import { PieChart } from "@mui/x-charts";
 import { useMediaQuery, useTheme } from "@mui/material";
 import styles from "./AllocationChart.module.css";
 import AppCard from "./AppCard";
-import {
-  getPortfolio,
-  type AllocationRow
-} from "../services/allocationService";
+import { getPortfolio, type AllocationRow } from "../services/portfolioService";
 import { useEffect, useState } from "react";
 
 const AllocationChart = () => {
