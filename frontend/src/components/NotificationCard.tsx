@@ -6,8 +6,9 @@ import {
   faTriangleExclamation,
   faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
+import type { Alert } from "../types/dashboard";
 
-const mockNotifications = [
+/* const mockNotifications = [
   {
     id: 1,
     type: "success",
@@ -32,21 +33,21 @@ const mockNotifications = [
     message: "Ericsson AB publicerade sin Q3-rapport.",
     time: "Mån 11:00",
   },
-];
+]; */
 
-const NotificationCard = () => {
+type NotificationCardProps = {
+  alerts: Alert[];
+};
+
+const NotificationCard = ({ alerts }: NotificationCardProps) => {
   return (
     <AppCard>
       <p className={styles.title}>Notifikationer</p>
       <div className={styles.list}>
-        {mockNotifications.map((n) => (
-          <div key={n.id} className={`${styles.card} ${styles[n.type]}`}>
-            <FontAwesomeIcon icon={n.icon} className={styles.icon} />
-            <div className={styles.textWrapper}>
-              <p className={styles.notificationTitle}>{n.title}</p>
-              <p className={styles.notification}>{n.message}</p>
-              <p className={styles.time}>{n.time}</p>
-            </div>
+        {alerts.map((n) => (
+          <div key={n.id} className={styles.textWrapper}>
+            <p>{n.message}</p>
+            <p>{n.createdAt}</p>
           </div>
         ))}
       </div>

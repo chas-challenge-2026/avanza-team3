@@ -9,4 +9,12 @@ export type Account = {
 
 export type DashboardResponse = {
   accounts: Account[];
+  recentAlerts: Alert[];
+};
+
+export type Alert = {
+  id: number;
+  alertType: string;
+  message: string;
+  createdAt: string;
 };
