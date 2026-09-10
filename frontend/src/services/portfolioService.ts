@@ -1,15 +1,4 @@
-export type AllocationRow = {
-  accountType: string;
-  actual: number;
-  target: number;
-  drift: number;
-  overThreshold: boolean;
-};
-
-export type PortfolioResponse = {
-  allocationRows: AllocationRow[];
-  totalPortfolioValue: number;
-};
+import type { PortfolioResponse } from "../types/portfolio";
 
 export async function getPortfolio(): Promise<PortfolioResponse> {
   const token = localStorage.getItem("token");
