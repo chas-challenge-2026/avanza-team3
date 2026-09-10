@@ -5,7 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import se.comerit.avanza.holding.dto.HoldingPatchRequest;
 import se.comerit.avanza.holding.dto.HoldingRequest;
+import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.service.HoldingService;
 
 import java.util.Map;
@@ -48,6 +50,24 @@ public class HoldingController {
         holdingService.addHolding(userId, request.accountId(), request.ticker(), request.instrumentName(), request.quantity(), request.avgBuyPrice(), request.currency());
 
         return ResponseEntity.status(201).build();
+    }
+
+    @PatchMapping("/{holdingId}")
+    public ResponseEntity<HoldingResponse> updateHolding(@PathVariable("holdingId")
+                                                  Integer holdingId,
+                                              @Valid @RequestBody HoldingPatchRequest request,
+                                                         Authentication authentication) {
+        Integer userId = (Integer) authentication.getDetails();
+        return ResponseEntity.ok(holdingService.updateHolding(holdingId, userId, request));
+    }
+
+
+    @GetMapping("/{holdingId}")
+    public ResponseEntity<HoldingResponse> getHolding(@PathVariable("holdingId")
+                                                              Integer holdingId,
+                                                      Authentication authentication) {
+        Integer userId = (Integer) authentication.getDetails();
+        return ResponseEntity.ok(holdingService.getHoldingById(holdingId, userId));
     }
 
     @DeleteMapping("/{holdingId}")
