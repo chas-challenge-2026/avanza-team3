@@ -1,5 +1,8 @@
 package se.comerit.avanza.alert.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,14 +55,27 @@ public class AlertService {
         return alertRepository
                 .findByUserIdOrderByCreatedAtDesc(userId)
                 .stream()
-                .map(alert -> new AlertResponse(
-                        alert.getId(),
-                        alert.getAlertType(),
-                        alert.getMessage(),
-                        alert.isDismissed(),
-                        alert.getCreatedAt()
-                ))
+                .map(this::toAlertResponse)
                 .toList();
+    }
+
+    @PreAuthorize("#userId == authentication.details")
+    @Transactional
+    public Page<AlertResponse> getAlertsByUserId(
+            Integer userId,
+            boolean dismissed,
+            int page,
+            int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return alertRepository
+                .findByUserIdAndDismissedOrderByCreatedAtDesc(
+                        userId,
+                        dismissed,
+                        pageable
+                )
+                .map(this::toAlertResponse);
     }
 
     @PreAuthorize("#userId == authentication.details")
@@ -157,6 +173,16 @@ public class AlertService {
             }
         }
         return liveAlerts;
+    }
+
+    private AlertResponse toAlertResponse(Alert alert) {
+        return new AlertResponse(
+                alert.getId(),
+                alert.getAlertType(),
+                alert.getMessage(),
+                alert.isDismissed(),
+                alert.getCreatedAt()
+        );
     }
 
     public int getDriftThresholdPercent(){
