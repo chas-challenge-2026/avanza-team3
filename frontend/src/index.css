@@ -17,7 +17,6 @@
   --text-error: #d0184d;
   --text-warning: #d66707;
 
-  /* Semantic aliases (used by page/layout CSS modules) */
   --primary: var(--bg-green);
   --foreground: var(--text-primary);
   --muted-foreground: var(--text-gray);
