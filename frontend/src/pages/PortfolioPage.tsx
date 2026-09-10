@@ -25,6 +25,7 @@ function PortfolioPage() {
 
     const fetchAccounts = async () => {
       const data = await getDashboard(token);
+
       setAccounts(data.accounts);
     };
 

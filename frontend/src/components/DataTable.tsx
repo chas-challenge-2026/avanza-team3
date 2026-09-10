@@ -62,6 +62,8 @@ const DataTable = ({ title, rows, columns, width }: DataTableProps) => {
                     <Badge variant={row[col.field].toLowerCase()}>
                       {row[col.field]}
                     </Badge>
+                  ) : col.field === "totalValueSek" ? (
+                    `${row[col.field].toLocaleString("sv-SE")} kr`
                   ) : (
                     row[col.field]
                   )}
