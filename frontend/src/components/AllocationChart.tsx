@@ -2,8 +2,9 @@ import { PieChart } from "@mui/x-charts";
 import { useMediaQuery, useTheme } from "@mui/material";
 import styles from "./AllocationChart.module.css";
 import AppCard from "./AppCard";
-import { getPortfolio, type AllocationRow } from "../services/portfolioService";
+import { getPortfolio } from "../services/portfolioService";
 import { useEffect, useState } from "react";
+import type { AllocationRow } from "../types/portfolio";
 
 const AllocationChart = () => {
   const [allocationRows, setAllocationRows] = useState<AllocationRow[]>([]);
