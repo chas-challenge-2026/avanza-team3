@@ -12,12 +12,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import se.comerit.avanza.auth.controller.AuthController;
 import se.comerit.avanza.auth.dto.LoginRequest;
+import se.comerit.avanza.auth.repository.UserRepository;
 import se.comerit.avanza.auth.service.AuthService;
 import se.comerit.avanza.security.JwtService;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,8 +40,11 @@ class AuthControllerTest {
     @MockBean
     private JwtService jwtService;
 
+    @MockBean
+    private UserRepository userRepository;
+
     @Test
-    void loginReturnsTokenWhenCredentialsAreValid() throws Exception {
+    void loginReturnsTokenCookieWhenCredentialsAreValid() throws Exception {
         LoginRequest request = new LoginRequest();
         request.setEmail("test@example.com");
         request.setPassword("password123");
@@ -52,28 +58,38 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
-                .andExpect(jsonPath("$.tokenType").value("Bearer"));
+                .andExpect(jsonPath("$.message").value("Inloggning lyckades."))
+                .andExpect(cookie().value("access_token", "test-jwt-token"))
+                .andExpect(cookie().httpOnly("access_token", true))
+                .andExpect(cookie().path("access_token", "/"));
     }
 
     @Test
-    void loginReturnsUnauthorizedWhenCredentialsAreInvalid() throws Exception{
+    void loginReturnsUnauthorizedWhenCredentialsAreInvalid() throws Exception {
         LoginRequest request = new LoginRequest();
         request.setEmail("test@example.com");
         request.setPassword("wrong-password");
 
         when(authService.authenticateAndGenerateToken(
-            "test@example.com", 
-            "wrong-password"))
-            .thenReturn(null);
+                "test@example.com",
+                "wrong-password"))
+                .thenReturn(null);
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().json(
-                    "{\"error\":\"Fel e-post eller lösenord.\"}"
-                ));
+                        "{\"error\":\"Fel e-post eller lösenord.\"}"));
+    }
+
+    @Test
+    void logoutReturnsSuccessAndDeletesCookie() throws Exception {
+        mockMvc.perform(delete("/api/auth/logout"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Utloggning lyckades."))
+                .andExpect(cookie().value("access_token", ""))
+                .andExpect(cookie().maxAge("access_token", 0));
     }
 
 }
