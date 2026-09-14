@@ -29,7 +29,7 @@ type Alert = {
   message: string;
 };
 
-const accounts: Account[] = [
+export const accounts: Account[] = [
   {
     id: 1,
     userId: 1,
@@ -50,7 +50,7 @@ const accounts: Account[] = [
   },
 ];
 
-const holdings: Holding[] = [
+export const holdings: Holding[] = [
   {
     id: 1,
     accountId: 1,
@@ -97,7 +97,7 @@ const holdings: Holding[] = [
     currency: "SEK",
   },
 ];
-const targetAllocations: TargetAllocation[] = [
+export const targetAllocations: TargetAllocation[] = [
   {
     id: 1,
     userId: 1,
@@ -118,7 +118,7 @@ const targetAllocations: TargetAllocation[] = [
   },
 ];
 
-const alerts: Alert[] = [
+export const alerts: Alert[] = [
   {
     id: 1,
     userId: 1,

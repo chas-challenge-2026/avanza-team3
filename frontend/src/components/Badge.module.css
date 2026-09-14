@@ -1,7 +1,9 @@
 .badge {
-  padding: 0.1rem 0.3rem;
-  border-radius: 7px;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
   font-size: var(--font-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .badge-outline {

@@ -6,9 +6,9 @@ import { Outlet } from "react-router-dom";
 const BaseLayout = () => {
   return (
     <div className={styles.appLayout}>
-      <Sidebar />
+      <Header />
       <div className={styles.appBody}>
-        <Header />
+        <Sidebar />
         <main className={styles.mainContent}>
           <Outlet />
         </main>
