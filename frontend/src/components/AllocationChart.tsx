@@ -8,7 +8,7 @@ import type { AllocationRow } from "../types/portfolio";
 
 const AllocationChart = () => {
   const [allocationRows, setAllocationRows] = useState<AllocationRow[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
 
   useEffect(() => {
     getPortfolio()
@@ -24,7 +24,7 @@ const AllocationChart = () => {
 
   const data = allocationRows.map((row) => ({
     label: `${row.accountType} (${((row.actual / total) * 100).toFixed(0)}%)`,
-    value: row.actual
+    value: row.actual,
   }));
 
   const theme = useTheme();
@@ -47,8 +47,8 @@ const AllocationChart = () => {
                 outerRadius,
                 data,
                 valueFormatter: (item) =>
-                  item ? `${((item.value / total) * 100).toFixed(0)}%` : ""
-              }
+                  item ? `${((item.value / total) * 100).toFixed(0)}%` : "",
+              },
             ]}
             margin={{ right: 5 }}
             hideLegend={false}
