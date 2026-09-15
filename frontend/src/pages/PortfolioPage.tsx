@@ -59,7 +59,7 @@ function PortfolioPage() {
       </AppCard>
 
       <div className={styles.row2}>
-        <AllocationChart />
+        <AllocationChart title="Fördelning per kontotyp" />
         <PortfolioHealth value={80} />
       </div>
 

@@ -6,7 +6,11 @@ import { getPortfolio } from "../services/portfolioService";
 import { useEffect, useState } from "react";
 import type { AllocationRow } from "../types/portfolio";
 
-const AllocationChart = () => {
+type AllocationChartProps = {
+  title?: string;
+};
+
+const AllocationChart = ({ title }: AllocationChartProps) => {
   const [allocationRows, setAllocationRows] = useState<AllocationRow[]>([]);
   const [, setError] = useState<string | null>(null);
 
@@ -24,7 +28,7 @@ const AllocationChart = () => {
 
   const data = allocationRows.map((row) => ({
     label: `${row.accountType} (${((row.actual / total) * 100).toFixed(0)}%)`,
-    value: row.actual,
+    value: row.actual
   }));
 
   const theme = useTheme();
@@ -37,7 +41,7 @@ const AllocationChart = () => {
     <AppCard>
       <div className={styles.chartWrapper}>
         <div className={styles.headerWrapper}>
-          <h2>Fördelning (marknadsvärde)</h2>
+          <h2>{title}</h2>
         </div>
         <div className={styles.chartBox}>
           <PieChart
@@ -47,9 +51,21 @@ const AllocationChart = () => {
                 outerRadius,
                 data,
                 valueFormatter: (item) =>
-                  item ? `${((item.value / total) * 100).toFixed(0)}%` : "",
-              },
+                  item ? `${((item.value / total) * 100).toFixed(0)}%` : ""
+              }
             ]}
+            slotProps={{
+              legend: {
+                sx: {
+                  "& .MuiChartsLegend-label": {
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    fontFamily: "Roboto",
+                    color: "#5a6569"
+                  }
+                }
+              }
+            }}
             margin={{ right: 5 }}
             hideLegend={false}
           />
