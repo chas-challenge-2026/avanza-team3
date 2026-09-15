@@ -5,15 +5,17 @@ import PortfolioHealth from "../components/PortfolioHealth";
 import styles from "./PorfolioPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
-import AllocationChart from "../components/AllocationChart";
+import DonutChart from "../components/DonutChart";
 import NotificationCard from "../components/NotificationCard";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
 import { useState, useEffect } from "react";
 import type { Account, Alert } from "../types/dashboard";
 import { getDashboard } from "../services/dashboardService";
+import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 
 function PortfolioPage() {
+  const { rows } = usePortfolioAllocations();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
 
@@ -33,6 +35,11 @@ function PortfolioPage() {
 
     fetchAccounts();
   }, []);
+
+  const allocationData = rows.map((row) => ({
+    label: row.accountType,
+    value: row.actual
+  }));
 
   return (
     <div className={styles.container}>
@@ -59,7 +66,7 @@ function PortfolioPage() {
       </AppCard>
 
       <div className={styles.row2}>
-        <AllocationChart />
+        <DonutChart title="Fördelning per kontotyp" data={allocationData} />
         <PortfolioHealth value={80} />
       </div>
 
