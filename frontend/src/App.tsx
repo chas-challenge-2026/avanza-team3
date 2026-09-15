@@ -7,6 +7,7 @@ import InnehavPage from "./pages/InnehavPage";
 import PortfolioHealthPage from "./pages/PortfolioHealthPage";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import NotificationPage from "./pages/NotificationPage";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/" element={<PortfolioPage />} />
             <Route path="/innehav" element={<InnehavPage />} />
             <Route path="/portfoljhalsa" element={<PortfolioHealthPage />} />
+            <Route path="/notiser" element={<NotificationPage />} />
             <Route path="/login" element={<LoginPage />} />
           </Route>
         </Route>
