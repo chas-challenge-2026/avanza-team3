@@ -1,10 +1,13 @@
 import AppCard from "../components/AppCard";
 import styles from "./PortfolioHealthPage.module.css";
 import { Gauge } from "@mui/x-charts/Gauge";
-import AllocationChart from "../components/AllocationChart";
 import IndustriesChart from "../components/IndustriesChart";
+import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
+import DonutChart from "../components/DonutChart";
 
 function PortfolioHealthPage() {
+  const { rows } = usePortfolioAllocations();
+
   const statusColors = {
     good: "#16a34a",
     warning: "#d97706",
@@ -52,6 +55,19 @@ function PortfolioHealthPage() {
     warning: "Måttlig spridning",
     danger: "Låg spridning"
   };
+
+  const allocationData = rows.map((row) => ({
+    label: row.accountType,
+    value: row.actual
+  }));
+
+  const mockAssetData = [
+    { label: "Aktier", value: 68, color: "green" },
+    { label: "Fonder", value: 42, color: "blue" },
+    { label: "Räntebärande", value: 28, color: "teal" },
+    { label: "Kontanter", value: 15, color: "orange" },
+    { label: "Övrigt", value: 5, color: "gray" }
+  ];
 
   return (
     <>
@@ -141,9 +157,10 @@ function PortfolioHealthPage() {
         </AppCard>
       </div>
       <div className={styles.container}>
-        <AllocationChart title="Fördelning per kontotyp" />
+        <DonutChart title="Fördelning per kontotyp" data={allocationData} />
         <IndustriesChart />
       </div>
+      <DonutChart title="Fördelning per tillgångstyp" data={mockAssetData} />
     </>
   );
 }

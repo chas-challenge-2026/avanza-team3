@@ -2,33 +2,25 @@ import { PieChart } from "@mui/x-charts";
 import { useMediaQuery, useTheme } from "@mui/material";
 import styles from "./AllocationChart.module.css";
 import AppCard from "./AppCard";
-import { getPortfolio } from "../services/portfolioService";
-import { useEffect, useState } from "react";
-import type { AllocationRow } from "../types/portfolio";
 
-type AllocationChartProps = {
-  title?: string;
+type DonutChartItem = {
+  label: string;
+  value: number;
+  color?: string;
 };
 
-const AllocationChart = ({ title }: AllocationChartProps) => {
-  const [allocationRows, setAllocationRows] = useState<AllocationRow[]>([]);
-  const [, setError] = useState<string | null>(null);
+type DonutChartProps = {
+  title?: string;
+  data: DonutChartItem[];
+};
 
-  useEffect(() => {
-    getPortfolio()
-      .then((portfolio) => {
-        setAllocationRows(portfolio.allocationRows);
-      })
-      .catch(() => {
-        setError("Kunde inte hämta fördelningen");
-      });
-  }, []);
+const DonutChart = ({ title, data }: DonutChartProps) => {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
 
-  const total = allocationRows.reduce((sum, row) => sum + row.actual, 0);
-
-  const data = allocationRows.map((row) => ({
-    label: `${row.accountType} (${((row.actual / total) * 100).toFixed(0)}%)`,
-    value: row.actual
+  const pieData = data.map((item) => ({
+    label: `${item.label} (${((item.value / total) * 100).toFixed(0)}%)`,
+    value: item.value,
+    color: item.color
   }));
 
   const theme = useTheme();
@@ -49,7 +41,9 @@ const AllocationChart = ({ title }: AllocationChartProps) => {
               {
                 innerRadius,
                 outerRadius,
-                data,
+                data: pieData,
+                cornerRadius: 5,
+                paddingAngle: 0.5,
                 valueFormatter: (item) =>
                   item ? `${((item.value / total) * 100).toFixed(0)}%` : ""
               }
@@ -74,4 +68,4 @@ const AllocationChart = ({ title }: AllocationChartProps) => {
     </AppCard>
   );
 };
-export default AllocationChart;
+export default DonutChart;
