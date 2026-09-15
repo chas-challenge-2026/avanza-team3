@@ -18,3 +18,13 @@ export type Holding = {
     currency: string;
   }
 
+ export type HoldingApiResponse = {
+    id: number;
+    account_id: number;
+    ticker: string;
+    instrument_name: string;
+    quantity: number;
+    avg_buy_price: number;
+    currentPrice: number;
+    currency: string;
+  };

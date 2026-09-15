@@ -1,4 +1,4 @@
-import type { Holding, HoldingRequest } from "../types/Holding";
+import type { Holding, HoldingRequest, HoldingApiResponse } from "../types/Holding";
 
 export const getHoldings = async (): Promise<Holding[]> => {
     const token = localStorage.getItem("token");
@@ -19,7 +19,16 @@ export const getHoldings = async (): Promise<Holding[]> => {
     }
   
     const data = await response.json();
-    return data.content;
+    return data.content.map((holding: HoldingApiResponse) => ({
+      id: holding.id,
+      accountId: holding.account_id,
+      ticker: holding.ticker,
+      instrumentName: holding.instrument_name,
+      quantity: holding.quantity,
+      avgBuyPrice: holding.avg_buy_price,
+      currentPrice: holding.currentPrice,
+      currency: holding.currency,
+    }));
   };
 
 export const createHolding = async (
