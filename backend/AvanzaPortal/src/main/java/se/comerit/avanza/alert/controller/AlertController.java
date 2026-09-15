@@ -1,5 +1,6 @@
 package se.comerit.avanza.alert.controller;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +21,25 @@ public class AlertController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AlertResponse>> getAlerts(Authentication authentication) {
+    public ResponseEntity<Page<AlertResponse>> getAlerts(
+            @RequestParam(defaultValue = "false") boolean dismissed,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            Authentication authentication) {
+
         Integer userId = (Integer) authentication.getDetails();
-        return ResponseEntity.ok(alertService.getAlertsByUserId(userId));
+
+        if (page < 0) {
+            page = 0;
+        }
+
+        if (size < 1) {
+            size = 20;
+        }
+
+        size = Math.min(size, 100);
+
+        return ResponseEntity.ok(alertService.getAlertsByUserId(userId, dismissed, page, size));
     }
 
     @GetMapping("/live")
