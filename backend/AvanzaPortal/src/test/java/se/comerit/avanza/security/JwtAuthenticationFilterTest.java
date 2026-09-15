@@ -1,6 +1,7 @@
 package se.comerit.avanza.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 
 @ExtendWith(MockitoExtension.class)
 class JwtAuthenticationFilterTest {
@@ -36,12 +38,12 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void validTokenAuthenticatesUser() throws ServletException, IOException {
+    void validTokenInCookieAuthenticateUser() throws ServletException, IOException {
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
 
-        request.addHeader("Authorization", "Bearer valid-token");
+        request.setCookies(new Cookie("access_token", "valid-token"));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -60,6 +62,8 @@ class JwtAuthenticationFilterTest {
                 .getContext()
                 .getAuthentication();
 
+        assertNotNull(authentication);
+
         assertEquals("test@example.com", authentication.getPrincipal());
 
         assertEquals(1, authentication.getDetails());
@@ -73,7 +77,7 @@ class JwtAuthenticationFilterTest {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
 
-        request.addHeader("Authorization", "Bearer invalid-token");
+        request.setCookies(new Cookie("access_token", "invalid-token"));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -90,7 +94,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void missingAuthorizationHeaderDoesNotAuthenticateUser() throws ServletException, IOException {
+    void missingCookieDoesNotAuthenticateUser() throws ServletException, IOException {
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -107,13 +111,13 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void tokenWithoutBearerPrefixIsIgnored() throws ServletException, IOException{
+    void cookieWithWrongNameIsIgnored() throws ServletException, IOException{
 
         JwtAuthenticationFilter filter =  new JwtAuthenticationFilter(jwtService);
         
         MockHttpServletRequest request = new MockHttpServletRequest();
 
-        request.addHeader("Authorization", "Invalid valid-token");
+        request.setCookies(new Cookie("wrong_cookie", "valid-token"));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -141,7 +145,7 @@ class JwtAuthenticationFilterTest {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
 
-        request.addHeader("Authorization", "Bearer valid-token");
+        request.setCookies(new Cookie("access_token", "valid-token"));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
