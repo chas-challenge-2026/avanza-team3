@@ -191,3 +191,69 @@ Det saknas integrationstester unittester för targetallocation.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 sh -c 'PGPASSWORD=avanza123 pg_dump -h db -U avanza -d avanza -Fc --no-owner --no-privileges -f /tmp/avanza12.dump'                                         
+time="2026-09-15T11:44:56+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 ls -lh /tmp/avanza12.dump                                                                                                                                   
+time="2026-09-15T11:55:34+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+-rw-r--r-- 1 root root 14K Sep 15 09:44 /tmp/avanza12.dump
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 sh -c 'PGPASSWORD=avanza123 pg_restore -U avanza -d avanza --no-owner --no-privileges /tmp/avanza12.dump'                                                   
+time="2026-09-15T11:59:20+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 psql -U avanza -d avanza -c "\dt"                                                                                                                           
+time="2026-09-15T12:17:36+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+List of relations
+Schema |        Name        | Type  | Owner  
+--------+--------------------+-------+--------
+public | accounts           | table | avanza
+public | alerts             | table | avanza
+public | holdings           | table | avanza
+public | target_allocations | table | avanza
+public | users              | table | avanza
+(5 rows)
+
+
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db psql -U avanza -d avanza -c "SELECT 'users' AS table_name, COUNT(*) FROM users UNION ALL SELECT 'accounts', COUNT(*) FROM accounts UNION ALL SELECT 'holdings', COUNT(*) FROM holdings UNION ALL SELECT 'alerts', COUNT(*) FROM alerts UNION ALL SELECT 'target_allocations', COUNT(*) FROM target_allocations;"
+time="2026-09-15T12:19:06+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+table_name     | count
+--------------------+-------
+users              |     2
+accounts           |     3
+holdings           |     5
+alerts             |     2
+target_allocations |     3
+(5 rows)
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 psql -U avanza -d avanza -c "SELECT 'users' AS table_name, COUNT(*) FROM users UNION ALL SELECT 'accounts', COUNT(*) FROM accounts UNION ALL SELECT 'holdings', COUNT(*) FROM holdings UNION ALL SELECT 'alerts', COUNT(*) FROM alerts UNION ALL SELECT 'target_allocations', COUNT(*) FROM target_allocations;"
+time="2026-09-15T12:38:24+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+table_name     | count
+--------------------+-------
+users              |     2
+accounts           |     3
+holdings           |     5
+alerts             |     2
+target_allocations |     3
+(5 rows)
+manuellt jämföra är kanske inte optimalt, så kommer skriva tester som visar detta också.
+
+
+
+
+
