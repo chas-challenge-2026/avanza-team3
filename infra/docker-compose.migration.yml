@@ -1,7 +1,7 @@
 services:
   db:
     ports:
-      - "5432:5432"
+      - "15432:5432"
 
   db15:
     image: postgres:15
@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: avanza
       POSTGRES_USER: avanza
       POSTGRES_PASSWORD: avanza123
+    ports:
+      - "15433:5432"
     volumes:
       - postgres15_data:/var/lib/postgresql/data
     healthcheck:
