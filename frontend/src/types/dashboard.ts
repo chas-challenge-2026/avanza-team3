@@ -3,12 +3,12 @@ export type DashboardData = {
   holdings: DashboardHoldingPage;
   allocationRows: AllocationRow[];
   totalPortfolioValue: number;
-  recentAlerts: RecentAlert[];
+  recentAlerts: Alert[];
   anyDrift: boolean;
   usdToSek: number;
 };
 
-export type AccountSummary = {
+export type AccountSummary= {
   id: number;
   userId: number;
   accountType: string;
@@ -51,15 +51,6 @@ export type AllocationRow = {
   target: number;
   drift: number;
   overThreshold: boolean;
-};
-
-export type RecentAlert = {
-  totalValueSek: number;
-};
-
-export type DashboardResponse = {
-  accounts: AccountSummary[];
-  recentAlerts: Alert[];
 };
 
 export type Alert = {
