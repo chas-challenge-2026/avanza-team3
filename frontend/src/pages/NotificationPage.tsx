@@ -26,7 +26,11 @@ export default function NotificationPage() {
 
   const token = localStorage.getItem("token");
 
-  function dismissNotification(id) {
+  function dismissLiveAlert(index: number) {
+    setLiveAlerts((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function dismissNotification(id: number) {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, dismissed: true } : n)),
     );
@@ -51,7 +55,7 @@ export default function NotificationPage() {
         const alertsData = await alertsRes.json();
         const liveAlertsData = await liveAlertsRes.json();
 
-        setNotifications(alertsData);
+        setNotifications(alertsData.content);
         setLiveAlerts(liveAlertsData);
       } catch (err) {
         setError("Kunde inte hämta notifikationer");
@@ -81,7 +85,7 @@ export default function NotificationPage() {
           </span>
           <p className={styles.message}>{a.message}</p>
           <span className={styles.time}>{a.created_at}</span>
-          <span>
+          <span onClick={() => dismissLiveAlert(index)}>
             <FontAwesomeIcon icon={faTrashAlt} />
           </span>
         </div>
