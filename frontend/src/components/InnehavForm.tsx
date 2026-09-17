@@ -9,7 +9,7 @@ import AppCard from "./AppCard";
 type Currency = "SEK" | "USD" | "EUR" | "";
 
 type InnehavFormData = {
-  account: string;
+  accountId: string;
   ticker: string;
   instrumentName: string;
   instrumentType: string;
@@ -19,7 +19,7 @@ type InnehavFormData = {
 };
 
 const initialFormDataValue: InnehavFormData = {
-  account: "",
+  accountId: "",
   ticker: "",
   instrumentName: "",
   instrumentType: "",
@@ -28,7 +28,11 @@ const initialFormDataValue: InnehavFormData = {
   currency: ""
 };
 
-const InnehavsForm = () => {
+type InnehavsFormProps = {
+  width?: string;
+};
+
+const InnehavsForm = ({}: InnehavsFormProps) => {
   const [formData, setFormData] =
     useState<InnehavFormData>(initialFormDataValue);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -79,8 +83,8 @@ const InnehavsForm = () => {
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.account) {
-      newErrors.account = "Välj ett konto";
+    if (!formData.accountId) {
+      newErrors.accountId = "Välj ett konto";
     }
     if (!formData.ticker.trim()) {
       newErrors.ticker = "Ange en ticker";
@@ -118,8 +122,10 @@ const InnehavsForm = () => {
   };
 
   const textFieldSx = {
+    // width: "100%",
     "& .MuiFormHelperText-root": {
       marginBottom: "3px",
+      marginTop: "0px",
       fontWeight: "bold"
     },
     "& .MuiInputLabel-root.Mui-error": {
@@ -156,13 +162,15 @@ const InnehavsForm = () => {
         >
           <div className={styles.containerRight}>
             <TextField
+              fullWidth
               select
+              size="small"
               label="Konto"
-              name="account"
-              value={formData.account}
+              name="accountId"
+              value={formData.accountId}
               onChange={handleChange}
-              error={Boolean(errors.account)}
-              helperText={errors.account || " "}
+              error={Boolean(errors.accountId)}
+              helperText={errors.accountId || " "}
               sx={textFieldSx}
             >
               <MenuItem value="1">Anna ISK (ISK)</MenuItem>
@@ -171,6 +179,8 @@ const InnehavsForm = () => {
             </TextField>
 
             <TextField
+              fullWidth
+              size="small"
               placeholder="t.ex. ERIC-B"
               label="Ticker"
               name="ticker"
@@ -181,6 +191,8 @@ const InnehavsForm = () => {
               sx={textFieldSx}
             />
             <TextField
+              fullWidth
+              size="small"
               name="instrumentName"
               label="Instrumentnamn"
               placeholder="t.ex. Ericsson B"
@@ -190,8 +202,11 @@ const InnehavsForm = () => {
               helperText={errors.instrumentName || " "}
               sx={textFieldSx}
             />
+
             <TextField
               select
+              fullWidth
+              size="small"
               label="Instrumenttyp"
               name="instrumentType"
               value={formData.instrumentType}
@@ -208,6 +223,8 @@ const InnehavsForm = () => {
 
           <div className={styles.containerLeft}>
             <TextField
+              fullWidth
+              size="small"
               label="Antal"
               name="quantity"
               type="number"
@@ -220,6 +237,8 @@ const InnehavsForm = () => {
             />
 
             <TextField
+              fullWidth
+              size="small"
               name="avgBuyPrice"
               type="number"
               placeholder="150.00"
@@ -232,7 +251,9 @@ const InnehavsForm = () => {
             />
 
             <TextField
+              fullWidth
               select
+              size="small"
               label="Valuta"
               name="currency"
               value={formData.currency}
@@ -246,23 +267,23 @@ const InnehavsForm = () => {
               <MenuItem value="EUR">EUR</MenuItem>
             </TextField>
             <AppButton
-              sx={{ maxWidth: "200px", padding: "15px" }}
+              sx={{ maxWidth: "200px", padding: "8px" }}
               type="submit"
               variant="contained"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Lägger till..." : "Lägg till"}
             </AppButton>
+            {successMessage && (
+              <Typography
+                sx={{ fontWeight: 800, m: "auto" }}
+                className={styles.successMessage}
+              >
+                {successMessage}
+              </Typography>
+            )}
           </div>
         </Box>
-        {successMessage && (
-          <Typography
-            sx={{ fontWeight: 800, m: "auto" }}
-            className={styles.successMessage}
-          >
-            {successMessage}
-          </Typography>
-        )}
       </AppCard>
     </div>
   );
