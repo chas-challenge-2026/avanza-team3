@@ -1,5 +1,11 @@
 package se.comerit.avanza.dashboard.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +17,11 @@ import se.comerit.avanza.dashboard.service.DashboardService;
 
 @RestController
 @RequestMapping("/api/portfolio")
+@Tag(
+        name = "Portfolio",
+        description = "Aggregated portfolio dashboard data for the authenticated user"
+)
+@SecurityRequirement(name = "bearerAuth")
 public class DashboardController {
 
     private final DashboardService dashboardService;
@@ -19,16 +30,43 @@ public class DashboardController {
         this.dashboardService = dashboardService;
     }
 
+    @Operation(
+            summary = "Get portfolio dashboard",
+            description = "Returns account summaries, paginated holdings, allocation information, recent alerts and market data for the authenticated user."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Portfolio dashboard retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required")
+    })
     @GetMapping
-    public ResponseEntity<DashboardView> dashboard(@RequestParam(defaultValue = "0") int page,
-                                                   @RequestParam(defaultValue = "20") int size,
-                                                   Authentication authentication) {
+    public ResponseEntity<DashboardView> dashboard(
+            @Parameter(
+                    description = "Holdings page number. Page numbering starts at 0.",
+                    example = "0"
+            )
+            @RequestParam(defaultValue = "0") int page,
+
+            @Parameter(
+                    description = "Number of holdings per page. Default is 20 and maximum is 100.",
+                    example = "20"
+            )
+            @RequestParam(defaultValue = "20") int size,
+
+            @Parameter(hidden = true)
+            Authentication authentication) {
+
         Integer userId = authenticatedUserId(authentication);
         if (userId == null) {
             return ResponseEntity.status(401).build();
         }
 
-        return ResponseEntity.ok(dashboardService.getDashboardForUser(userId, normalizePage(page), normalizeSize(size)));
+        return ResponseEntity.ok(
+                dashboardService.getDashboardForUser(
+                        userId,
+                        normalizePage(page),
+                        normalizeSize(size)
+                )
+        );
     }
 
     private int normalizePage(int page) {

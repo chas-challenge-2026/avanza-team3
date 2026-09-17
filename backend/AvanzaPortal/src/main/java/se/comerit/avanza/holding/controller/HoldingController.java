@@ -104,8 +104,8 @@ public class HoldingController {
                     description = "Authentication required"
             ),
             @ApiResponse(
-                    responseCode = "403",
-                    description = "User is not authorized to create a holding in the specified account"
+                    responseCode = "404",
+                    description = "Account not found for the authenticated user"
             )
     })
     @PostMapping
@@ -150,10 +150,6 @@ public class HoldingController {
             @ApiResponse(
                     responseCode = "401",
                     description = "Authentication required"
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "User is not authorized to update this holding"
             ),
             @ApiResponse(
                     responseCode = "404",
@@ -203,10 +199,6 @@ public class HoldingController {
                     description = "Authentication required"
             ),
             @ApiResponse(
-                    responseCode = "403",
-                    description = "User is not authorized to access this holding"
-            ),
-            @ApiResponse(
                     responseCode = "404",
                     description = "Holding not found"
             )
@@ -247,14 +239,6 @@ public class HoldingController {
             @ApiResponse(
                     responseCode = "401",
                     description = "Authentication required"
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "User is not authorized to delete this holding"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Holding not found"
             )
     })
     @DeleteMapping("/{holdingId}")
