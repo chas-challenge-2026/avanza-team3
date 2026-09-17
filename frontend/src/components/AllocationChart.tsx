@@ -33,29 +33,34 @@ const AllocationChart = () => {
   const innerRadius = isMobile ? 35 : 50;
   const outerRadius = isMobile ? 70 : 100;
 
-  return (
-    <AppCard>
-      <div className={styles.chartWrapper}>
-        <div className={styles.headerWrapper}>
-          <h2>Fördelning (marknadsvärde)</h2>
-        </div>
-        <div className={styles.chartBox}>
-          <PieChart
-            series={[
-              {
-                innerRadius,
-                outerRadius,
-                data,
-                valueFormatter: (item) =>
-                  item ? `${((item.value / total) * 100).toFixed(0)}%` : ""
-              }
-            ]}
-            margin={{ right: 5 }}
-            hideLegend={false}
-          />
-        </div>
-      </div>
-    </AppCard>
-  );
+    return (
+        <AppCard>
+            <div className={styles.chartWrapper}>
+                <div className={styles.headerWrapper}>
+                    <h2>Fördelning (marknadsvärde)</h2>
+                </div>
+
+                {error ? (
+                    <p>{error}</p>
+                ) : (
+                    <div className={styles.chartBox}>
+                        <PieChart
+                            series={[
+                                {
+                                    innerRadius,
+                                    outerRadius,
+                                    data,
+                                    valueFormatter: (item) =>
+                                        item ? `${((item.value / total) * 100).toFixed(0)}%` : ""
+                                }
+                            ]}
+                            margin={{ right: 5 }}
+                            hideLegend={false}
+                        />
+                    </div>
+                )}
+            </div>
+        </AppCard>
+    );
 };
 export default AllocationChart;
