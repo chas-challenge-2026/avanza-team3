@@ -6,8 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_executable(fx
-        src/fx.cpp
+        src/currency.cpp
         src/http.cpp
+        src/fx.cpp
 )
 
 if (WIN32)
