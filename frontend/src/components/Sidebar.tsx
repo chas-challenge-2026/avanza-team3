@@ -23,9 +23,9 @@ const Sidebar = () => {
         <NavLink to="/portfoljhalsa">
           <FontAwesomeIcon icon={faRightLeft} /> Portföljhälsa
         </NavLink>
-        <NavLink to="/rapporter">
+        {/* <NavLink to="/rapporter">
           <FontAwesomeIcon icon={faFileLines} /> Rapporter
-        </NavLink>
+        </NavLink> */}
         <NavLink to="/notiser">
           <FontAwesomeIcon icon={faBell} /> Notiser
         </NavLink>
