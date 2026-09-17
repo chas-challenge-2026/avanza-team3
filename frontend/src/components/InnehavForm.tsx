@@ -60,6 +60,9 @@ const InnehavsForm = () => {
     }
   };
 
+  const onlyLettersRegex = /^[A-Za-zÅÄÖåäö\s]+$/;
+  const tickerRegex = /^[A-Za-zÅÄÖåäö0-9.-]+$/;
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
 
@@ -78,9 +81,13 @@ const InnehavsForm = () => {
     }
     if (!formData.ticker.trim()) {
       newErrors.ticker = "Ange en ticker";
+    } else if (!tickerRegex.test(formData.ticker.trim())) {
+      newErrors.ticker = "Ticker får bara innehålla bokstäver, siffror och -";
     }
     if (!formData.instrumentName.trim()) {
       newErrors.instrumentName = "Ange ett instrumentnamn";
+    } else if (!onlyLettersRegex.test(formData.instrumentName.trim())) {
+      newErrors.instrumentName = "Instrumentnamn får bara innehålla bokstäver";
     }
     if (!formData.instrumentType) {
       newErrors.instrumentType = "Ange en instrumenttyp";
