@@ -9,32 +9,16 @@ import DonutChart from "../components/DonutChart";
 import NotificationCard from "../components/NotificationCard";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
-import { useState, useEffect } from "react";
-import type { Account, Alert } from "../types/dashboard";
-import { getDashboard } from "../services/dashboardService";
 import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
+import useDashboard from "../hooks/useDasboard";
 
 function PortfolioPage() {
   const { rows } = usePortfolioAllocations();
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [alerts, setAlerts] = useState<Alert[]>([]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  const { dashboard } = useDashboard();
+  const accounts = dashboard?.accounts ?? [];
+  const alerts = dashboard?.recentAlerts ?? [];
 
-    if (!token) {
-      return;
-    }
-
-    const fetchAccounts = async () => {
-      const data = await getDashboard(token);
-
-      setAccounts(data.accounts);
-      setAlerts(data.recentAlerts);
-    };
-
-    fetchAccounts();
-  }, []);
 
   const allocationData = rows.map((row) => ({
     label: row.accountType,
