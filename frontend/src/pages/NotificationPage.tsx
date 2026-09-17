@@ -79,7 +79,7 @@ export default function NotificationPage() {
         <p className={styles.empty}>Inga live-varningar</p>
       )}
       {liveAlerts.map((a, index) => (
-        <div key={index} className={styles.card}>
+        <div key={index} className={`${styles.card} ${styles["border-left"]}`}>
           <span className={styles.iconWrapper}>
             <FontAwesomeIcon icon={faBell} />
           </span>
