@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from "./NotificationPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
 type Notification = {
   id: number;
@@ -25,6 +25,12 @@ export default function NotificationPage() {
   const [error, setError] = useState<string | null>(null);
 
   const token = localStorage.getItem("token");
+
+  function dismissNotification(id) {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, dismissed: true } : n)),
+    );
+  }
 
   useEffect(() => {
     async function getAlerts() {
@@ -59,6 +65,7 @@ export default function NotificationPage() {
 
   if (loading) return <p>Laddar notifikationer...</p>;
   if (error) return <p>{error}</p>;
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Notifikationer</h1>
@@ -74,6 +81,9 @@ export default function NotificationPage() {
           </span>
           <p className={styles.message}>{a.message}</p>
           <span className={styles.time}>{a.created_at}</span>
+          <span>
+            <FontAwesomeIcon icon={faTrashAlt} />
+          </span>
         </div>
       ))}
 
@@ -81,22 +91,27 @@ export default function NotificationPage() {
       {notifications.length === 0 && (
         <p className={styles.empty}>Inga sparade notifikationer</p>
       )}
-      {notifications.map((n) => (
-        <div key={n.id} className={styles.card}>
-          <span className={styles.iconWrapper}>
-            <FontAwesomeIcon icon={faBell} />
-          </span>
-          <p className={styles.message}>{n.message}</p>
-          <span className={styles.time}>
-            {new Date(n.createdAt).toLocaleDateString("sv-SE", {
-              day: "2-digit",
-              month: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}{" "}
-          </span>
-        </div>
-      ))}
+      {notifications
+        .filter((n) => !n.dismissed)
+        .map((n) => (
+          <div key={n.id} className={styles.card}>
+            <span className={styles.iconWrapper}>
+              <FontAwesomeIcon icon={faBell} />
+            </span>
+            <p className={styles.message}>{n.message}</p>
+            <span className={styles.time}>
+              {new Date(n.createdAt).toLocaleDateString("sv-SE", {
+                day: "2-digit",
+                month: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}{" "}
+            </span>
+            <span onClick={() => dismissNotification(n.id)}>
+              <FontAwesomeIcon icon={faTrashAlt} />
+            </span>
+          </div>
+        ))}
     </div>
   );
 }
