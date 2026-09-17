@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from "./NotificationPage.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBell } from "@fortawesome/free-solid-svg-icons";
 
 type Notification = {
   id: number;
@@ -58,23 +60,42 @@ export default function NotificationPage() {
   if (loading) return <p>Laddar notifikationer...</p>;
   if (error) return <p>{error}</p>;
   return (
-    <div>
-      <h1>Notifikationer</h1>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Notifikationer</h1>
 
-      <h2>Live-varningar</h2>
-      {liveAlerts.length === 0 && <p>Inga live-varningar</p>}
+      <h2 className={styles.sectionTitle}>Live-varningar</h2>
+      {liveAlerts.length === 0 && (
+        <p className={styles.empty}>Inga live-varningar</p>
+      )}
       {liveAlerts.map((a, index) => (
-        <p key={index}>
-          {a.message} ({a.created_at})
-        </p>
+        <div key={index} className={styles.card}>
+          <span className={styles.iconWrapper}>
+            <FontAwesomeIcon icon={faBell} />
+          </span>
+          <p className={styles.message}>{a.message}</p>
+          <span className={styles.time}>{a.created_at}</span>
+        </div>
       ))}
 
-      <h2>Sparade notifikationer</h2>
-      {notifications.length === 0 && <p>Inga sparade notifikationer</p>}
+      <h2 className={styles.sectionTitle}>Äldre notifikationer</h2>
+      {notifications.length === 0 && (
+        <p className={styles.empty}>Inga sparade notifikationer</p>
+      )}
       {notifications.map((n) => (
-        <p key={n.id}>
-          {n.message} ({n.createdAt})
-        </p>
+        <div key={n.id} className={styles.card}>
+          <span className={styles.iconWrapper}>
+            <FontAwesomeIcon icon={faBell} />
+          </span>
+          <p className={styles.message}>{n.message}</p>
+          <span className={styles.time}>
+            {new Date(n.createdAt).toLocaleDateString("sv-SE", {
+              day: "2-digit",
+              month: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}{" "}
+          </span>
+        </div>
       ))}
     </div>
   );
