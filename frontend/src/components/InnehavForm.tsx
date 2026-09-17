@@ -131,8 +131,8 @@ const InnehavsForm = () => {
   };
 
   return (
-    <AppCard>
-      <div className={styles.formWrapper}>
+    <div className={styles.formWrapper}>
+      <AppCard>
         <div className={styles.titleWrapper}>
           <FontAwesomeIcon icon={faBriefcase} className={styles.icon} />
           <Typography sx={{ fontSize: "28px", fontWeight: 700 }}>
@@ -263,8 +263,8 @@ const InnehavsForm = () => {
             {successMessage}
           </Typography>
         )}
-      </div>
-    </AppCard>
+      </AppCard>
+    </div>
   );
 };
 export default InnehavsForm;
