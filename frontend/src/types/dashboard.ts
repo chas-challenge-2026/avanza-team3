@@ -54,6 +54,15 @@ export type AllocationRow = {
 };
 
 export type RecentAlert = {
+  totalValueSek: number;
+};
+
+export type DashboardResponse = {
+  accounts: AccountSummary[];
+  recentAlerts: Alert[];
+};
+
+export type Alert = {
   id: number;
   alertType: string;
   message: string;
