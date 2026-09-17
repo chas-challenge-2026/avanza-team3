@@ -1,10 +1,18 @@
-import { Box, Container, MenuItem, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Alert,
+  Snackbar,
+  MenuItem,
+  TextField,
+  Typography
+} from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "./AppCard";
+import { useHoldings } from "../hooks/useHoldings";
 
 type Currency = "SEK" | "USD" | "EUR" | "";
 
@@ -33,13 +41,16 @@ type InnehavsFormProps = {
 };
 
 const InnehavsForm = ({}: InnehavsFormProps) => {
+  const { addHolding } = useHoldings();
+
   const [formData, setFormData] =
     useState<InnehavFormData>(initialFormDataValue);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setSuccessMessage("");
@@ -53,15 +64,24 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
     try {
       const submittedData = {
         ...formData,
-        ticker: formData.ticker.trim().toLocaleUpperCase(),
+        accountId: Number(formData.accountId),
+        ticker: formData.ticker.trim().toUpperCase(),
+        instrumentName: formData.instrumentName.trim(),
         quantity: Number(formData.quantity),
-        avgBuyPrice: Number(formData.avgBuyPrice)
+        avgBuyPrice: Number(formData.avgBuyPrice),
+        currency: formData.currency
       };
       console.log(submittedData);
+      await addHolding(submittedData);
 
       setFormData(initialFormDataValue);
       setErrors({});
       setSuccessMessage("Innehavet har lagts till");
+      setOpenSnackbar(true);
+    } catch (error) {
+      setErrors({
+        submit: error instanceof Error ? error.message : "Något gick fel"
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -96,9 +116,9 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
     } else if (!onlyLettersRegex.test(formData.instrumentName.trim())) {
       newErrors.instrumentName = "Instrumentnamn får bara innehålla bokstäver";
     }
-    if (!formData.instrumentType) {
-      newErrors.instrumentType = "Ange en instrumenttyp";
-    }
+    // if (!formData.instrumentType) {
+    //   newErrors.instrumentType = "Ange en instrumenttyp";
+    // }
 
     const quantity = Number(formData.quantity);
 
@@ -203,7 +223,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               sx={textFieldSx}
             />
 
-            <TextField
+            {/* <TextField
               select
               fullWidth
               size="small"
@@ -218,7 +238,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               <MenuItem value="Aktie">Aktie</MenuItem>
               <MenuItem value="Fond">Fond</MenuItem>
               <MenuItem value="ETF">ETF</MenuItem>
-            </TextField>
+            </TextField> */}
           </div>
 
           <div className={styles.containerLeft}>
@@ -271,17 +291,25 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               type="submit"
               variant="contained"
               disabled={isSubmitting}
+              // onClick={handleSubmit}
             >
               {isSubmitting ? "Lägger till..." : "Lägg till"}
             </AppButton>
-            {successMessage && (
-              <Typography
-                sx={{ fontWeight: 800, m: "auto" }}
-                className={styles.successMessage}
+            <Snackbar
+              open={openSnackbar}
+              autoHideDuration={6000}
+              onClose={() => setOpenSnackbar(false)}
+              anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+              <Alert
+                onClose={() => setOpenSnackbar(false)}
+                severity="success"
+                variant="filled"
+                sx={{ width: "100%" }}
               >
                 {successMessage}
-              </Typography>
-            )}
+              </Alert>
+            </Snackbar>
           </div>
         </Box>
       </AppCard>
