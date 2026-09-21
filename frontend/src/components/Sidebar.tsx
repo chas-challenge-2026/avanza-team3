@@ -5,7 +5,6 @@ import {
   faChartPie,
   faBriefcase,
   faRightLeft,
-  faFileLines,
   faBell
 } from "@fortawesome/free-solid-svg-icons";
 
