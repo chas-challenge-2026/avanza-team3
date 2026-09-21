@@ -12,17 +12,17 @@ std::unordered_map<std::string, Currency> FxParseList(const std::string &str)
 
     std::unordered_map<std::string, Currency> list;
 
-    enum Key
+    enum class Key
     {
-        date,
-        base,
-        name,
-        rate
+        Date,
+        Base,
+        Name,
+        Rate
     };
 
     const char *pos = str.data();
     const char *startPos = pos;
-    Key currentKey = date;
+    Key currentKey = Key::Date;
     Currency temp;
 
     while (*pos != ']' && (pos - startPos) < str.size())
@@ -32,37 +32,37 @@ std::unordered_map<std::string, Currency> FxParseList(const std::string &str)
             pos += 2;
             switch (currentKey)
             {
-            case date: {
+            case Key::Date: {
                 std::string s;
                 for (int i = 0; i < 10; i++, pos++)
                 {
                     s += *pos;
                 }
                 temp.SetDate(s);
-                currentKey = base;
+                currentKey = Key::Base;
                 break;
             }
-            case base: {
+            case Key::Base: {
                 std::string s;
                 for (int i = 0; i < 3; i++, pos++)
                 {
                     s += *pos;
                 }
                 temp.SetBase(s);
-                currentKey = name;
+                currentKey = Key::Name;
                 break;
             }
-            case name: {
+            case Key::Name: {
                 std::string s;
                 for (int i = 0; i < 3; i++, pos++)
                 {
                     s += *pos;
                 }
                 temp.SetName(s);
-                currentKey = rate;
+                currentKey = Key::Rate;
                 break;
             }
-            case rate: {
+            case Key::Rate: {
                 pos--;
                 std::string s;
                 while (*pos != '}')
@@ -75,7 +75,7 @@ std::unordered_map<std::string, Currency> FxParseList(const std::string &str)
 
                 list.emplace(temp.GetName(), temp);
 
-                currentKey = date;
+                currentKey = Key::Date;
                 break;
             }
             }
