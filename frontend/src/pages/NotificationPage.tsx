@@ -54,7 +54,7 @@ export default function NotificationPage() {
 
         const alertsData = await alertsRes.json();
         const liveAlertsData = await liveAlertsRes.json();
-        console.log(JSON.stringify(alertsData));
+
         setNotifications(alertsData);
         setLiveAlerts(liveAlertsData);
       } catch (err) {
