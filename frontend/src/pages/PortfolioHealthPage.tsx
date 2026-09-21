@@ -7,6 +7,7 @@ import DonutChart from "../components/DonutChart";
 
 import InnehavsLista from "../components/Innehavslista";
 import { holdings } from "../data/mockData";
+import AllocationHandler from "../components/AllocationHandler";
 
 function PortfolioHealthPage() {
   const { rows } = usePortfolioAllocations();
@@ -159,7 +160,9 @@ function PortfolioHealthPage() {
           </div>
         </AppCard>
       </div>
-
+      <AppCard sx={{ maxWidth: "500px" }}>
+        <AllocationHandler />
+      </AppCard>
       <div className={styles.container}>
         <IndustriesChart />
         <InnehavsLista
