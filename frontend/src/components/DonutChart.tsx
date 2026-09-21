@@ -2,29 +2,25 @@ import { PieChart } from "@mui/x-charts";
 import { useMediaQuery, useTheme } from "@mui/material";
 import styles from "./AllocationChart.module.css";
 import AppCard from "./AppCard";
-import { getPortfolio } from "../services/portfolioService";
-import { useEffect, useState } from "react";
-import type { AllocationRow } from "../types/portfolio";
 
-const AllocationChart = () => {
-  const [allocationRows, setAllocationRows] = useState<AllocationRow[]>([]);
-  const [error, setError] = useState<string | null>(null);
+type DonutChartItem = {
+  label: string;
+  value: number;
+  color?: string;
+};
 
-  useEffect(() => {
-    getPortfolio()
-      .then((portfolio) => {
-        setAllocationRows(portfolio.allocationRows);
-      })
-      .catch(() => {
-        setError("Kunde inte hämta fördelningen");
-      });
-  }, []);
+type DonutChartProps = {
+  title?: string;
+  data: DonutChartItem[];
+};
 
-  const total = allocationRows.reduce((sum, row) => sum + row.actual, 0);
+const DonutChart = ({ title, data }: DonutChartProps) => {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
 
-  const data = allocationRows.map((row) => ({
-    label: `${row.accountType} (${((row.actual / total) * 100).toFixed(0)}%)`,
-    value: row.actual
+  const pieData = data.map((item) => ({
+    label: `${item.label} (${((item.value / total) * 100).toFixed(0)}%)`,
+    value: item.value,
+    color: item.color
   }));
 
   const theme = useTheme();
@@ -37,7 +33,7 @@ const AllocationChart = () => {
     <AppCard>
       <div className={styles.chartWrapper}>
         <div className={styles.headerWrapper}>
-          <h2>Fördelning (marknadsvärde)</h2>
+          <h2>{title}</h2>
         </div>
         <div className={styles.chartBox}>
           <PieChart
@@ -45,11 +41,25 @@ const AllocationChart = () => {
               {
                 innerRadius,
                 outerRadius,
-                data,
+                data: pieData,
+                cornerRadius: 5,
+                paddingAngle: 0.5,
                 valueFormatter: (item) =>
                   item ? `${((item.value / total) * 100).toFixed(0)}%` : ""
               }
             ]}
+            slotProps={{
+              legend: {
+                sx: {
+                  "& .MuiChartsLegend-label": {
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    fontFamily: "Roboto",
+                    color: "#5a6569"
+                  }
+                }
+              }
+            }}
             margin={{ right: 5 }}
             hideLegend={false}
           />
@@ -58,4 +68,4 @@ const AllocationChart = () => {
     </AppCard>
   );
 };
-export default AllocationChart;
+export default DonutChart;

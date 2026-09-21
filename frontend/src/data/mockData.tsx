@@ -5,13 +5,14 @@ type Account = {
   accountName: string;
 };
 
-type Holding = {
+export type Holding = {
   id: number;
   accountId: number;
   ticker: string;
   instrumentName: string;
   quantity: number;
   avgBuyPrice: number;
+  currentPrice: number;
   currency: string;
 };
 
@@ -34,20 +35,20 @@ export const accounts: Account[] = [
     id: 1,
     userId: 1,
     accountType: "ISK",
-    accountName: "Anna ISK",
+    accountName: "Anna ISK"
   },
   {
     id: 2,
     userId: 1,
     accountType: "KF",
-    accountName: "Anna KF",
+    accountName: "Anna KF"
   },
   {
     id: 3,
     userId: 1,
     accountType: "Depa",
-    accountName: "Anna Depå",
-  },
+    accountName: "Anna Depå"
+  }
 ];
 
 export const holdings: Holding[] = [
@@ -58,7 +59,8 @@ export const holdings: Holding[] = [
     instrumentName: "Ericsson B",
     quantity: 500,
     avgBuyPrice: 68.5,
-    currency: "SEK",
+    currentPrice: 70.2,
+    currency: "SEK"
   },
   {
     id: 2,
@@ -67,7 +69,8 @@ export const holdings: Holding[] = [
     instrumentName: "Volvo B",
     quantity: 100,
     avgBuyPrice: 245.0,
-    currency: "SEK",
+    currentPrice: 70.2,
+    currency: "SEK"
   },
   {
     id: 3,
@@ -76,7 +79,8 @@ export const holdings: Holding[] = [
     instrumentName: "Apple Inc",
     quantity: 50,
     avgBuyPrice: 165.0,
-    currency: "USD",
+    currentPrice: 170.2,
+    currency: "USD"
   },
   {
     id: 4,
@@ -85,7 +89,8 @@ export const holdings: Holding[] = [
     instrumentName: "Swedbank A",
     quantity: 200,
     avgBuyPrice: 185.0,
-    currency: "SEK",
+    currentPrice: 270.2,
+    currency: "SEK"
   },
   {
     id: 5,
@@ -94,28 +99,29 @@ export const holdings: Holding[] = [
     instrumentName: "Sandvik",
     quantity: 300,
     avgBuyPrice: 205.0,
-    currency: "SEK",
-  },
+    currentPrice: 170.2,
+    currency: "SEK"
+  }
 ];
 export const targetAllocations: TargetAllocation[] = [
   {
     id: 1,
     userId: 1,
     accountType: "ISK",
-    targetPct: 60.0,
+    targetPct: 60.0
   },
   {
     id: 2,
     userId: 1,
     accountType: "KF",
-    targetPct: 25.0,
+    targetPct: 25.0
   },
   {
     id: 3,
     userId: 1,
     accountType: "Depa",
-    targetPct: 15.0,
-  },
+    targetPct: 15.0
+  }
 ];
 
 export const alerts: Alert[] = [
@@ -123,12 +129,12 @@ export const alerts: Alert[] = [
     id: 1,
     userId: 1,
     alertType: "DRIFT",
-    message: "ISK-allokering avviker 8% från mål (60%). Överväg ombalansering.",
+    message: "ISK-allokering avviker 8% från mål (60%). Överväg ombalansering."
   },
   {
     id: 2,
     userId: 1,
     alertType: "DRIFT",
-    message: "KF-allokering avviker 6% från mål (25%).",
-  },
+    message: "KF-allokering avviker 6% från mål (25%)."
+  }
 ];

@@ -1,12 +1,23 @@
-import { Box, MenuItem, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Alert,
+  Snackbar,
+  MenuItem,
+  TextField,
+  Typography
+} from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
+import AppCard from "./AppCard";
+import { useHoldings } from "../hooks/useHoldings";
 
 type Currency = "SEK" | "USD" | "EUR" | "";
 
 type InnehavFormData = {
-  account: string;
+  accountId: string;
   ticker: string;
   instrumentName: string;
   instrumentType: string;
@@ -16,7 +27,7 @@ type InnehavFormData = {
 };
 
 const initialFormDataValue: InnehavFormData = {
-  account: "",
+  accountId: "",
   ticker: "",
   instrumentName: "",
   instrumentType: "",
@@ -25,14 +36,21 @@ const initialFormDataValue: InnehavFormData = {
   currency: ""
 };
 
-const InnehavsForm = () => {
+type InnehavsFormProps = {
+  width?: string;
+};
+
+const InnehavsForm = ({}: InnehavsFormProps) => {
+  const { addHolding } = useHoldings();
+
   const [formData, setFormData] =
     useState<InnehavFormData>(initialFormDataValue);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setSuccessMessage("");
@@ -46,19 +64,31 @@ const InnehavsForm = () => {
     try {
       const submittedData = {
         ...formData,
-        ticker: formData.ticker.trim().toLocaleUpperCase(),
+        accountId: Number(formData.accountId),
+        ticker: formData.ticker.trim().toUpperCase(),
+        instrumentName: formData.instrumentName.trim(),
         quantity: Number(formData.quantity),
-        avgBuyPrice: Number(formData.avgBuyPrice)
+        avgBuyPrice: Number(formData.avgBuyPrice),
+        currency: formData.currency
       };
       console.log(submittedData);
+      await addHolding(submittedData);
 
       setFormData(initialFormDataValue);
       setErrors({});
       setSuccessMessage("Innehavet har lagts till");
+      setOpenSnackbar(true);
+    } catch (error) {
+      setErrors({
+        submit: error instanceof Error ? error.message : "Något gick fel"
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const onlyLettersRegex = /^[A-Za-zÅÄÖåäö\s]+$/;
+  const tickerRegex = /^[A-Za-zÅÄÖåäö0-9.-]+$/;
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -73,18 +103,22 @@ const InnehavsForm = () => {
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.account) {
-      newErrors.account = "Välj ett konto";
+    if (!formData.accountId) {
+      newErrors.accountId = "Välj ett konto";
     }
     if (!formData.ticker.trim()) {
       newErrors.ticker = "Ange en ticker";
+    } else if (!tickerRegex.test(formData.ticker.trim())) {
+      newErrors.ticker = "Ticker får bara innehålla bokstäver, siffror och -";
     }
     if (!formData.instrumentName.trim()) {
       newErrors.instrumentName = "Ange ett instrumentnamn";
+    } else if (!onlyLettersRegex.test(formData.instrumentName.trim())) {
+      newErrors.instrumentName = "Instrumentnamn får bara innehålla bokstäver";
     }
-    if (!formData.instrumentType) {
-      newErrors.instrumentType = "Ange en instrumenttyp";
-    }
+    // if (!formData.instrumentType) {
+    //   newErrors.instrumentType = "Ange en instrumenttyp";
+    // }
 
     const quantity = Number(formData.quantity);
 
@@ -108,8 +142,10 @@ const InnehavsForm = () => {
   };
 
   const textFieldSx = {
+    // width: "100%",
     "& .MuiFormHelperText-root": {
       marginBottom: "3px",
+      marginTop: "0px",
       fontWeight: "bold"
     },
     "& .MuiInputLabel-root.Mui-error": {
@@ -122,119 +158,161 @@ const InnehavsForm = () => {
 
   return (
     <div className={styles.formWrapper}>
-      <div className={styles.titleWrapper}>
-        <Typography variant="h5">Lägg till innehav</Typography>
-      </div>
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%"
-        }}
-      >
-        <TextField
-          select
-          label="Konto"
-          name="account"
-          value={formData.account}
-          onChange={handleChange}
-          error={Boolean(errors.account)}
-          helperText={errors.account || " "}
-          sx={textFieldSx}
+      <AppCard>
+        <div className={styles.titleWrapper}>
+          <FontAwesomeIcon icon={faBriefcase} className={styles.icon} />
+          <Typography sx={{ fontSize: "28px", fontWeight: 700 }}>
+            Lägg till innehav
+          </Typography>
+        </div>
+        <p className={styles.label}>
+          Fyll i uppgifterna nedanför för att lägga till ett nytt innehav i din
+          portfölj.
+        </p>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            width: "100%",
+            height: "auto"
+          }}
         >
-          <MenuItem value="1">Anna ISK (ISK)</MenuItem>
-          <MenuItem value="2">Anna KF (KF)</MenuItem>
-          <MenuItem value="3">Anna Depå (Depa)</MenuItem>
-        </TextField>
+          <div className={styles.containerRight}>
+            <TextField
+              fullWidth
+              select
+              size="small"
+              label="Konto"
+              name="accountId"
+              value={formData.accountId}
+              onChange={handleChange}
+              error={Boolean(errors.accountId)}
+              helperText={errors.accountId || " "}
+              sx={textFieldSx}
+            >
+              <MenuItem value="1">Anna ISK (ISK)</MenuItem>
+              <MenuItem value="2">Anna KF (KF)</MenuItem>
+              <MenuItem value="3">Anna Depå (Depa)</MenuItem>
+            </TextField>
 
-        <TextField
-          placeholder="t.ex. ERIC-B"
-          label="Ticker"
-          name="ticker"
-          value={formData.ticker}
-          onChange={handleChange}
-          error={Boolean(errors.ticker)}
-          helperText={errors.ticker || " "}
-          sx={textFieldSx}
-        />
-        <TextField
-          name="instrumentName"
-          label="Instrumentnamn"
-          placeholder="t.ex. Ericsson B"
-          value={formData.instrumentName}
-          onChange={handleChange}
-          error={Boolean(errors.instrumentName)}
-          helperText={errors.instrumentName || " "}
-          sx={textFieldSx}
-        />
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="t.ex. ERIC-B"
+              label="Ticker"
+              name="ticker"
+              value={formData.ticker}
+              onChange={handleChange}
+              error={Boolean(errors.ticker)}
+              helperText={errors.ticker || " "}
+              sx={textFieldSx}
+            />
+            <TextField
+              fullWidth
+              size="small"
+              name="instrumentName"
+              label="Instrumentnamn"
+              placeholder="t.ex. Ericsson B"
+              value={formData.instrumentName}
+              onChange={handleChange}
+              error={Boolean(errors.instrumentName)}
+              helperText={errors.instrumentName || " "}
+              sx={textFieldSx}
+            />
 
-        <TextField
-          select
-          label="Instrumenttyp"
-          name="instrumentType"
-          value={formData.instrumentType}
-          onChange={handleChange}
-          error={Boolean(errors.instrumentType)}
-          helperText={errors.instrumentType || " "}
-          sx={textFieldSx}
-        >
-          <MenuItem value="Aktie">Aktie</MenuItem>
-          <MenuItem value="Fond">Fond</MenuItem>
-          <MenuItem value="ETF">ETF</MenuItem>
-        </TextField>
+            {/* <TextField
+              select
+              fullWidth
+              size="small"
+              label="Instrumenttyp"
+              name="instrumentType"
+              value={formData.instrumentType}
+              onChange={handleChange}
+              error={Boolean(errors.instrumentType)}
+              helperText={errors.instrumentType || " "}
+              sx={textFieldSx}
+            >
+              <MenuItem value="Aktie">Aktie</MenuItem>
+              <MenuItem value="Fond">Fond</MenuItem>
+              <MenuItem value="ETF">ETF</MenuItem>
+            </TextField> */}
+          </div>
 
-        <TextField
-          label="Antal"
-          name="quantity"
-          type="number"
-          placeholder="100"
-          value={formData.quantity}
-          onChange={handleChange}
-          error={Boolean(errors.quantity)}
-          helperText={errors.quantity || " "}
-          sx={textFieldSx}
-        />
+          <div className={styles.containerLeft}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Antal"
+              name="quantity"
+              type="number"
+              placeholder="100"
+              value={formData.quantity}
+              onChange={handleChange}
+              error={Boolean(errors.quantity)}
+              helperText={errors.quantity || " "}
+              sx={textFieldSx}
+            />
 
-        <TextField
-          name="avgBuyPrice"
-          type="number"
-          placeholder="150.00"
-          label="Snittpris"
-          value={formData.avgBuyPrice}
-          onChange={handleChange}
-          error={Boolean(errors.avgBuyPrice)}
-          helperText={errors.avgBuyPrice || " "}
-          sx={textFieldSx}
-        />
+            <TextField
+              fullWidth
+              size="small"
+              name="avgBuyPrice"
+              type="number"
+              placeholder="150.00"
+              label="Snittpris"
+              value={formData.avgBuyPrice}
+              onChange={handleChange}
+              error={Boolean(errors.avgBuyPrice)}
+              helperText={errors.avgBuyPrice || " "}
+              sx={textFieldSx}
+            />
 
-        <TextField
-          select
-          label="Valuta"
-          name="currency"
-          value={formData.currency}
-          onChange={handleChange}
-          error={Boolean(errors.currency)}
-          helperText={errors.currency || " "}
-          sx={textFieldSx}
-        >
-          <MenuItem value="SEK">SEK</MenuItem>
-          <MenuItem value="USD">USD</MenuItem>
-          <MenuItem value="EUR">EUR</MenuItem>
-        </TextField>
-        <AppButton type="submit" variant="contained" disabled={isSubmitting}>
-          {isSubmitting ? "Lägger till..." : "Lägg till"}
-        </AppButton>
-      </Box>
-      {successMessage && (
-        <Typography
-          sx={{ fontWeight: 800, m: "auto" }}
-          className={styles.successMessage}
-        >
-          {successMessage}
-        </Typography>
-      )}
+            <TextField
+              fullWidth
+              select
+              size="small"
+              label="Valuta"
+              name="currency"
+              value={formData.currency}
+              onChange={handleChange}
+              error={Boolean(errors.currency)}
+              helperText={errors.currency || " "}
+              sx={textFieldSx}
+            >
+              <MenuItem value="SEK">SEK</MenuItem>
+              <MenuItem value="USD">USD</MenuItem>
+              <MenuItem value="EUR">EUR</MenuItem>
+            </TextField>
+            <AppButton
+              sx={{ maxWidth: "200px", padding: "8px" }}
+              type="submit"
+              variant="contained"
+              disabled={isSubmitting}
+              // onClick={handleSubmit}
+            >
+              {isSubmitting ? "Lägger till..." : "Lägg till"}
+            </AppButton>
+            <Snackbar
+              open={openSnackbar}
+              autoHideDuration={6000}
+              onClose={() => setOpenSnackbar(false)}
+              anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+              <Alert
+                onClose={() => setOpenSnackbar(false)}
+                severity="success"
+                variant="filled"
+                sx={{ width: "100%" }}
+              >
+                {successMessage}
+              </Alert>
+            </Snackbar>
+          </div>
+        </Box>
+      </AppCard>
     </div>
   );
 };
