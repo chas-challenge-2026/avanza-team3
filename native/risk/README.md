@@ -93,7 +93,9 @@ File structure
     /include
         risk.h
     /src
-        main.c (for testing)
         risk.c
+    /tests
+        risk_test.c
+        CMakeLists.txt
     CMakeLists.txt
 ```
