@@ -1,16 +1,12 @@
-import type { DashboardResponse } from "../types/dashboard";
+import type { DashboardData } from "../types/dashboard";
 
-export async function getDashboard(token: string): Promise<DashboardResponse> {
-  const url = "/api/portfolio";
-
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+export async function getDashboard(): Promise<DashboardData> {
+  const response = await fetch("/api/portfolio", {
+    credentials: "include",
   });
 
   if (!response.ok) {
-    throw new Error("Kunde inte hämta kontodata");
+    throw new Error("Kunde inte hämta portfoliodata");
   }
 
   return response.json();

@@ -5,6 +5,9 @@ import IndustriesChart from "../components/IndustriesChart";
 import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import DonutChart from "../components/DonutChart";
 
+import InnehavsLista from "../components/Innehavslista";
+import { holdings } from "../data/mockData";
+
 function PortfolioHealthPage() {
   const { rows } = usePortfolioAllocations();
 
@@ -156,11 +159,18 @@ function PortfolioHealthPage() {
           </div>
         </AppCard>
       </div>
+
+      <div className={styles.container}>
+        <IndustriesChart />
+        <InnehavsLista
+          holdings={holdings}
+          columns={["ticker", "instrumentName", "quantity", "avgBuyPrice"]}
+        />
+      </div>
       <div className={styles.container}>
         <DonutChart title="Fördelning per kontotyp" data={allocationData} />
-        <IndustriesChart />
+        <DonutChart title="Fördelning per tillgångstyp" data={mockAssetData} />
       </div>
-      <DonutChart title="Fördelning per tillgångstyp" data={mockAssetData} />
     </>
   );
 }

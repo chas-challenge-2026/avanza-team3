@@ -1,15 +1,23 @@
-import { Box, Container, MenuItem, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Alert,
+  Snackbar,
+  MenuItem,
+  TextField,
+  Typography
+} from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "./AppCard";
+import { useHoldings } from "../hooks/useHoldings";
 
 type Currency = "SEK" | "USD" | "EUR" | "";
 
 type InnehavFormData = {
-  account: string;
+  accountId: string;
   ticker: string;
   instrumentName: string;
   instrumentType: string;
@@ -19,7 +27,7 @@ type InnehavFormData = {
 };
 
 const initialFormDataValue: InnehavFormData = {
-  account: "",
+  accountId: "",
   ticker: "",
   instrumentName: "",
   instrumentType: "",
@@ -28,14 +36,21 @@ const initialFormDataValue: InnehavFormData = {
   currency: ""
 };
 
-const InnehavsForm = () => {
+type InnehavsFormProps = {
+  width?: string;
+};
+
+const InnehavsForm = ({}: InnehavsFormProps) => {
+  const { addHolding } = useHoldings();
+
   const [formData, setFormData] =
     useState<InnehavFormData>(initialFormDataValue);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setSuccessMessage("");
@@ -49,15 +64,24 @@ const InnehavsForm = () => {
     try {
       const submittedData = {
         ...formData,
-        ticker: formData.ticker.trim().toLocaleUpperCase(),
+        accountId: Number(formData.accountId),
+        ticker: formData.ticker.trim().toUpperCase(),
+        instrumentName: formData.instrumentName.trim(),
         quantity: Number(formData.quantity),
-        avgBuyPrice: Number(formData.avgBuyPrice)
+        avgBuyPrice: Number(formData.avgBuyPrice),
+        currency: formData.currency
       };
       console.log(submittedData);
+      await addHolding(submittedData);
 
       setFormData(initialFormDataValue);
       setErrors({});
       setSuccessMessage("Innehavet har lagts till");
+      setOpenSnackbar(true);
+    } catch (error) {
+      setErrors({
+        submit: error instanceof Error ? error.message : "Något gick fel"
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -79,8 +103,8 @@ const InnehavsForm = () => {
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.account) {
-      newErrors.account = "Välj ett konto";
+    if (!formData.accountId) {
+      newErrors.accountId = "Välj ett konto";
     }
     if (!formData.ticker.trim()) {
       newErrors.ticker = "Ange en ticker";
@@ -92,9 +116,9 @@ const InnehavsForm = () => {
     } else if (!onlyLettersRegex.test(formData.instrumentName.trim())) {
       newErrors.instrumentName = "Instrumentnamn får bara innehålla bokstäver";
     }
-    if (!formData.instrumentType) {
-      newErrors.instrumentType = "Ange en instrumenttyp";
-    }
+    // if (!formData.instrumentType) {
+    //   newErrors.instrumentType = "Ange en instrumenttyp";
+    // }
 
     const quantity = Number(formData.quantity);
 
@@ -118,8 +142,10 @@ const InnehavsForm = () => {
   };
 
   const textFieldSx = {
+    // width: "100%",
     "& .MuiFormHelperText-root": {
       marginBottom: "3px",
+      marginTop: "0px",
       fontWeight: "bold"
     },
     "& .MuiInputLabel-root.Mui-error": {
@@ -156,13 +182,15 @@ const InnehavsForm = () => {
         >
           <div className={styles.containerRight}>
             <TextField
+              fullWidth
               select
+              size="small"
               label="Konto"
-              name="account"
-              value={formData.account}
+              name="accountId"
+              value={formData.accountId}
               onChange={handleChange}
-              error={Boolean(errors.account)}
-              helperText={errors.account || " "}
+              error={Boolean(errors.accountId)}
+              helperText={errors.accountId || " "}
               sx={textFieldSx}
             >
               <MenuItem value="1">Anna ISK (ISK)</MenuItem>
@@ -171,6 +199,8 @@ const InnehavsForm = () => {
             </TextField>
 
             <TextField
+              fullWidth
+              size="small"
               placeholder="t.ex. ERIC-B"
               label="Ticker"
               name="ticker"
@@ -181,6 +211,8 @@ const InnehavsForm = () => {
               sx={textFieldSx}
             />
             <TextField
+              fullWidth
+              size="small"
               name="instrumentName"
               label="Instrumentnamn"
               placeholder="t.ex. Ericsson B"
@@ -190,8 +222,11 @@ const InnehavsForm = () => {
               helperText={errors.instrumentName || " "}
               sx={textFieldSx}
             />
-            <TextField
+
+            {/* <TextField
               select
+              fullWidth
+              size="small"
               label="Instrumenttyp"
               name="instrumentType"
               value={formData.instrumentType}
@@ -203,11 +238,13 @@ const InnehavsForm = () => {
               <MenuItem value="Aktie">Aktie</MenuItem>
               <MenuItem value="Fond">Fond</MenuItem>
               <MenuItem value="ETF">ETF</MenuItem>
-            </TextField>
+            </TextField> */}
           </div>
 
           <div className={styles.containerLeft}>
             <TextField
+              fullWidth
+              size="small"
               label="Antal"
               name="quantity"
               type="number"
@@ -220,6 +257,8 @@ const InnehavsForm = () => {
             />
 
             <TextField
+              fullWidth
+              size="small"
               name="avgBuyPrice"
               type="number"
               placeholder="150.00"
@@ -232,7 +271,9 @@ const InnehavsForm = () => {
             />
 
             <TextField
+              fullWidth
               select
+              size="small"
               label="Valuta"
               name="currency"
               value={formData.currency}
@@ -246,23 +287,31 @@ const InnehavsForm = () => {
               <MenuItem value="EUR">EUR</MenuItem>
             </TextField>
             <AppButton
-              sx={{ maxWidth: "200px", padding: "15px" }}
+              sx={{ maxWidth: "200px", padding: "8px" }}
               type="submit"
               variant="contained"
               disabled={isSubmitting}
+              // onClick={handleSubmit}
             >
               {isSubmitting ? "Lägger till..." : "Lägg till"}
             </AppButton>
+            <Snackbar
+              open={openSnackbar}
+              autoHideDuration={6000}
+              onClose={() => setOpenSnackbar(false)}
+              anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+              <Alert
+                onClose={() => setOpenSnackbar(false)}
+                severity="success"
+                variant="filled"
+                sx={{ width: "100%" }}
+              >
+                {successMessage}
+              </Alert>
+            </Snackbar>
           </div>
         </Box>
-        {successMessage && (
-          <Typography
-            sx={{ fontWeight: 800, m: "auto" }}
-            className={styles.successMessage}
-          >
-            {successMessage}
-          </Typography>
-        )}
       </AppCard>
     </div>
   );
