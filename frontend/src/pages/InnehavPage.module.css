@@ -1,0 +1,7 @@
+.InnehavPageWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.form {
+}
