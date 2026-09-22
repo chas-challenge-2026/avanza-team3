@@ -4,7 +4,7 @@
 Currency::Currency(std::string date, std::string base, std::string name, const double rate)
     : date(std::move(date)), base(std::move(base)), name(std::move(name)), rate(rate)
 {
-    if (this->date.size() != 10 || this->date.at(5) != '-' || this->date.at(8) != '-')
+    if (this->date.size() != 10 || this->date.at(4) != '-' || this->date.at(7) != '-')
     {
         throw std::invalid_argument(R"(Invalid parameter "date". "date" must fit the format "YYYY-MM-DD".)");
     }
