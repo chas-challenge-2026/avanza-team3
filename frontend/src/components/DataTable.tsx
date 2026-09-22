@@ -6,6 +6,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { Paper } from "@mui/material";
 import Badge from "./Badge";
+import { formatCurrency } from "../utils/formatCurrency";
 
 type DataTableProps = {
   title?: string;
@@ -58,12 +59,14 @@ const DataTable = ({ title, rows, columns, width }: DataTableProps) => {
             >
               {columns.map((col) => (
                 <TableCell key={col.field}>
-                  {col.isBadge ? (
+                  {col.render ? (
+                    col.render(row)
+                  ) : col.isBadge ? (
                     <Badge variant={row[col.field].toLowerCase()}>
                       {row[col.field]}
                     </Badge>
                   ) : col.field === "totalValueSek" ? (
-                    `${row[col.field].toLocaleString("sv-SE")} kr`
+                    formatCurrency(row[col.field])
                   ) : (
                     row[col.field]
                   )}
