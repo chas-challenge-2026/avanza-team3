@@ -1,5 +1,6 @@
 #include "fx.hpp"
 #include "http.hpp"
+#include "currency.hpp"
 
 #include <algorithm>
 #include <cctype>
