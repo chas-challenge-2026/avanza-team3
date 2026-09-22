@@ -142,7 +142,6 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
   };
 
   const textFieldSx = {
-    // width: "100%",
     "& .MuiFormHelperText-root": {
       marginBottom: "3px",
       marginTop: "0px",
@@ -291,7 +290,6 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               type="submit"
               variant="contained"
               disabled={isSubmitting}
-              // onClick={handleSubmit}
             >
               {isSubmitting ? "Lägger till..." : "Lägg till"}
             </AppButton>
