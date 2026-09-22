@@ -1,0 +1,421 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > DashboardService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">se.comerit.avanza.dashboard.service</a>
+</div>
+
+<h1>Coverage Summary for Class: DashboardService (se.comerit.avanza.dashboard.service)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">DashboardService</td>
+<td class="coverageStat">
+  <span class="percent">
+    12.5%
+  </span>
+  <span class="absValue">
+    (2/16)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/30)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    6.2%
+  </span>
+  <span class="absValue">
+    (8/128)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">DashboardService$$SpringCGLIB$$0</td>
+  </tr>
+  <tr>
+    <td class="name">DashboardService$AllocationResult</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    11.8%
+  </span>
+  <span class="absValue">
+    (2/17)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/30)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    6.2%
+  </span>
+  <span class="absValue">
+    (8/129)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package se.comerit.avanza.dashboard.service;
+&nbsp;
+&nbsp;import org.springframework.data.domain.Page;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;import org.springframework.transaction.annotation.Transactional;
+&nbsp;import se.comerit.avanza.account.service.AccountService;
+&nbsp;import se.comerit.avanza.alert.dto.AlertResponse;
+&nbsp;import se.comerit.avanza.alert.service.AlertService;
+&nbsp;import se.comerit.avanza.dashboard.dto.AccountSummaryResponse;
+&nbsp;import se.comerit.avanza.dashboard.dto.AllocationRowResponse;
+&nbsp;import se.comerit.avanza.dashboard.dto.DashboardView;
+&nbsp;import se.comerit.avanza.dashboard.dto.HoldingPageResponse;
+&nbsp;import se.comerit.avanza.dashboard.dto.HoldingSummaryResponse;
+&nbsp;import se.comerit.avanza.dashboard.dto.RecentAlertResponse;
+&nbsp;import se.comerit.avanza.holding.service.HoldingService;
+&nbsp;import se.comerit.avanza.market.service.MarketDataService;
+&nbsp;import se.comerit.avanza.targetallocation.service.TargetAllocationService;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.math.RoundingMode;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;@Service
+&nbsp;public class DashboardService {
+&nbsp;
+<b class="fc">&nbsp;    private static final BigDecimal DRIFT_THRESHOLD = new BigDecimal(&quot;0.05&quot;);</b>
+<b class="fc">&nbsp;    private static final List&lt;String&gt; ACCOUNT_TYPES = List.of(&quot;ISK&quot;, &quot;KF&quot;, &quot;Depa&quot;, &quot;Pension&quot;);</b>
+&nbsp;
+&nbsp;    private final AccountService accountService;
+&nbsp;    private final HoldingService holdingService;
+&nbsp;    private final TargetAllocationService targetAllocationService;
+&nbsp;    private final AlertService alertService;
+&nbsp;    private final MarketDataService marketDataService;
+&nbsp;
+&nbsp;    public DashboardService(AccountService accountService,
+&nbsp;                            HoldingService holdingService,
+&nbsp;                            TargetAllocationService targetAllocationService,
+&nbsp;                            AlertService alertService,
+<b class="fc">&nbsp;                            MarketDataService marketDataService) {</b>
+<b class="fc">&nbsp;        this.accountService = accountService;</b>
+<b class="fc">&nbsp;        this.holdingService = holdingService;</b>
+<b class="fc">&nbsp;        this.targetAllocationService = targetAllocationService;</b>
+<b class="fc">&nbsp;        this.alertService = alertService;</b>
+<b class="fc">&nbsp;        this.marketDataService = marketDataService;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Transactional(readOnly = true)
+&nbsp;    public DashboardView getDashboardForUser(Integer userId) {
+<b class="nc">&nbsp;        return getDashboardForUser(userId, 0, 20);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Transactional(readOnly = true)
+&nbsp;    public DashboardView getDashboardForUser(Integer userId, int page, int size) {
+<b class="nc">&nbsp;        List&lt;Map&lt;String, Object&gt;&gt; accounts = accountService.getAccountMapsByUserId(userId);</b>
+<b class="nc">&nbsp;        List&lt;Map&lt;String, Object&gt;&gt; holdingsForTotals = holdingService.getHoldingsByUserId(userId);</b>
+<b class="nc">&nbsp;        Page&lt;Map&lt;String, Object&gt;&gt; holdingsPage = holdingService.getHoldingsByUserId(userId, page, size);</b>
+<b class="nc">&nbsp;        List&lt;Map&lt;String, Object&gt;&gt; targets = targetAllocationService.getTargetMapsByUserId(userId);</b>
+&nbsp;
+<b class="nc">&nbsp;        Map&lt;Integer, String&gt; accountTypeById = createAccountTypeById(accounts);</b>
+<b class="nc">&nbsp;        Map&lt;Integer, BigDecimal&gt; accountTotals = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        Map&lt;String, BigDecimal&gt; accountTypeTotals = createAccountTypeTotals();</b>
+<b class="nc">&nbsp;        BigDecimal usdToSek = marketDataService.getFxRate(&quot;USD&quot;, &quot;SEK&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        BigDecimal totalPortfolioValue = BigDecimal.ZERO;</b>
+&nbsp;
+<b class="nc">&nbsp;        for (Map&lt;String, Object&gt; holding : holdingsForTotals) {</b>
+<b class="nc">&nbsp;            HoldingSummaryResponse enriched = enrichHolding(holding, usdToSek);</b>
+<b class="nc">&nbsp;            BigDecimal valueSek = enriched.valueSek();</b>
+&nbsp;
+<b class="nc">&nbsp;            Integer accountId = (Integer) holding.get(&quot;account_id&quot;);</b>
+<b class="nc">&nbsp;            String accountType = accountTypeById.getOrDefault(accountId, &quot;Depa&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;            accountTotals.merge(accountId, valueSek, BigDecimal::add);</b>
+<b class="nc">&nbsp;            accountTypeTotals.merge(accountType, valueSek, BigDecimal::add);</b>
+<b class="nc">&nbsp;            totalPortfolioValue = totalPortfolioValue.add(valueSek);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        AllocationResult allocationResult = createAllocationRows(</b>
+&nbsp;                targets,
+&nbsp;                accountTypeTotals,
+&nbsp;                totalPortfolioValue
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        return new DashboardView(</b>
+<b class="nc">&nbsp;                createAccountSummary(accounts, accountTotals),</b>
+<b class="nc">&nbsp;                createHoldingPage(holdingsPage, usdToSek),</b>
+<b class="nc">&nbsp;                allocationResult.rows(),</b>
+<b class="nc">&nbsp;                roundToDouble(totalPortfolioValue),</b>
+<b class="nc">&nbsp;                getRecentAlerts(userId),</b>
+<b class="nc">&nbsp;                allocationResult.anyDrift(),</b>
+<b class="nc">&nbsp;                usdToSek.doubleValue()</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private HoldingPageResponse createHoldingPage(Page&lt;Map&lt;String, Object&gt;&gt; holdingsPage, BigDecimal usdToSek) {
+<b class="nc">&nbsp;        List&lt;HoldingSummaryResponse&gt; content = holdingsPage.getContent().stream()</b>
+<b class="nc">&nbsp;                .map(holding -&gt; enrichHolding(holding, usdToSek))</b>
+<b class="nc">&nbsp;                .toList();</b>
+&nbsp;
+<b class="nc">&nbsp;        return new HoldingPageResponse(</b>
+&nbsp;                content,
+<b class="nc">&nbsp;                holdingsPage.getNumber(),</b>
+<b class="nc">&nbsp;                holdingsPage.getSize(),</b>
+<b class="nc">&nbsp;                holdingsPage.getTotalElements(),</b>
+<b class="nc">&nbsp;                holdingsPage.getTotalPages(),</b>
+<b class="nc">&nbsp;                holdingsPage.isFirst(),</b>
+<b class="nc">&nbsp;                holdingsPage.isLast()</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private Map&lt;Integer, String&gt; createAccountTypeById(List&lt;Map&lt;String, Object&gt;&gt; accounts) {
+<b class="nc">&nbsp;        Map&lt;Integer, String&gt; accountTypeById = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        for (Map&lt;String, Object&gt; account : accounts) {</b>
+<b class="nc">&nbsp;            accountTypeById.put((Integer) account.get(&quot;id&quot;), (String) account.get(&quot;account_type&quot;));</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return accountTypeById;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private Map&lt;String, BigDecimal&gt; createAccountTypeTotals() {
+<b class="nc">&nbsp;        Map&lt;String, BigDecimal&gt; accountTypeTotals = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        for (String accountType : ACCOUNT_TYPES) {</b>
+<b class="nc">&nbsp;            accountTypeTotals.put(accountType, BigDecimal.ZERO);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return accountTypeTotals;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private HoldingSummaryResponse enrichHolding(Map&lt;String, Object&gt; holding, BigDecimal usdToSek) {
+<b class="nc">&nbsp;        String ticker = (String) holding.get(&quot;ticker&quot;);</b>
+<b class="nc">&nbsp;        String currency = (String) holding.get(&quot;currency&quot;);</b>
+<b class="nc">&nbsp;        BigDecimal quantity = toBigDecimal(holding.get(&quot;quantity&quot;));</b>
+<b class="nc">&nbsp;        BigDecimal avgBuy = toBigDecimal(holding.get(&quot;avg_buy_price&quot;));</b>
+<b class="nc">&nbsp;        BigDecimal currentPrice = marketDataService.getPrice(ticker);</b>
+&nbsp;
+<b class="nc">&nbsp;        BigDecimal valueSek = quantity.multiply(currentPrice).multiply(currencyMultiplier(currency, usdToSek));</b>
+<b class="nc">&nbsp;        BigDecimal costBasis = quantity.multiply(avgBuy).multiply(currencyMultiplier(currency, usdToSek));</b>
+<b class="nc">&nbsp;        BigDecimal unrealizedReturn = valueSek.subtract(costBasis);</b>
+<b class="nc">&nbsp;        BigDecimal unrealizedReturnPct = costBasis.compareTo(BigDecimal.ZERO) &gt; 0</b>
+<b class="nc">&nbsp;                ? unrealizedReturn.divide(costBasis, 6, RoundingMode.HALF_UP).multiply(new BigDecimal(&quot;100&quot;))</b>
+<b class="nc">&nbsp;                : BigDecimal.ZERO;</b>
+<b class="nc">&nbsp;        BigDecimal sharpe = unrealizedReturnPct.divide(new BigDecimal(&quot;100&quot;), 6, RoundingMode.HALF_UP)</b>
+<b class="nc">&nbsp;                .subtract(new BigDecimal(&quot;0.02&quot;))</b>
+<b class="nc">&nbsp;                .divide(new BigDecimal(&quot;0.15&quot;), 6, RoundingMode.HALF_UP);</b>
+&nbsp;
+<b class="nc">&nbsp;        return new HoldingSummaryResponse(</b>
+<b class="nc">&nbsp;                (Integer) holding.get(&quot;id&quot;),</b>
+<b class="nc">&nbsp;                (Integer) holding.get(&quot;account_id&quot;),</b>
+&nbsp;                ticker,
+<b class="nc">&nbsp;                (String) holding.get(&quot;instrument_name&quot;),</b>
+&nbsp;                quantity,
+&nbsp;                avgBuy,
+&nbsp;                currency,
+<b class="nc">&nbsp;                (String) holding.get(&quot;account_type&quot;),</b>
+<b class="nc">&nbsp;                (String) holding.get(&quot;account_name&quot;),</b>
+<b class="nc">&nbsp;                round(currentPrice),</b>
+<b class="nc">&nbsp;                round(valueSek),</b>
+<b class="nc">&nbsp;                round(unrealizedReturn),</b>
+<b class="nc">&nbsp;                round(unrealizedReturnPct),</b>
+<b class="nc">&nbsp;                round(sharpe),</b>
+<b class="nc">&nbsp;                &quot;USD&quot;.equals(currency) ? &quot;USD-&gt;SEK&quot; : &quot;SEK&quot;</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private BigDecimal currencyMultiplier(String currency, BigDecimal usdToSek) {
+<b class="nc">&nbsp;        return &quot;USD&quot;.equals(currency) ? usdToSek : BigDecimal.ONE;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private AllocationResult createAllocationRows(List&lt;Map&lt;String, Object&gt;&gt; targets,
+&nbsp;                                                  Map&lt;String, BigDecimal&gt; accountTypeTotals,
+&nbsp;                                                  BigDecimal totalPortfolioValue) {
+<b class="nc">&nbsp;        Map&lt;String, BigDecimal&gt; targetMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        for (Map&lt;String, Object&gt; target : targets) {</b>
+<b class="nc">&nbsp;            targetMap.put((String) target.get(&quot;account_type&quot;), toBigDecimal(target.get(&quot;target_pct&quot;)));</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        boolean anyDrift = false;</b>
+<b class="nc">&nbsp;        List&lt;AllocationRowResponse&gt; allocationRows = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;        for (String accountType : ACCOUNT_TYPES) {</b>
+<b class="nc">&nbsp;            BigDecimal actual = totalPortfolioValue.compareTo(BigDecimal.ZERO) &gt; 0</b>
+<b class="nc">&nbsp;                    ? accountTypeTotals.getOrDefault(accountType, BigDecimal.ZERO)</b>
+<b class="nc">&nbsp;                    .divide(totalPortfolioValue, 6, RoundingMode.HALF_UP)</b>
+<b class="nc">&nbsp;                    .multiply(new BigDecimal(&quot;100&quot;))</b>
+<b class="nc">&nbsp;                    : BigDecimal.ZERO;</b>
+<b class="nc">&nbsp;            BigDecimal target = targetMap.getOrDefault(accountType, BigDecimal.ZERO);</b>
+<b class="nc">&nbsp;            BigDecimal drift = actual.subtract(target).abs().divide(new BigDecimal(&quot;100&quot;), 6, RoundingMode.HALF_UP);</b>
+<b class="nc">&nbsp;            boolean overThreshold = drift.compareTo(DRIFT_THRESHOLD) &gt; 0;</b>
+&nbsp;
+<b class="nc">&nbsp;            allocationRows.add(new AllocationRowResponse(</b>
+&nbsp;                    accountType,
+<b class="nc">&nbsp;                    round(actual),</b>
+&nbsp;                    target,
+<b class="nc">&nbsp;                    round(drift.multiply(new BigDecimal(&quot;100&quot;))),</b>
+&nbsp;                    overThreshold
+&nbsp;            ));
+&nbsp;
+<b class="nc">&nbsp;            if (overThreshold) {</b>
+<b class="nc">&nbsp;                anyDrift = true;</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return new AllocationResult(allocationRows, anyDrift);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;AccountSummaryResponse&gt; createAccountSummary(List&lt;Map&lt;String, Object&gt;&gt; accounts,
+&nbsp;                                                              Map&lt;Integer, BigDecimal&gt; accountTotals) {
+<b class="nc">&nbsp;        List&lt;AccountSummaryResponse&gt; accountSummary = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;        for (Map&lt;String, Object&gt; account : accounts) {</b>
+<b class="nc">&nbsp;            Integer accountId = (Integer) account.get(&quot;id&quot;);</b>
+<b class="nc">&nbsp;            accountSummary.add(new AccountSummaryResponse(</b>
+&nbsp;                    accountId,
+<b class="nc">&nbsp;                    (Integer) account.get(&quot;user_id&quot;),</b>
+<b class="nc">&nbsp;                    (String) account.get(&quot;account_type&quot;),</b>
+<b class="nc">&nbsp;                    (String) account.get(&quot;account_name&quot;),</b>
+<b class="nc">&nbsp;                    (String) account.get(&quot;currency&quot;),</b>
+<b class="nc">&nbsp;                    round(accountTotals.getOrDefault(accountId, BigDecimal.ZERO))</b>
+&nbsp;            ));
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return accountSummary;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;RecentAlertResponse&gt; getRecentAlerts(Integer userId) {
+<b class="nc">&nbsp;        return alertService.getAlertsByUserId(userId).stream()</b>
+<b class="nc">&nbsp;                .filter(alert -&gt; !alert.dismissed())</b>
+<b class="nc">&nbsp;                .map(this::toRecentAlert)</b>
+<b class="nc">&nbsp;                .toList();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private RecentAlertResponse toRecentAlert(AlertResponse alert) {
+<b class="nc">&nbsp;        return new RecentAlertResponse(</b>
+<b class="nc">&nbsp;                alert.id(),</b>
+<b class="nc">&nbsp;                alert.alertType(),</b>
+<b class="nc">&nbsp;                alert.message(),</b>
+<b class="nc">&nbsp;                alert.createdAt()</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private BigDecimal toBigDecimal(Object value) {
+<b class="nc">&nbsp;        if (value == null) {</b>
+<b class="nc">&nbsp;            return BigDecimal.ZERO;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (value instanceof BigDecimal bigDecimal) {</b>
+<b class="nc">&nbsp;            return bigDecimal;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (value instanceof Number number) {</b>
+<b class="nc">&nbsp;            return new BigDecimal(number.toString());</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return new BigDecimal(value.toString());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private BigDecimal round(BigDecimal value) {
+<b class="nc">&nbsp;        return value.setScale(2, RoundingMode.HALF_UP);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double roundToDouble(BigDecimal value) {
+<b class="nc">&nbsp;        return round(value).doubleValue();</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private record AllocationResult(List&lt;AllocationRowResponse&gt; rows, boolean anyDrift) {</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-22 14:34</div>
+</div>
+</body>
+</html>

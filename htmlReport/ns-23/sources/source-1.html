@@ -1,0 +1,104 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > AlertRepository</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">se.comerit.avanza.alert.repository</a>
+</div>
+
+<h1>Coverage Summary for Class: AlertRepository (se.comerit.avanza.alert.repository)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+</tr>
+  <tr>
+    <td class="name">AlertRepository$MockitoMock$0JoafAkA</td>
+  </tr>
+  <tr>
+    <td class="name">AlertRepository$MockitoMock$0JoafAkA$auxiliary$8b1AoBVM</td>
+  </tr>
+  <tr>
+    <td class="name">AlertRepository$MockitoMock$0JoafAkA$auxiliary$YyI6GPvA</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package se.comerit.avanza.alert.repository;
+&nbsp;
+&nbsp;import org.springframework.data.domain.Page;
+&nbsp;import org.springframework.data.domain.Pageable;
+&nbsp;import org.springframework.data.jpa.repository.JpaRepository;
+&nbsp;import org.springframework.stereotype.Repository;
+&nbsp;import se.comerit.avanza.alert.model.Alert;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;@Repository
+&nbsp;public interface AlertRepository extends JpaRepository&lt;Alert, Integer&gt; {
+&nbsp;
+&nbsp;    List&lt;Alert&gt; findByUserIdOrderByCreatedAtDesc(Integer userId);
+&nbsp;
+&nbsp;    Page&lt;Alert&gt; findByUserIdAndDismissedOrderByCreatedAtDesc(
+&nbsp;            Integer userId,
+&nbsp;            boolean dismissed,
+&nbsp;            Pageable pageable
+&nbsp;    );
+&nbsp;
+&nbsp;    Optional&lt;Alert&gt; findByIdAndUserId(
+&nbsp;            Integer id,
+&nbsp;            Integer userId
+&nbsp;    );
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-22 14:34</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,385 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > HoldingService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">se.comerit.avanza.holding.service</a>
+</div>
+
+<h1>Coverage Summary for Class: HoldingService (se.comerit.avanza.holding.service)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">HoldingService</td>
+<td class="coverageStat">
+  <span class="percent">
+    91.7%
+  </span>
+  <span class="absValue">
+    (11/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (8/16)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.7%
+  </span>
+  <span class="absValue">
+    (89/94)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">HoldingService$$SpringCGLIB$$0</td>
+  </tr>
+  <tr>
+    <td class="name">HoldingService$HoldingValues</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    92.3%
+  </span>
+  <span class="absValue">
+    (12/13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (8/16)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.7%
+  </span>
+  <span class="absValue">
+    (90/95)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package se.comerit.avanza.holding.service;
+&nbsp;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.security.access.prepost.PreAuthorize;
+&nbsp;import org.springframework.cache.annotation.CacheEvict;
+&nbsp;import org.springframework.cache.annotation.Cacheable;
+&nbsp;import org.springframework.data.domain.Page;
+&nbsp;import org.springframework.data.domain.PageRequest;
+&nbsp;import org.springframework.data.domain.Pageable;
+&nbsp;import org.springframework.data.domain.Sort;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;import org.springframework.transaction.annotation.Transactional;
+&nbsp;import org.springframework.web.server.ResponseStatusException;
+&nbsp;import se.comerit.avanza.account.service.AccountService;
+&nbsp;import se.comerit.avanza.holding.dto.HoldingPatchRequest;
+&nbsp;import se.comerit.avanza.holding.dto.HoldingResponse;
+&nbsp;import se.comerit.avanza.holding.model.Holding;
+&nbsp;import se.comerit.avanza.holding.repository.HoldingRepository;
+&nbsp;import se.comerit.avanza.market.service.MarketDataService;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.math.RoundingMode;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.LinkedHashMap;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;@Service
+&nbsp;public class HoldingService {
+&nbsp;
+&nbsp;    private final HoldingRepository holdingRepository;
+&nbsp;    private final AccountService accountService;
+&nbsp;    private final MarketDataService marketDataService;
+&nbsp;
+<b class="fc">&nbsp;    public HoldingService(HoldingRepository holdingRepository, AccountService accountService, MarketDataService marketDataService) {</b>
+<b class="fc">&nbsp;        this.holdingRepository = holdingRepository;</b>
+<b class="fc">&nbsp;        this.accountService = accountService;</b>
+<b class="fc">&nbsp;        this.marketDataService = marketDataService;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PreAuthorize(&quot;#userId == authentication.details&quot;)
+&nbsp;    @Cacheable(value = &quot;holdingsByUser&quot;, key = &quot;#userId&quot;)
+&nbsp;    @Transactional
+&nbsp;    public List&lt;Map&lt;String, Object&gt;&gt; getHoldingsByUserId(Integer userId) {
+&nbsp;
+<b class="fc">&nbsp;        List&lt;Holding&gt; holdings = holdingRepository.findByAccountUserIdOrderByAccountAccountTypeAscTickerAsc(userId);</b>
+&nbsp;
+<b class="fc">&nbsp;        return holdings.stream()</b>
+<b class="fc">&nbsp;                .map(this::toHoldingMap)</b>
+<b class="fc">&nbsp;                .toList();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PreAuthorize(&quot;#userId == authentication.details&quot;)
+&nbsp;    @Transactional
+&nbsp;    @Cacheable(value = &quot;holdingsByUser&quot;, key = &quot;#userId + &#39;-&#39; + #page + &#39;-&#39; + #size&quot;)
+&nbsp;    public Page&lt;Map&lt;String, Object&gt;&gt; getHoldingsByUserId(Integer userId, int page, int size) {
+&nbsp;
+<b class="fc">&nbsp;        Pageable pageable = PageRequest.of(</b>
+&nbsp;                page,
+&nbsp;                size,
+<b class="fc">&nbsp;                Sort.by(</b>
+<b class="fc">&nbsp;                        Sort.Order.asc(&quot;account.accountType&quot;),</b>
+<b class="fc">&nbsp;                        Sort.Order.asc(&quot;ticker&quot;)));</b>
+&nbsp;
+<b class="fc">&nbsp;        Page&lt;Holding&gt; holdings =</b>
+<b class="fc">&nbsp;                holdingRepository.findByAccountUserId(userId, pageable);</b>
+&nbsp;
+<b class="fc">&nbsp;        return holdings.map(this::toHoldingMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PreAuthorize(&quot;#userId == authentication.details&quot;)
+&nbsp;    @Transactional
+&nbsp;    public HoldingResponse getHoldingById(Integer holdingId, Integer userId) {
+<b class="fc">&nbsp;        Holding holding = getOwnedHolding(holdingId, userId);</b>
+<b class="fc">&nbsp;        return toHoldingResponse(holding);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PreAuthorize(&quot;#userId == authentication.details&quot;)
+&nbsp;    @Transactional
+&nbsp;    @CacheEvict(value = &quot;holdingsByUser&quot;, allEntries = true)
+&nbsp;    public HoldingResponse updateHolding(Integer holdingId, Integer userId, HoldingPatchRequest request) {
+<b class="fc">&nbsp;        Holding holding = getOwnedHolding(holdingId, userId);</b>
+&nbsp;
+<b class="pc">&nbsp;        if (request.ticker() != null) {</b>
+<b class="nc">&nbsp;            holding.setTicker(request.ticker());</b>
+&nbsp;        }
+<b class="pc">&nbsp;        if (request.instrumentName() != null) {</b>
+<b class="nc">&nbsp;            holding.setInstrumentName(request.instrumentName());</b>
+&nbsp;        }
+<b class="pc">&nbsp;        if (request.quantity() != null) {</b>
+<b class="fc">&nbsp;            holding.setQuantity(request.quantity());</b>
+&nbsp;        }
+<b class="pc">&nbsp;        if (request.avgBuyPrice() != null) {</b>
+<b class="nc">&nbsp;            holding.setAvgBuyPrice(request.avgBuyPrice());</b>
+&nbsp;        }
+<b class="pc">&nbsp;        if (request.currency() != null) {</b>
+<b class="nc">&nbsp;            holding.setCurrency(request.currency());</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        Holding updatedHolding = holdingRepository.save(holding);</b>
+<b class="fc">&nbsp;        return toHoldingResponse(updatedHolding);</b>
+&nbsp;
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    @PreAuthorize(&quot;#userId == authentication.details&quot;)
+&nbsp;    public List&lt;Map&lt;String, Object&gt;&gt; getAccountsByUserId(Integer userId) {
+<b class="nc">&nbsp;        return accountService.getAccountMapsByUserId(userId);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PreAuthorize(&quot;#userId == authentication.details&quot;)
+&nbsp;    @Transactional
+&nbsp;    @CacheEvict(value = &quot;holdingsByUser&quot;, allEntries = true)
+&nbsp;    public void addHolding(Integer userId, Integer accountId, String ticker, String instrumentName, BigDecimal quantity, BigDecimal avgBuyPrice, String currency) {
+&nbsp;
+<b class="fc">&nbsp;        accountService.getAccountByIdAndUserId(accountId, userId);</b>
+&nbsp;
+<b class="fc">&nbsp;        Holding holding = new Holding(</b>
+&nbsp;                accountId,
+&nbsp;                ticker,
+&nbsp;                instrumentName,
+&nbsp;                quantity,
+&nbsp;                avgBuyPrice,
+&nbsp;                currency
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        holdingRepository.save(holding);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PreAuthorize(&quot;#userId == authentication.details&quot;)
+&nbsp;    @Transactional
+&nbsp;    @CacheEvict(value = &quot;holdingsByUser&quot;, allEntries = true)
+&nbsp;    public void deleteHolding(Integer holdingId, Integer userId)
+&nbsp;    {
+<b class="fc">&nbsp;        Holding holdingToDelete = holdingRepository</b>
+<b class="fc">&nbsp;                .findByIdAndAccountUserId(holdingId, userId)</b>
+<b class="fc">&nbsp;                        .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Holding not Found&quot;));</b>
+<b class="fc">&nbsp;        holdingRepository.delete(holdingToDelete);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private HoldingResponse toHoldingResponse(Holding holding) {
+&nbsp;
+<b class="fc">&nbsp;        HoldingValues values =</b>
+<b class="fc">&nbsp;                calculateHoldingValues(holding);</b>
+&nbsp;
+<b class="fc">&nbsp;        return new HoldingResponse(</b>
+<b class="fc">&nbsp;                holding.getId(),</b>
+<b class="fc">&nbsp;                holding.getAccountId(),</b>
+<b class="fc">&nbsp;                holding.getTicker(),</b>
+<b class="fc">&nbsp;                holding.getInstrumentName(),</b>
+<b class="fc">&nbsp;                holding.getQuantity(),</b>
+<b class="fc">&nbsp;                holding.getAvgBuyPrice(),</b>
+<b class="fc">&nbsp;                holding.getCurrency(),</b>
+<b class="fc">&nbsp;                values.currentPrice(),</b>
+<b class="fc">&nbsp;                values.marketValue(),</b>
+<b class="fc">&nbsp;                values.pnl(),</b>
+<b class="fc">&nbsp;                values.pnlPct()</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private Holding getOwnedHolding(Integer holdingId, Integer userId) {
+<b class="fc">&nbsp;        return holdingRepository.findByIdAndAccountUserId(holdingId, userId)</b>
+<b class="fc">&nbsp;                .orElseThrow(()-&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Holding not found&quot;));</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    private record HoldingValues(</b>
+&nbsp;            BigDecimal currentPrice,
+&nbsp;            BigDecimal marketValue,
+&nbsp;            BigDecimal pnl,
+&nbsp;            BigDecimal pnlPct
+&nbsp;    ) {}
+&nbsp;
+&nbsp;    private HoldingValues calculateHoldingValues(Holding holding) {
+&nbsp;
+<b class="fc">&nbsp;        BigDecimal currentPrice =</b>
+<b class="fc">&nbsp;                marketDataService.getPrice(holding.getTicker());</b>
+&nbsp;
+<b class="pc">&nbsp;        BigDecimal quantity = holding.getQuantity() != null</b>
+<b class="fc">&nbsp;                ? holding.getQuantity()</b>
+<b class="fc">&nbsp;                : BigDecimal.ZERO;</b>
+&nbsp;
+<b class="pc">&nbsp;        BigDecimal avgBuyPrice = holding.getAvgBuyPrice() != null</b>
+<b class="fc">&nbsp;                ? holding.getAvgBuyPrice()</b>
+<b class="fc">&nbsp;                : BigDecimal.ZERO;</b>
+&nbsp;
+<b class="fc">&nbsp;        BigDecimal marketValue =</b>
+<b class="fc">&nbsp;                quantity.multiply(currentPrice);</b>
+&nbsp;
+<b class="fc">&nbsp;        BigDecimal costBasis =</b>
+<b class="fc">&nbsp;                quantity.multiply(avgBuyPrice);</b>
+&nbsp;
+<b class="fc">&nbsp;        BigDecimal pnl =</b>
+<b class="fc">&nbsp;                marketValue.subtract(costBasis);</b>
+&nbsp;
+<b class="pc">&nbsp;        BigDecimal pnlPct = costBasis.compareTo(BigDecimal.ZERO) &gt; 0</b>
+<b class="fc">&nbsp;                ? pnl.divide(costBasis, 6, RoundingMode.HALF_UP)</b>
+<b class="fc">&nbsp;                .multiply(new BigDecimal(&quot;100&quot;))</b>
+<b class="fc">&nbsp;                : BigDecimal.ZERO;</b>
+&nbsp;
+<b class="fc">&nbsp;        return new HoldingValues(</b>
+<b class="fc">&nbsp;                currentPrice.setScale(2, RoundingMode.HALF_UP),</b>
+<b class="fc">&nbsp;                marketValue.setScale(2, RoundingMode.HALF_UP),</b>
+<b class="fc">&nbsp;                pnl.setScale(2, RoundingMode.HALF_UP),</b>
+<b class="fc">&nbsp;                pnlPct.setScale(2, RoundingMode.HALF_UP)</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private Map&lt;String, Object&gt; toHoldingMap(Holding holding) {
+&nbsp;
+<b class="fc">&nbsp;        HoldingValues values =</b>
+<b class="fc">&nbsp;                calculateHoldingValues(holding);</b>
+&nbsp;
+<b class="fc">&nbsp;        Map&lt;String, Object&gt; result =</b>
+&nbsp;                new LinkedHashMap&lt;&gt;();
+&nbsp;
+<b class="fc">&nbsp;        result.put(&quot;id&quot;, holding.getId());</b>
+<b class="fc">&nbsp;        result.put(&quot;account_id&quot;, holding.getAccountId());</b>
+<b class="fc">&nbsp;        result.put(&quot;ticker&quot;, holding.getTicker());</b>
+<b class="fc">&nbsp;        result.put(&quot;instrument_name&quot;, holding.getInstrumentName());</b>
+<b class="fc">&nbsp;        result.put(&quot;quantity&quot;, holding.getQuantity());</b>
+<b class="fc">&nbsp;        result.put(&quot;avg_buy_price&quot;, holding.getAvgBuyPrice());</b>
+<b class="fc">&nbsp;        result.put(&quot;currency&quot;, holding.getCurrency());</b>
+<b class="fc">&nbsp;        result.put(&quot;account_type&quot;, holding.getAccount().getAccountType());</b>
+<b class="fc">&nbsp;        result.put(&quot;account_name&quot;, holding.getAccount().getAccountName());</b>
+<b class="fc">&nbsp;        result.put(&quot;currentPrice&quot;, values.currentPrice());</b>
+<b class="fc">&nbsp;        result.put(&quot;marketValue&quot;, values.marketValue());</b>
+<b class="fc">&nbsp;        result.put(&quot;pnl&quot;, values.pnl());</b>
+<b class="fc">&nbsp;        result.put(&quot;pnlPct&quot;, values.pnlPct());</b>
+&nbsp;
+<b class="fc">&nbsp;        return result;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-22 14:34</div>
+</div>
+</body>
+</html>
