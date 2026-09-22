@@ -1,8 +1,5 @@
 #pragma once
 
-#include "currency.hpp"
-#include "http.hpp"
-
 enum
 {
     FX_OK = 0,
