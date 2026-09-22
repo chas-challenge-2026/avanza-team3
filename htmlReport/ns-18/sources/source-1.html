@@ -1,0 +1,156 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > FallbackMarketDataProvider</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">se.comerit.avanza.market.provider</a>
+</div>
+
+<h1>Coverage Summary for Class: FallbackMarketDataProvider (se.comerit.avanza.market.provider)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">FallbackMarketDataProvider</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    75%
+  </span>
+  <span class="absValue">
+    (3/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    80%
+  </span>
+  <span class="absValue">
+    (8/10)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package se.comerit.avanza.market.provider;
+&nbsp;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;@Component
+<b class="fc">&nbsp;public class FallbackMarketDataProvider implements MarketDataProvider {</b>
+&nbsp;
+<b class="fc">&nbsp;    private static final BigDecimal DEFAULT_PRICE = new BigDecimal(&quot;100.00&quot;);</b>
+<b class="fc">&nbsp;    private static final Map&lt;String, BigDecimal&gt; PRICE_FALLBACKS = Map.of(</b>
+&nbsp;            &quot;ERIC-B&quot;, new BigDecimal(&quot;74.20&quot;),
+&nbsp;            &quot;VOLV-B&quot;, new BigDecimal(&quot;268.50&quot;),
+&nbsp;            &quot;AAPL&quot;, new BigDecimal(&quot;187.32&quot;),
+&nbsp;            &quot;SWED-A&quot;, new BigDecimal(&quot;193.10&quot;),
+&nbsp;            &quot;SAND&quot;, new BigDecimal(&quot;212.80&quot;)
+&nbsp;    );
+<b class="fc">&nbsp;    private static final Map&lt;String, BigDecimal&gt; FX_FALLBACKS = Map.of(</b>
+&nbsp;            &quot;USD/SEK&quot;, new BigDecimal(&quot;10.45&quot;),
+&nbsp;            &quot;SEK/SEK&quot;, BigDecimal.ONE
+&nbsp;    );
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Optional&lt;BigDecimal&gt; findPrice(String ticker) {
+<b class="nc">&nbsp;        return Optional.of(PRICE_FALLBACKS.getOrDefault(ticker.toUpperCase(), DEFAULT_PRICE));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Optional&lt;BigDecimal&gt; findFxRate(String fromCurrency, String toCurrency) {
+<b class="fc">&nbsp;        String from = fromCurrency.toUpperCase();</b>
+<b class="fc">&nbsp;        String to = toCurrency.toUpperCase();</b>
+<b class="pc">&nbsp;        if (from.equals(to)) {</b>
+<b class="nc">&nbsp;            return Optional.of(BigDecimal.ONE);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        return Optional.ofNullable(FX_FALLBACKS.get(from + &quot;/&quot; + to));</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-22 14:34</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,182 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TargetAllocation</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">se.comerit.avanza.targetallocation.model</a>
+</div>
+
+<h1>Coverage Summary for Class: TargetAllocation (se.comerit.avanza.targetallocation.model)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TargetAllocation</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (6/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    75%
+  </span>
+  <span class="absValue">
+    (9/12)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">TargetAllocation$HibernateInstantiator$hLHfDQDs</td>
+  </tr>
+  <tr>
+    <td class="name">TargetAllocation$HibernateProxy$5jPNIg9P</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (6/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    75%
+  </span>
+  <span class="absValue">
+    (9/12)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package se.comerit.avanza.targetallocation.model;
+&nbsp;
+&nbsp;import jakarta.persistence.Column;
+&nbsp;import jakarta.persistence.Entity;
+&nbsp;import jakarta.persistence.GeneratedValue;
+&nbsp;import jakarta.persistence.GenerationType;
+&nbsp;import jakarta.persistence.Id;
+&nbsp;import jakarta.persistence.Table;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;
+&nbsp;@Entity
+&nbsp;@Table(name = &quot;target_allocations&quot;)
+&nbsp;public class TargetAllocation {
+&nbsp;
+&nbsp;    @Id
+&nbsp;    @GeneratedValue(strategy = GenerationType.IDENTITY)
+&nbsp;    private Integer id;
+&nbsp;
+&nbsp;    @Column(name = &quot;user_id&quot;)
+&nbsp;    private Integer userId;
+&nbsp;
+&nbsp;    @Column(name = &quot;account_type&quot;, length = 10)
+&nbsp;    private String accountType;
+&nbsp;
+&nbsp;    @Column(name = &quot;target_pct&quot;, precision = 5, scale = 2)
+&nbsp;    private BigDecimal targetPct;
+&nbsp;
+<b class="fc">&nbsp;    protected TargetAllocation() {</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    public TargetAllocation(Integer userId, String accountType, BigDecimal targetPct) {</b>
+<b class="fc">&nbsp;        this.userId = userId;</b>
+<b class="fc">&nbsp;        this.accountType = accountType;</b>
+<b class="fc">&nbsp;        this.targetPct = targetPct;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Integer getId() {
+<b class="fc">&nbsp;        return id;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Integer getUserId() {
+<b class="fc">&nbsp;        return userId;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setUserId(Integer userId) {
+<b class="nc">&nbsp;        this.userId = userId;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getAccountType() {
+<b class="fc">&nbsp;        return accountType;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setAccountType(String accountType) {
+<b class="nc">&nbsp;        this.accountType = accountType;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public BigDecimal getTargetPct() {
+<b class="fc">&nbsp;        return targetPct;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setTargetPct(BigDecimal targetPct) {
+<b class="nc">&nbsp;        this.targetPct = targetPct;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-22 14:34</div>
+</div>
+</body>
+</html>

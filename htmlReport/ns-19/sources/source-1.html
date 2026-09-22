@@ -1,0 +1,177 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > MarketDataService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">se.comerit.avanza.market.service</a>
+</div>
+
+<h1>Coverage Summary for Class: MarketDataService (se.comerit.avanza.market.service)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">MarketDataService</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.1%
+  </span>
+  <span class="absValue">
+    (16/17)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">MarketDataService$$SpringCGLIB$$0</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.1%
+  </span>
+  <span class="absValue">
+    (16/17)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package se.comerit.avanza.market.service;
+&nbsp;
+&nbsp;import org.springframework.cache.annotation.Cacheable;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;import se.comerit.avanza.market.provider.MarketDataProvider;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;@Service
+&nbsp;public class MarketDataService {
+&nbsp;
+&nbsp;    private final List&lt;MarketDataProvider&gt; providers;
+&nbsp;
+<b class="fc">&nbsp;    public MarketDataService(List&lt;MarketDataProvider&gt; providers) {</b>
+<b class="fc">&nbsp;        this.providers = providers;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Cacheable(value = &quot;marketPrices&quot;, key = &quot;#ticker.toUpperCase()&quot;)
+&nbsp;    public BigDecimal getPrice(String ticker) {
+<b class="fc">&nbsp;        String normalizedTicker = ticker.toUpperCase();</b>
+<b class="fc">&nbsp;        return providers.stream()</b>
+<b class="fc">&nbsp;                .map(provider -&gt; provider.findPrice(normalizedTicker))</b>
+<b class="fc">&nbsp;                .flatMap(java.util.Optional::stream)</b>
+<b class="fc">&nbsp;                .findFirst()</b>
+<b class="fc">&nbsp;                .orElseThrow(() -&gt; new IllegalStateException(&quot;No market data provider returned a price&quot;));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Cacheable(value = &quot;fxRates&quot;, key = &quot;#fromCurrency.toUpperCase() + &#39;/&#39; + #toCurrency.toUpperCase()&quot;)
+&nbsp;    public BigDecimal getFxRate(String fromCurrency, String toCurrency) {
+<b class="fc">&nbsp;        String from = fromCurrency.toUpperCase();</b>
+<b class="fc">&nbsp;        String to = toCurrency.toUpperCase();</b>
+<b class="pc">&nbsp;        if (from.equals(to)) {</b>
+<b class="nc">&nbsp;            return BigDecimal.ONE;</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        return providers.stream()</b>
+<b class="fc">&nbsp;                .map(provider -&gt; provider.findFxRate(from, to))</b>
+<b class="fc">&nbsp;                .flatMap(java.util.Optional::stream)</b>
+<b class="fc">&nbsp;                .findFirst()</b>
+<b class="fc">&nbsp;                .orElseThrow(() -&gt; new IllegalStateException(&quot;No market data provider returned an FX rate&quot;));</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-22 14:34</div>
+</div>
+</body>
+</html>
