@@ -6,6 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -44,15 +47,23 @@ class AlertControllerTest {
                 42, "DRIFT", "Rebalance", false,
                 LocalDateTime.of(2026, 9, 1, 10, 0)
         );
-        when(alertService.getAlertsByUserId(7)).thenReturn(List.of(response));
+
+        Page<AlertResponse> responsePage =
+                new PageImpl<>(
+                        List.of(response),
+                        PageRequest.of(0, 20),
+                        1
+                );
+
+        when(alertService.getAlertsByUserId(7, false, 0, 20)).thenReturn(responsePage);
 
         mockMvc.perform(get("/api/alerts").principal(authenticationForUser(7)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(42))
-                .andExpect(jsonPath("$[0].alertType").value("DRIFT"))
-                .andExpect(jsonPath("$[0].dismissed").value(false));
+                .andExpect(jsonPath("$.content[0].id").value(42))
+                .andExpect(jsonPath("$.content[0].alertType").value("DRIFT"))
+                .andExpect(jsonPath("$.content[0].dismissed").value(false));
 
-        verify(alertService).getAlertsByUserId(7);
+        verify(alertService).getAlertsByUserId(7, false, 0, 20);
     }
 
     @Test
