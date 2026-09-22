@@ -2,117 +2,87 @@
 #include "http.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <iostream>
+#include <stdexcept>
 #include <unordered_map>
+
+namespace
+{
+constexpr const char *ApiUrl = "https://api.frankfurter.dev/v2/";
+
+// The API returns JSON with the fields always in this order:
+// {"date":"2026-09-21","base":"EUR","quote":"USD","rate":1.149}
+// Reads one such object from pos and leaves pos just past its closing brace
+Currency ParseObject(const std::string &str, size_t &pos)
+{
+    auto skipToValue = [&] {
+        pos = str.find(':', pos);
+        if (pos == std::string::npos)
+            throw std::invalid_argument("malformed response");
+        pos++;
+    };
+
+    auto readQuoted = [&](size_t len) {
+        skipToValue();
+        std::string s = str.substr(pos + 1, len);
+        pos += 1 + len;
+        return s;
+    };
+
+    std::string date = readQuoted(10);
+    std::string base = readQuoted(3);
+    std::string name = readQuoted(3);
+
+    skipToValue();
+    size_t close = str.find('}', pos);
+    if (close == std::string::npos)
+        throw std::invalid_argument("malformed response");
+    double rate = std::stod(str.substr(pos, close - pos));
+
+    pos = close + 1;
+    return Currency(date, base, name, rate);
+}
+
+int Fetch(const std::string &path, std::string &buf)
+{
+    HttpClient client;
+    return client.Get(ApiUrl + path, buf) == CURLE_OK ? FX_OK : FX_ERROR_REQUEST_FAILED;
+}
+} // namespace
+
+Currency FxParsePair(const std::string &str)
+{
+    size_t pos = 0;
+    return ParseObject(str, pos);
+}
 
 std::unordered_map<std::string, Currency> FxParseList(const std::string &str)
 {
-    if (str.empty())
-        throw std::invalid_argument("str is empty");
-
     std::unordered_map<std::string, Currency> list;
 
-    enum class Key
+    size_t pos = 0;
+    while ((pos = str.find('{', pos)) != std::string::npos)
     {
-        Date,
-        Base,
-        Name,
-        Rate
-    };
-
-    const char *pos = str.data();
-    const char *startPos = pos;
-    Key currentKey = Key::Date;
-    Currency temp;
-
-    while (*pos != ']' && (pos - startPos) < str.size())
-    {
-        if (*pos == ':')
-        {
-            pos += 2;
-            switch (currentKey)
-            {
-            case Key::Date: {
-                std::string s;
-                for (int i = 0; i < 10; i++, pos++)
-                {
-                    s += *pos;
-                }
-                temp.SetDate(s);
-                currentKey = Key::Base;
-                break;
-            }
-            case Key::Base: {
-                std::string s;
-                for (int i = 0; i < 3; i++, pos++)
-                {
-                    s += *pos;
-                }
-                temp.SetBase(s);
-                currentKey = Key::Name;
-                break;
-            }
-            case Key::Name: {
-                std::string s;
-                for (int i = 0; i < 3; i++, pos++)
-                {
-                    s += *pos;
-                }
-                temp.SetName(s);
-                currentKey = Key::Rate;
-                break;
-            }
-            case Key::Rate: {
-                pos--;
-                std::string s;
-                while (*pos != '}')
-                {
-                    s += *pos;
-                    pos++;
-                }
-                double r = stod(s);
-                temp.SetRate(r);
-
-                list.emplace(temp.GetName(), temp);
-
-                currentKey = Key::Date;
-                break;
-            }
-            }
-        }
-
-        pos++;
+        Currency currency = ParseObject(str, pos);
+        list.emplace(currency.GetName(), currency);
     }
 
     return list;
 }
 
-int FxConvert(double amount, const char *from, const char *to, double *out)
+int FxConvertPair(const double amount, const char *from, const char *to, double *out)
 {
     if (!from || !to || !out)
         return FX_ERROR_NULL;
 
     try
     {
-        std::string target = to;
-        std::transform(target.begin(), target.end(), target.begin(),
-                       [](unsigned char c) { return std::toupper(c); });
-
-        std::string url = "https://api.frankfurter.dev/v2/rates?base=";
-        url.append(from);
-
-        HttpClient client;
         std::string buf;
-        if (client.Get(url, buf) != CURLE_OK)
-            return FX_ERROR_REQUEST_FAILED;
+        if (int err = Fetch(std::string("rate/") + from + "/" + to, buf); err != FX_OK)
+            return err;
 
-        auto list = FxParseList(buf);
-
-        auto it = list.find(target);
-        if (it == list.end())
-            return FX_ERROR_UNKNOWN_CURRENCY;
-
-        *out = amount * it->second.GetRate();
+        *out = amount * FxParsePair(buf).GetRate();
         return FX_OK;
     }
     catch (...)
@@ -123,8 +93,10 @@ int FxConvert(double amount, const char *from, const char *to, double *out)
 
 int main()
 {
-    double res;
-    int err = FxConvert(100, "usd", "sek", &res);
-    std::cout << err << std::endl;
+    double res = 0.0;
+    int err = 0;
+
+    err = FxConvertPair(100, "usd", "sek", &res);
+    std::cout << "Error code: " << err << std::endl;
     std::cout << res << std::endl;
 }
