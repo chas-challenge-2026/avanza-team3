@@ -27,4 +27,4 @@ enum
  *
  * @return Error code
  */
-int FxConvert(double amount, const char *from, const char *to, double *out);
+int FxConvertPair(double amount, const char *from, const char *to, double *out);
