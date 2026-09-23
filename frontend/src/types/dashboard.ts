@@ -8,7 +8,7 @@ export type DashboardData = {
   usdToSek: number;
 };
 
-export type AccountSummary= {
+export type AccountSummary = {
   id: number;
   userId: number;
   accountType: string;
@@ -51,6 +51,11 @@ export type AllocationRow = {
   target: number;
   drift: number;
   overThreshold: boolean;
+};
+
+export type PortfolioResponse = {
+  allocationRows: AllocationRow[];
+  totalPortfolioValue: number;
 };
 
 export type Alert = {
