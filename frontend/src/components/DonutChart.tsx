@@ -1,6 +1,6 @@
 import { PieChart } from "@mui/x-charts";
 import { useMediaQuery, useTheme } from "@mui/material";
-import styles from "./AllocationChart.module.css";
+import styles from "./DonutChart.module.css";
 import AppCard from "./AppCard";
 
 type DonutChartItem = {

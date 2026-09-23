@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getPortfolio } from "../services/portfolioService";
-import type { AllocationRow } from "../types/portfolio";
+import { getDashboard } from "../services/dashboardService";
+import type { AllocationRow } from "../types/dashboard";
 
 const usePortfolioAllocations = () => {
   const [rows, setRows] = useState<AllocationRow[]>([]);
@@ -8,7 +8,7 @@ const usePortfolioAllocations = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getPortfolio()
+    getDashboard()
       .then((portfolio) => {
         setRows(portfolio.allocationRows);
       })
