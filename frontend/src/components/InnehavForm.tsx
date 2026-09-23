@@ -41,7 +41,21 @@ type InnehavsFormProps = {
 };
 
 const InnehavsForm = ({}: InnehavsFormProps) => {
-  const { addHolding } = useHoldings();
+  const { holdings, addHolding } = useHoldings();
+
+  const accounts = [
+    ...new Map(
+      holdings.map((holding) => [
+        holding.accountId,
+        {
+          id: holding.accountId,
+          accountName: holding.accountName,
+          accountType: holding.accountType,
+          currency: holding.currency
+        }
+      ])
+    ).values()
+  ];
 
   const [formData, setFormData] =
     useState<InnehavFormData>(initialFormDataValue);
@@ -116,9 +130,9 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
     } else if (!onlyLettersRegex.test(formData.instrumentName.trim())) {
       newErrors.instrumentName = "Instrumentnamn får bara innehålla bokstäver";
     }
-    // if (!formData.instrumentType) {
-    //   newErrors.instrumentType = "Ange en instrumenttyp";
-    // }
+    if (!formData.instrumentType) {
+      newErrors.instrumentType = "Ange en instrumenttyp";
+    }
 
     const quantity = Number(formData.quantity);
 
@@ -192,9 +206,11 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               helperText={errors.accountId || " "}
               sx={textFieldSx}
             >
-              <MenuItem value="1">Anna ISK (ISK)</MenuItem>
-              <MenuItem value="2">Anna KF (KF)</MenuItem>
-              <MenuItem value="3">Anna Depå (Depa)</MenuItem>
+              {accounts.map((account) => (
+                <MenuItem key={account.id} value={String(account.id)}>
+                  {account.accountName}
+                </MenuItem>
+              ))}
             </TextField>
 
             <TextField
@@ -222,7 +238,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               sx={textFieldSx}
             />
 
-            {/* <TextField
+            <TextField
               select
               fullWidth
               size="small"
@@ -234,10 +250,13 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               helperText={errors.instrumentType || " "}
               sx={textFieldSx}
             >
-              <MenuItem value="Aktie">Aktie</MenuItem>
-              <MenuItem value="Fond">Fond</MenuItem>
-              <MenuItem value="ETF">ETF</MenuItem>
-            </TextField> */}
+              {}
+              {accounts.map((account) => (
+                <MenuItem key={account.id} value={String(account.id)}>
+                  {account.accountType}
+                </MenuItem>
+              ))}
+            </TextField>
           </div>
 
           <div className={styles.containerLeft}>
@@ -281,9 +300,11 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               helperText={errors.currency || " "}
               sx={textFieldSx}
             >
-              <MenuItem value="SEK">SEK</MenuItem>
-              <MenuItem value="USD">USD</MenuItem>
-              <MenuItem value="EUR">EUR</MenuItem>
+              {accounts.map((account) => (
+                <MenuItem key={account.id} value={String(account.id)}>
+                  {account.currency}
+                </MenuItem>
+              ))}
             </TextField>
             <AppButton
               sx={{ maxWidth: "200px", padding: "8px" }}
