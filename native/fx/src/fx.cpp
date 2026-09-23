@@ -1,16 +1,15 @@
 #include "fx.hpp"
-#include "http.hpp"
 #include "currency.hpp"
+#include "http.hpp"
 
 #include <algorithm>
-#include <cctype>
 #include <iostream>
 #include <stdexcept>
 #include <unordered_map>
 
 namespace
 {
-constexpr const char *ApiUrl = "https://api.frankfurter.dev/v2/";
+constexpr const char *ApiUrl = "https://api.frankfurter.dev/v2/"; // E.g https://api.frankfurter.dev/v2/rate/usd/sek
 
 // The API returns JSON with the fields always in this order:
 // {"date":"2026-09-21","base":"EUR","quote":"USD","rate":1.149}
@@ -77,11 +76,25 @@ int FxConvertPair(const double amount, const char *from, const char *to, double 
     if (!from || !to || !out)
         return FX_ERROR_NULL;
 
+    if (strlen(from) != 3 || strlen(to) != 3)
+        return FX_ERROR_UNKNOWN_CURRENCY;
+
+    for (int i = 0; i < 3; i++)
+    {
+        if (!isalpha(from[i]) || !isalpha(to[i]))
+            return FX_ERROR_UNKNOWN_CURRENCY;
+    }
+
     try
     {
         std::string buf;
-        if (int err = Fetch(std::string("rate/") + from + "/" + to, buf); err != FX_OK)
+        int err = Fetch(std::string("rate/") + from + "/" + to, buf);
+        if (err != FX_OK)
             return err;
+
+        // The API returns "status":422 if the currency doesn't exist
+        if (buf.find(R"("status":422)") != std::string::npos)
+            return FX_ERROR_UNKNOWN_CURRENCY;
 
         *out = amount * FxParsePair(buf).GetRate();
         return FX_OK;
@@ -90,14 +103,4 @@ int FxConvertPair(const double amount, const char *from, const char *to, double 
     {
         return FX_ERROR_INTERNAL;
     }
-}
-
-int main()
-{
-    double res = 0.0;
-    int err = 0;
-
-    err = FxConvertPair(100, "usd", "sek", &res);
-    std::cout << "Error code: " << err << std::endl;
-    std::cout << res << std::endl;
 }
