@@ -1,21 +1,21 @@
 import AppCard from "../components/AppCard";
 import styles from "./PortfolioHealthPage.module.css";
 import { Gauge } from "@mui/x-charts/Gauge";
-import IndustriesChart from "../components/IndustriesChart";
 import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import DonutChart from "../components/DonutChart";
-
+import useDashboard from "../hooks/useDasboard";
 import InnehavsLista from "../components/Innehavslista";
 import { holdings } from "../data/mockData";
 import AllocationHandler from "../components/AllocationHandler";
 
 function PortfolioHealthPage() {
   const { rows } = usePortfolioAllocations();
+  const { dashboard } = useDashboard();
 
   const statusColors = {
     good: "#16a34a",
     warning: "#d97706",
-    danger: "#dc2626"
+    danger: "#dc2626",
   };
 
   const changePercent = 5;
@@ -39,7 +39,7 @@ function PortfolioHealthPage() {
   const riskLevelText = {
     good: "Låg Risk",
     warning: "Måttlig Risk",
-    danger: "Hög Risk"
+    danger: "Hög Risk",
   };
 
   const diversification = 72;
@@ -57,21 +57,13 @@ function PortfolioHealthPage() {
   const diversificationText = {
     good: "God spridning",
     warning: "Måttlig spridning",
-    danger: "Låg spridning"
+    danger: "Låg spridning",
   };
 
   const allocationData = rows.map((row) => ({
     label: row.accountType,
-    value: row.actual
+    value: row.actual,
   }));
-
-  const mockAssetData = [
-    { label: "Aktier", value: 68, color: "green" },
-    { label: "Fonder", value: 42, color: "blue" },
-    { label: "Räntebärande", value: 28, color: "teal" },
-    { label: "Kontanter", value: 15, color: "orange" },
-    { label: "Övrigt", value: 5, color: "gray" }
-  ];
 
   return (
     <>
@@ -92,7 +84,7 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": { fill: statusColors[riskLevel()] },
-                  "& .MuiGauge-valueText": { display: "none" }
+                  "& .MuiGauge-valueText": { display: "none" },
                 }}
                 width={90}
                 height={90}
@@ -108,7 +100,12 @@ function PortfolioHealthPage() {
             <div className={styles.header}>
               <p className={styles.label}>Totalt Portföljvärde</p>
             </div>
-            <p className={styles.value}>712 567 SEK</p>
+            <p className={styles.value}>
+              {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
+                maximumFractionDigits: 0,
+              })}{" "}
+              SEK
+            </p>
             <p className={styles.label + " " + styles[trendStatus()]}>
               {changePercent >= 0 ? "+" : ""}
               {changePercent}% i år
@@ -121,8 +118,9 @@ function PortfolioHealthPage() {
             <div className={styles.header}>
               <p className={styles.label}>Antal innehav</p>
             </div>
-            <p className={styles.value}>18 st</p>
-            <p className={styles.label}>12 fonder, 6 aktier</p>
+            <p className={styles.value}>
+              {dashboard?.holdings.totalElements} st
+            </p>
           </div>
         </AppCard>
         <AppCard>
@@ -144,9 +142,9 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": {
-                    fill: statusColors[diversificationLevel()]
+                    fill: statusColors[diversificationLevel()],
                   },
-                  "& .MuiGauge-valueText": { display: "none" }
+                  "& .MuiGauge-valueText": { display: "none" },
                 }}
                 width={90}
                 height={60}
@@ -166,7 +164,6 @@ function PortfolioHealthPage() {
         </AppCard>
       </div>
       <div className={styles.container}>
-        <IndustriesChart />
         <InnehavsLista
           holdings={holdings}
           columns={["ticker", "instrumentName", "quantity", "avgBuyPrice"]}
@@ -175,7 +172,6 @@ function PortfolioHealthPage() {
       <div className={styles.conatiner}></div>
       <div className={styles.container}>
         <DonutChart title="Fördelning per kontotyp" data={allocationData} />
-        <DonutChart title="Fördelning per tillgångstyp" data={mockAssetData} />
       </div>
     </>
   );

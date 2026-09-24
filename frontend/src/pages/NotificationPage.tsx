@@ -2,21 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "./NotificationPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-
-type Notification = {
-  id: number;
-  alertType: string;
-  message: string;
-  dismissed: boolean;
-  createdAt: string;
-};
-
-type LiveAlert = {
-  alert_type: string;
-  message: string;
-  dismissed: boolean;
-  created_at: string;
-};
+import type { Notification, LiveAlert } from "../types/notification";
 
 export default function NotificationPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
