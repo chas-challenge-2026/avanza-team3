@@ -19,10 +19,9 @@ function PortfolioPage() {
   const accounts = dashboard?.accounts ?? [];
   const alerts = dashboard?.recentAlerts ?? [];
 
-
   const allocationData = rows.map((row) => ({
     label: row.accountType,
-    value: row.actual
+    value: row.actual,
   }));
 
   return (
@@ -59,9 +58,7 @@ function PortfolioPage() {
         <NotificationCard alerts={alerts} />
       </div>
 
-      <div className={styles.row4}>
-        <CurrencyExposure />
-      </div>
+      <div className={styles.row4}></div>
     </div>
   );
 }

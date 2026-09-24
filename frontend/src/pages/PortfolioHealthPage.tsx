@@ -152,7 +152,6 @@ function PortfolioHealthPage() {
       </div>
 
       <div className={styles.container}>
-        <IndustriesChart />
         <InnehavsLista
           holdings={holdings}
           columns={["ticker", "instrumentName", "quantity", "avgBuyPrice"]}
