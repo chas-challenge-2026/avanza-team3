@@ -11,18 +11,18 @@ import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
 import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import useDashboard from "../hooks/useDasboard";
+import useLiveAlerts from "../hooks/useLiveAlerts";
 
 function PortfolioPage() {
   const { rows } = usePortfolioAllocations();
 
   const { dashboard } = useDashboard();
   const accounts = dashboard?.accounts ?? [];
-  const alerts = dashboard?.recentAlerts ?? [];
-
+  const { liveAlerts } = useLiveAlerts();
 
   const allocationData = rows.map((row) => ({
     label: row.accountType,
-    value: row.actual
+    value: row.actual,
   }));
 
   return (
@@ -56,7 +56,7 @@ function PortfolioPage() {
 
       <div className={styles.row3}>
         <DataTable title="Konton" rows={accounts} columns={accountColumns} />
-        <NotificationCard alerts={alerts} />
+        <NotificationCard alerts={liveAlerts} />
       </div>
 
       <div className={styles.row4}>
