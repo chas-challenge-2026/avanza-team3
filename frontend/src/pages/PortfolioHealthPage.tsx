@@ -160,9 +160,11 @@ function PortfolioHealthPage() {
           </div>
         </AppCard>
       </div>
-      <AppCard sx={{ maxWidth: "500px" }}>
-        <AllocationHandler />
-      </AppCard>
+      <div className={styles.container}>
+        <AppCard sx={{ maxWidth: "500px" }}>
+          <AllocationHandler />
+        </AppCard>
+      </div>
       <div className={styles.container}>
         <IndustriesChart />
         <InnehavsLista
@@ -170,6 +172,7 @@ function PortfolioHealthPage() {
           columns={["ticker", "instrumentName", "quantity", "avgBuyPrice"]}
         />
       </div>
+      <div className={styles.conatiner}></div>
       <div className={styles.container}>
         <DonutChart title="Fördelning per kontotyp" data={allocationData} />
         <DonutChart title="Fördelning per tillgångstyp" data={mockAssetData} />
