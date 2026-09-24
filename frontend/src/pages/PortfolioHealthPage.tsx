@@ -14,7 +14,7 @@ function PortfolioHealthPage() {
   const statusColors = {
     good: "#16a34a",
     warning: "#d97706",
-    danger: "#dc2626"
+    danger: "#dc2626",
   };
 
   const changePercent = 5;
@@ -38,7 +38,7 @@ function PortfolioHealthPage() {
   const riskLevelText = {
     good: "Låg Risk",
     warning: "Måttlig Risk",
-    danger: "Hög Risk"
+    danger: "Hög Risk",
   };
 
   const diversification = 72;
@@ -56,21 +56,13 @@ function PortfolioHealthPage() {
   const diversificationText = {
     good: "God spridning",
     warning: "Måttlig spridning",
-    danger: "Låg spridning"
+    danger: "Låg spridning",
   };
 
   const allocationData = rows.map((row) => ({
     label: row.accountType,
-    value: row.actual
+    value: row.actual,
   }));
-
-  const mockAssetData = [
-    { label: "Aktier", value: 68, color: "green" },
-    { label: "Fonder", value: 42, color: "blue" },
-    { label: "Räntebärande", value: 28, color: "teal" },
-    { label: "Kontanter", value: 15, color: "orange" },
-    { label: "Övrigt", value: 5, color: "gray" }
-  ];
 
   return (
     <>
@@ -91,7 +83,7 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": { fill: statusColors[riskLevel()] },
-                  "& .MuiGauge-valueText": { display: "none" }
+                  "& .MuiGauge-valueText": { display: "none" },
                 }}
                 width={90}
                 height={90}
@@ -121,7 +113,6 @@ function PortfolioHealthPage() {
               <p className={styles.label}>Antal innehav</p>
             </div>
             <p className={styles.value}>18 st</p>
-            <p className={styles.label}>12 fonder, 6 aktier</p>
           </div>
         </AppCard>
         <AppCard>
@@ -143,9 +134,9 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": {
-                    fill: statusColors[diversificationLevel()]
+                    fill: statusColors[diversificationLevel()],
                   },
-                  "& .MuiGauge-valueText": { display: "none" }
+                  "& .MuiGauge-valueText": { display: "none" },
                 }}
                 width={90}
                 height={60}
@@ -169,7 +160,6 @@ function PortfolioHealthPage() {
       </div>
       <div className={styles.container}>
         <DonutChart title="Fördelning per kontotyp" data={allocationData} />
-        <DonutChart title="Fördelning per tillgångstyp" data={mockAssetData} />
       </div>
     </>
   );
