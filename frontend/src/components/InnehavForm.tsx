@@ -43,6 +43,13 @@ type InnehavsFormProps = {
 const InnehavsForm = ({}: InnehavsFormProps) => {
   const { holdings, addHolding } = useHoldings();
 
+  const [formData, setFormData] =
+    useState<InnehavFormData>(initialFormDataValue);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
   const accounts = [
     ...new Map(
       holdings.map((holding) => [
@@ -56,13 +63,6 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
       ])
     ).values()
   ];
-
-  const [formData, setFormData] =
-    useState<InnehavFormData>(initialFormDataValue);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -242,7 +242,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               select
               fullWidth
               size="small"
-              label="Instrumenttyp"
+              label="Kontotyp"
               name="instrumentType"
               value={formData.instrumentType}
               onChange={handleChange}

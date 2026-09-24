@@ -1,7 +1,7 @@
-import { Box, Grid, Input, Slider, type SxProps } from "@mui/material";
+import { Box, Grid, Input, Slider } from "@mui/material";
 import styles from "./AllocationHandler.module.css";
 import { useState, type ChangeEvent } from "react";
-import type { Theme } from "@emotion/react";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartLine,
@@ -9,16 +9,14 @@ import {
   faPiggyBank
 } from "@fortawesome/free-solid-svg-icons";
 import AppButton from "./AppButton";
+import useDashboard from "../hooks/useDasboard";
 
-type AllocationHandlerProps = {
-  sx?: SxProps<Theme>;
-};
-
-const AllocationHandler = ({ sx }: AllocationHandlerProps) => {
+const AllocationHandler = () => {
   const [stocks, setStocks] = useState(60);
   const [funds, setFunds] = useState(30);
   const [cash, setCash] = useState(10);
-  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const { dashboard } = useDashboard();
 
   const handleStocksChange = (event: Event, newValue: number) => {
     setStocks(newValue);
@@ -35,7 +33,7 @@ const AllocationHandler = ({ sx }: AllocationHandlerProps) => {
     setFunds(event.target.value === "" ? 0 : Number);
     setCash(event.target.value === "" ? 0 : Number);
   };
-  const totalAllicationValue = stocks + funds + cash;
+  const totalAllication = stocks + funds + cash;
 
   const handleReset = () => {
     setStocks(0);
@@ -44,16 +42,14 @@ const AllocationHandler = ({ sx }: AllocationHandlerProps) => {
   };
 
   const handleSaveGoal = () => {
-    if (totalAllicationValue != 100) {
-      setError("Din totala fördelning måste vara 100%");
-    }
+    setSuccessMessage("");
   };
 
   return (
     <>
       <h2>Målallokering</h2>
       <p className={styles.label}>
-        Justera fördelning med reglagen. Summan måste vara 100%.
+        Justera fördelning med reglagen. Summan <u>måste</u> vara 100%.
       </p>
       <div className={styles.wrapper}>
         <FontAwesomeIcon
@@ -159,12 +155,12 @@ const AllocationHandler = ({ sx }: AllocationHandlerProps) => {
       </div>
       <p
         className={styles.label}
-        style={{ color: totalAllicationValue > 100 ? "red" : "#5a6569" }}
+        style={{ color: totalAllication > 100 ? "red" : "#5a6569" }}
       >
-        Din totala fördelning: {totalAllicationValue}%
+        Din totala fördelning: {totalAllication}%
       </p>
-      <br />
-      <Box
+
+      {/* <Box
         sx={{
           display: "flex",
           width: "100%",
@@ -191,7 +187,7 @@ const AllocationHandler = ({ sx }: AllocationHandlerProps) => {
             backgroundColor: "#8b69a7"
           }}
         />
-      </Box>
+      </Box> */}
       {/* <Box
         sx={{
           display: "flex",
@@ -219,7 +215,7 @@ const AllocationHandler = ({ sx }: AllocationHandlerProps) => {
           Återställ
         </AppButton>
         <AppButton
-          disabled={totalAllicationValue !== 100}
+          disabled={totalAllication !== 100}
           onClick={handleSaveGoal}
           variant="contained"
         >
