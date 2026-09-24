@@ -18,15 +18,21 @@ function InnehavPage() {
   return (
     <Container className={styles.InnehavPageWrapper}>
       <h1>Innehav</h1>
-
       <InnehavsLista
         holdings={holdings}
+        columns={[
+          "ticker",
+          "instrumentName",
+          "quantity",
+          "avgBuyPrice",
+          "account_type",
+        ]}
         // onDelete={removeHolding}
         // width="1200px"
         // showDelete
       />
-
       <InnehavsForm />
+      console.log(holdings);
     </Container>
   );
 }

@@ -4,7 +4,7 @@ import {
   Snackbar,
   MenuItem,
   TextField,
-  Typography
+  Typography,
 } from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
@@ -33,7 +33,7 @@ const initialFormDataValue: InnehavFormData = {
   instrumentType: "",
   quantity: "",
   avgBuyPrice: "",
-  currency: ""
+  currency: "",
 };
 
 type InnehavsFormProps = {
@@ -69,7 +69,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
         instrumentName: formData.instrumentName.trim(),
         quantity: Number(formData.quantity),
         avgBuyPrice: Number(formData.avgBuyPrice),
-        currency: formData.currency
+        currency: formData.currency,
       };
       console.log(submittedData);
       await addHolding(submittedData);
@@ -80,7 +80,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
       setOpenSnackbar(true);
     } catch (error) {
       setErrors({
-        submit: error instanceof Error ? error.message : "Något gick fel"
+        submit: error instanceof Error ? error.message : "Något gick fel",
       });
     } finally {
       setIsSubmitting(false);
@@ -95,7 +95,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
 
     setFormData((previusData) => ({
       ...previusData,
-      [name]: value
+      [name]: value,
     }));
     console.log(event.target.value);
   };
@@ -146,14 +146,14 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
     "& .MuiFormHelperText-root": {
       marginBottom: "3px",
       marginTop: "0px",
-      fontWeight: "bold"
+      fontWeight: "bold",
     },
     "& .MuiInputLabel-root.Mui-error": {
-      color: "#999"
+      color: "#999",
     },
     "& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline": {
-      borderColor: "#999"
-    }
+      borderColor: "#999",
+    },
   };
 
   return (
@@ -177,7 +177,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
             flexDirection: "row",
             justifyContent: "space-between",
             width: "100%",
-            height: "auto"
+            height: "auto",
           }}
         >
           <div className={styles.containerRight}>
