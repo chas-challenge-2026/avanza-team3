@@ -45,7 +45,12 @@ function PortfolioPage() {
             <FontAwesomeIcon icon={faChartLine} className={styles.icon} />
             <p className={styles.label}>Totalt värde (SEK)</p>
           </div>
-          <p className={styles.value}>712 568 kr</p>
+          <p className={styles.value}>
+            {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
+              maximumFractionDigits: 0,
+            })}{" "}
+            SEK
+          </p>
         </div>
       </AppCard>
 
@@ -59,9 +64,7 @@ function PortfolioPage() {
         <NotificationCard alerts={liveAlerts} />
       </div>
 
-      <div className={styles.row4}>
-        <CurrencyExposure />
-      </div>
+      <div className={styles.row4}></div>
     </div>
   );
 }
