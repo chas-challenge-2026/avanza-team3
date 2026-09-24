@@ -1,14 +1,15 @@
 export type Holding = {
   id: number;
   accountId: number;
-  accountName: string;
   ticker: string;
   instrumentName: string;
-  accountType: string;
   quantity: number;
   avgBuyPrice: number;
   currentPrice: number;
+  marketValue: number;
   currency: string;
+  account_type: string;
+  account_name: string;
 };
 
 export interface HoldingRequest {
@@ -23,12 +24,13 @@ export interface HoldingRequest {
 export type HoldingApiResponse = {
   id: number;
   account_id: number;
-  account_name: string;
-  account_type: string;
   ticker: string;
   instrument_name: string;
   quantity: number;
   avg_buy_price: number;
   currentPrice: number;
   currency: string;
+  market_value: number;
+  account_name: string;
+  account_type: string;
 };

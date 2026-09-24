@@ -5,12 +5,13 @@ import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import DonutChart from "../components/DonutChart";
 import useDashboard from "../hooks/useDasboard";
 import InnehavsLista from "../components/Innehavslista";
-import { holdings } from "../data/mockData";
+import { useHoldings } from "../hooks/useHoldings";
 import AllocationHandler from "../components/AllocationHandler";
 
 function PortfolioHealthPage() {
   const { rows } = usePortfolioAllocations();
   const { dashboard } = useDashboard();
+  const { holdings } = useHoldings();
 
   const statusColors = {
     good: "#16a34a",
@@ -191,7 +192,13 @@ function PortfolioHealthPage() {
       <div className={styles.container}>
         <InnehavsLista
           holdings={holdings}
-          columns={["ticker", "instrumentName", "quantity", "avgBuyPrice"]}
+          columns={[
+            "ticker",
+            "instrumentName",
+            "quantity",
+            "avgBuyPrice",
+            "account_type"
+          ]}
         />
       </div>
       <div className={styles.conatiner}></div>
