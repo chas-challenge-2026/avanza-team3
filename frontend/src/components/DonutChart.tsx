@@ -30,42 +30,40 @@ const DonutChart = ({ title, data }: DonutChartProps) => {
   const outerRadius = isMobile ? 70 : 100;
 
   return (
-    <AppCard>
-      <div className={styles.chartWrapper}>
-        <div className={styles.headerWrapper}>
-          <h2>{title}</h2>
-        </div>
-        <div className={styles.chartBox}>
-          <PieChart
-            series={[
-              {
-                innerRadius,
-                outerRadius,
-                data: pieData,
-                cornerRadius: 5,
-                paddingAngle: 0.5,
-                valueFormatter: (item) =>
-                  item ? `${((item.value / total) * 100).toFixed(0)}%` : ""
-              }
-            ]}
-            slotProps={{
-              legend: {
-                sx: {
-                  "& .MuiChartsLegend-label": {
-                    fontSize: "13px",
-                    fontWeight: 500,
-                    fontFamily: "Roboto",
-                    color: "#5a6569"
-                  }
+    <div className={styles.chartWrapper}>
+      <div className={styles.headerWrapper}>
+        <h2>{title}</h2>
+      </div>
+      <div className={styles.chartBox}>
+        <PieChart
+          series={[
+            {
+              innerRadius,
+              outerRadius,
+              data: pieData,
+              cornerRadius: 5,
+              paddingAngle: 0.5,
+              valueFormatter: (item) =>
+                item ? `${((item.value / total) * 100).toFixed(0)}%` : ""
+            }
+          ]}
+          slotProps={{
+            legend: {
+              sx: {
+                "& .MuiChartsLegend-label": {
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  fontFamily: "Roboto",
+                  color: "#5a6569"
                 }
               }
-            }}
-            margin={{ right: 5 }}
-            hideLegend={false}
-          />
-        </div>
+            }
+          }}
+          margin={{ right: 5 }}
+          hideLegend={false}
+        />
       </div>
-    </AppCard>
+    </div>
   );
 };
 export default DonutChart;
