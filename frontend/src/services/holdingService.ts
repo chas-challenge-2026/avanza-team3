@@ -23,19 +23,17 @@ export const getHoldings = async (): Promise<Holding[]> => {
   }
 
   const data = await response.json();
-  console.log(data);
-
   return data.content.map((holding: HoldingApiResponse) => ({
     id: holding.id,
     accountId: holding.account_id,
-    accountName: holding.account_name,
-    accountType: holding.account_type,
     ticker: holding.ticker,
     instrumentName: holding.instrument_name,
     quantity: holding.quantity,
     avgBuyPrice: holding.avg_buy_price,
     currentPrice: holding.currentPrice,
-    currency: holding.currency
+    currency: holding.currency,
+    account_type: holding.account_type,
+    account_name: holding.account_name
   }));
 };
 
