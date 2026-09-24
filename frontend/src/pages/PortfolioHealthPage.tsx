@@ -117,7 +117,9 @@ function PortfolioHealthPage() {
             <div className={styles.header}>
               <p className={styles.label}>Antal innehav</p>
             </div>
-            <p className={styles.value}>18 st</p>
+            <p className={styles.value}>
+              {dashboard?.holdings.totalElements} st
+            </p>
           </div>
         </AppCard>
         <AppCard>
