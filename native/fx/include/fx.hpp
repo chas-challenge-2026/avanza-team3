@@ -15,7 +15,7 @@ enum
 
 /**
  * @brief Converts exchange values. Gets the latest exchange data
- * via HTTP.
+ * from api.frankfurter.dev via HTTP.
  *
  * @param[in]  amount The amount that will be converted
  * @param[in]  from The base currency to convert from
