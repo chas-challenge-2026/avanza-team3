@@ -20,9 +20,9 @@ enum
  * @param[in]  amount The amount that will be converted
  * @param[in]  from The base currency to convert from
  * @param[in]  to The currency to convert to
- * @param[out] out A double pointer that will store the converted value
+ * @param[out] outResult A double pointer that will store the converted value
  *
  * @return FX_Error code.
  * List of error codes are found in fx/README.md
  */
-int FxConvertPair(double amount, const char *from, const char *to, double *out);
+int FxConvert(double amount, const char *from, const char *to, double *outResult);
