@@ -1,15 +1,15 @@
 import AppCard from "../components/AppCard";
 import styles from "./PortfolioHealthPage.module.css";
 import { Gauge } from "@mui/x-charts/Gauge";
-import IndustriesChart from "../components/IndustriesChart";
 import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import DonutChart from "../components/DonutChart";
-
+import useDashboard from "../hooks/useDasboard";
 import InnehavsLista from "../components/Innehavslista";
 import { holdings } from "../data/mockData";
 
 function PortfolioHealthPage() {
   const { rows } = usePortfolioAllocations();
+  const { dashboard } = useDashboard();
 
   const statusColors = {
     good: "#16a34a",
@@ -99,7 +99,12 @@ function PortfolioHealthPage() {
             <div className={styles.header}>
               <p className={styles.label}>Totalt Portföljvärde</p>
             </div>
-            <p className={styles.value}>712 567 SEK</p>
+            <p className={styles.value}>
+              {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
+                maximumFractionDigits: 0,
+              })}{" "}
+              SEK
+            </p>
             <p className={styles.label + " " + styles[trendStatus()]}>
               {changePercent >= 0 ? "+" : ""}
               {changePercent}% i år
