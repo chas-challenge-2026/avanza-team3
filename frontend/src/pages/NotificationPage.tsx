@@ -2,21 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "./NotificationPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-
-type Notification = {
-  id: number;
-  alertType: string;
-  message: string;
-  dismissed: boolean;
-  createdAt: string;
-};
-
-type LiveAlert = {
-  alert_type: string;
-  message: string;
-  dismissed: boolean;
-  created_at: string;
-};
+import type { Notification, LiveAlert } from "../types/notification";
 
 export default function NotificationPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -32,7 +18,7 @@ export default function NotificationPage() {
 
   function dismissNotification(id: number) {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, dismissed: true } : n)),
+      prev.map((n) => (n.id === id ? { ...n, dismissed: true } : n))
     );
   }
 
@@ -41,11 +27,11 @@ export default function NotificationPage() {
       try {
         const [alertsRes, liveAlertsRes] = await Promise.all([
           fetch("/api/alerts", {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}` }
           }),
           fetch("/api/alerts/live", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+            headers: { Authorization: `Bearer ${token}` }
+          })
         ]);
 
         if (!alertsRes.ok || !liveAlertsRes.ok) {
@@ -55,7 +41,7 @@ export default function NotificationPage() {
         const alertsData = await alertsRes.json();
         const liveAlertsData = await liveAlertsRes.json();
 
-        setNotifications(alertsData.content);
+        setNotifications(alertsData);
         setLiveAlerts(liveAlertsData);
       } catch (err) {
         setError("Kunde inte hämta notifikationer");
@@ -69,7 +55,7 @@ export default function NotificationPage() {
 
   if (loading) return <p>Laddar notifikationer...</p>;
   if (error) return <p>{error}</p>;
-
+  console.log("Notifications:", notifications);
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Notifikationer</h1>
@@ -108,7 +94,7 @@ export default function NotificationPage() {
                 day: "2-digit",
                 month: "2-digit",
                 hour: "2-digit",
-                minute: "2-digit",
+                minute: "2-digit"
               })}{" "}
             </span>
             <span onClick={() => dismissNotification(n.id)}>
