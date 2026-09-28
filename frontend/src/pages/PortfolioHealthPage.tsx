@@ -6,16 +6,23 @@ import DonutChart from "../components/DonutChart";
 import useDashboard from "../hooks/useDasboard";
 import InnehavsLista from "../components/Innehavslista";
 import { useHoldings } from "../hooks/useHoldings";
+import AllocationHandler from "../components/AllocationHandler";
 
 function PortfolioHealthPage() {
   const { rows } = usePortfolioAllocations();
-  const { dashboard } = useDashboard();
+  const { dashboard, loading } = useDashboard();
   const { holdings } = useHoldings();
 
   const statusColors = {
     good: "#16a34a",
     warning: "#d97706",
-    danger: "#dc2626",
+    danger: "#dc2626"
+  };
+
+  const accountColors: Record<string, string> = {
+    ISK: "#16a34a",
+    KF: "#1976d2",
+    Depa: "#8b69a7"
   };
 
   const changePercent = 5;
@@ -39,7 +46,7 @@ function PortfolioHealthPage() {
   const riskLevelText = {
     good: "Låg Risk",
     warning: "Måttlig Risk",
-    danger: "Hög Risk",
+    danger: "Hög Risk"
   };
 
   const diversification = 72;
@@ -57,13 +64,20 @@ function PortfolioHealthPage() {
   const diversificationText = {
     good: "God spridning",
     warning: "Måttlig spridning",
-    danger: "Låg spridning",
+    danger: "Låg spridning"
   };
 
   const allocationData = rows.map((row) => ({
     label: row.accountType,
     value: row.actual,
+    color: accountColors[row.accountType]
   }));
+
+  const allocations =
+    dashboard?.allocationRows.map((row) => ({
+      accountType: row.accountType,
+      value: row.target
+    })) ?? [];
 
   return (
     <>
@@ -84,7 +98,7 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": { fill: statusColors[riskLevel()] },
-                  "& .MuiGauge-valueText": { display: "none" },
+                  "& .MuiGauge-valueText": { display: "none" }
                 }}
                 width={90}
                 height={90}
@@ -102,7 +116,7 @@ function PortfolioHealthPage() {
             </div>
             <p className={styles.value}>
               {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-                maximumFractionDigits: 0,
+                maximumFractionDigits: 0
               })}{" "}
               SEK
             </p>
@@ -142,9 +156,9 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": {
-                    fill: statusColors[diversificationLevel()],
+                    fill: statusColors[diversificationLevel()]
                   },
-                  "& .MuiGauge-valueText": { display: "none" },
+                  "& .MuiGauge-valueText": { display: "none" }
                 }}
                 width={90}
                 height={60}
@@ -158,7 +172,25 @@ function PortfolioHealthPage() {
           </div>
         </AppCard>
       </div>
-
+      <div className={styles.container}>
+        <AppCard sx={{ maxWidth: "500px" }}>
+          {!loading && dashboard && (
+            <AllocationHandler
+              allocations={allocations}
+              onSave={(values) => {
+                console.log(values);
+              }}
+            />
+          )}
+        </AppCard>
+        <AppCard>
+          {" "}
+          <DonutChart
+            title="Aktuell fördelning per kontotyp"
+            data={allocationData}
+          />
+        </AppCard>
+      </div>
       <div className={styles.container}>
         <InnehavsLista
           holdings={holdings}
@@ -167,13 +199,12 @@ function PortfolioHealthPage() {
             "instrumentName",
             "quantity",
             "avgBuyPrice",
-            "account_type",
+            "account_type"
           ]}
         />
       </div>
-      <div className={styles.container}>
-        <DonutChart title="Fördelning per kontotyp" data={allocationData} />
-      </div>
+      <div className={styles.conatiner}></div>
+      <div className={styles.container}></div>
     </>
   );
 }
