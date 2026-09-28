@@ -20,9 +20,16 @@ function PortfolioPage() {
   const accounts = dashboard?.accounts ?? [];
   const { liveAlerts } = useLiveAlerts();
 
+  const accountColors: Record<string, string> = {
+    ISK: "#16a34a",
+    KF: "#1976d2",
+    Depa: "#8b69a7"
+  };
+
   const allocationData = rows.map((row) => ({
     label: row.accountType,
     value: row.actual,
+    color: accountColors[row.accountType]
   }));
 
   return (
@@ -47,7 +54,7 @@ function PortfolioPage() {
           </div>
           <p className={styles.value}>
             {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-              maximumFractionDigits: 0,
+              maximumFractionDigits: 0
             })}{" "}
             SEK
           </p>

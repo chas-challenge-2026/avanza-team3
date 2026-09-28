@@ -67,6 +67,24 @@ Spring-Security/JWT kommer senare och då också  @PreAuthorize. Tills dess anv�
 
 ### Holding
 
+currentPrice hämtas via MarketDataService, det kan behöva ändras när fx-rate är klart.
+
+marketValue, pnl och pnlPct beräknas i HoldingService.
+Samma beräkning används för listan av holdings, GET för ett specifikt holding och responsen efter PATCH.
+
+#### GET /api/holdings/{holdingId}
+-returnerar ett specifikt holding för inloggad användare
+-holding hämtas med både holdingId och userId så man inte kan läsa annan användares holdings
+-returnerar HoldingResponse
+
+#### PATCH /api/holdings/{holdingId}
+-uppdaterar ett befintligt holding
+-partial update används, endast fält som skickas i requesten ändras
+-holding hämtas med både holdingId och userId så man inte kan ändra annan användares holdings
+-HoldingPatchRequest används för input och validering
+-returnerar uppdaterad HoldingResponse
+-cacheevict eftersom cachade holdings kan ha ändrats
+
 #### GET /api/accounts/{accountId}/holdings?page=0&size=20
 -returnerar holdings för ett specifikt konto
 -innan holdings hämtas kontrolleras att account tillhör användaren
@@ -82,6 +100,23 @@ Spring-Security/JWT kommer senare och då också  @PreAuthorize. Tills dess anv�
 -holding hämtas med både holdingId och userId så man inte kan ta bort annan användares holdings
 -cacheevict
 
+### Tester
+
+HoldingServiceTest och HoldingControllerTest har uppdaterats för de nya ändringarna.
+
+Tester täcker bland annat:
+-hämtning av specifikt holding
+-PATCH av holding
+-att PATCH endast ändrar fält som skickas
+-ownership-kontroll för GET/PATCH
+-att MarketDataService används för pris
+-marketValue
+-pnl
+-pnlPct
+-pagination och sortering
+-cache-relaterade serviceflöden vid ändringar
+
+
 ### Alert
 
 #### GET /api/alerts?dismissed=false&page=0&size=20
@@ -91,8 +126,9 @@ Spring-Security/JWT kommer senare och då också  @PreAuthorize. Tills dess anv�
 
 -OBS här kan vara en bra plats att fundera på unik implementation(tex vissa alerts kanske är viktigare än andra och visas alltid först, vissa kanske kräver åtgärd innan dom försvinner)
 
-#### PUT /api/alerts/{alertId}/dismiss
+#### PATCH /api/alerts/{alertId}/dismiss
 -markera ett alert som dismissed
+-i uppgiften står det PUT, jag skrev put här ursprungligen för jag va helt säker på att jag ändrade till PUT, men versionen jag skickat vidare till frontend var med patch, så låter det vara tills vidare.
 
 
 #### GET /api/alerts/live
@@ -121,6 +157,7 @@ List-endpoints använder Page. Tex ?page=0&size=20 för användare inte ska kunn
 
 begränsat användares åtkomst åt andras resurser genom att kontrollera att id tex accountId tillhör inloggad user.
 Detta ska kompleteras med @PreAuthorize enligt instruktioner efter Spring Security/JWT är implementerat.
+Detta är fortfarande inte klart, saknas @EnableMethodSecurity i config.
 
 ## Transactional
 
@@ -147,9 +184,132 @@ GET /api/alerts/live
 Detta ligger kvar sen tidigare med hårdkodade värden. behöver kopplas till värden som ska skickas från C/C++ utvecklare.
 
 Tester
-Det saknas integrationstester och unittests som täcker större delar av koden i dessa metoder och klasser.
+Det saknas integrationstester unittester för targetallocation.
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 sh -c 'PGPASSWORD=avanza123 pg_dump -h db -U avanza -d avanza -Fc --no-owner --no-privileges -f /tmp/avanza12.dump'                                         
+time="2026-09-15T11:44:56+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 ls -lh /tmp/avanza12.dump                                                                                                                                   
+time="2026-09-15T11:55:34+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+-rw-r--r-- 1 root root 14K Sep 15 09:44 /tmp/avanza12.dump
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 sh -c 'PGPASSWORD=avanza123 pg_restore -U avanza -d avanza --no-owner --no-privileges /tmp/avanza12.dump'                                                   
+time="2026-09-15T11:59:20+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 psql -U avanza -d avanza -c "\dt"                                                                                                                           
+time="2026-09-15T12:17:36+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+List of relations
+Schema |        Name        | Type  | Owner  
+--------+--------------------+-------+--------
+public | accounts           | table | avanza
+public | alerts             | table | avanza
+public | holdings           | table | avanza
+public | target_allocations | table | avanza
+public | users              | table | avanza
+(5 rows)
+
+
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db psql -U avanza -d avanza -c "SELECT 'users' AS table_name, COUNT(*) FROM users UNION ALL SELECT 'accounts', COUNT(*) FROM accounts UNION ALL SELECT 'holdings', COUNT(*) FROM holdings UNION ALL SELECT 'alerts', COUNT(*) FROM alerts UNION ALL SELECT 'target_allocations', COUNT(*) FROM target_allocations;"
+time="2026-09-15T12:19:06+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+table_name     | count
+--------------------+-------
+users              |     2
+accounts           |     3
+holdings           |     5
+alerts             |     2
+target_allocations |     3
+(5 rows)
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 psql -U avanza -d avanza -c "SELECT 'users' AS table_name, COUNT(*) FROM users UNION ALL SELECT 'accounts', COUNT(*) FROM accounts UNION ALL SELECT 'holdings', COUNT(*) FROM holdings UNION ALL SELECT 'alerts', COUNT(*) FROM alerts UNION ALL SELECT 'target_allocations', COUNT(*) FROM target_allocations;"
+time="2026-09-15T12:38:24+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+table_name     | count
+--------------------+-------
+users              |     2
+accounts           |     3
+holdings           |     5
+alerts             |     2
+target_allocations |     3
+(5 rows)
+manuellt jämföra är kanske inte optimalt, så kommer skriva tester som visar detta också.
+
+
+
+
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> cd ..\backend\AvanzaPortal
+>> mvn "-Dmigration.testing=true" "-Dtest=PostgresMigrationTest" test
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::staticFieldBase has been called by com.google.inject.internal.aop.HiddenClassDefiner (file:/C:/Program%20Files/Maven/apache-maven-3.9.11/lib/guice-5.1.0-classes.jar)
+WARNING: Please consider reporting this to the maintainers of class com.google.inject.internal.aop.HiddenClassDefiner
+WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ----------------------< se.comerit:avanza-portal >----------------------
+[INFO] Building AvanzaPortal 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ avanza-portal ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 9 resources from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.11.0:compile (default-compile) @ avanza-portal ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ avanza-portal ---
+[INFO] Copying 1 resource from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ avanza-portal ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 18 source files with javac [debug release 21] to target\test-classes
+[INFO]
+[INFO] --- surefire:3.1.2:test (default-test) @ avanza-portal ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running se.comerit.avanza.migration.PostgresMigrationTest
+Old= PostgreSQL 12.22 (Debian 12.22-1.pgdg120+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit
+New= PostgreSQL 15.19 (Debian 15.19-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+users OK
+accounts OK
+holdings OK
+alerts OK
+target_allocations OK
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.621 s -- in se.comerit.avanza.migration.PostgresMigrationTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  7.318 s
+[INFO] Finished at: 2026-09-16T09:52:28+02:00
+[INFO] ------------------------------------------------------------------------
+PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\backend\AvanzaPortal>
 
 
 
