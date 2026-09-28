@@ -22,7 +22,7 @@ function PortfolioPage() {
 
   const allocationData = rows.map((row) => ({
     label: row.accountType,
-    value: row.actual,
+    value: row.actual
   }));
 
   return (
@@ -47,7 +47,7 @@ function PortfolioPage() {
           </div>
           <p className={styles.value}>
             {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-              maximumFractionDigits: 0,
+              maximumFractionDigits: 0
             })}{" "}
             SEK
           </p>
@@ -55,12 +55,12 @@ function PortfolioPage() {
       </AppCard>
 
       <div className={styles.row2}>
-        <DonutChart title="Fördelning per kontotyp" data={allocationData} />
+        {/* <DonutChart title="Fördelning per kontotyp" data={allocationData} /> */}
+        <DataTable title="Konton" rows={accounts} columns={accountColumns} />
         <PortfolioHealth value={80} />
       </div>
 
       <div className={styles.row3}>
-        <DataTable title="Konton" rows={accounts} columns={accountColumns} />
         <NotificationCard alerts={liveAlerts} />
       </div>
 
