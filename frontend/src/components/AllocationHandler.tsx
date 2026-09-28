@@ -53,7 +53,8 @@ const AllocationHandler = ({ allocations, onSave }: AllocationHandlerProps) => {
     <>
       <h2>Målallokering</h2>
       <p className={styles.label}>
-        Justera fördelning med reglagen. Summan <u>måste</u> vara 100%.
+        Justera fördelning med reglagen för önskad fördelning. <br />
+        Summan <u>måste</u> vara 100%.
       </p>
       {allocations.map((allocation) => (
         <div className={styles.wrapper} key={allocation.accountType}>
