@@ -10,7 +10,7 @@ import AllocationHandler from "../components/AllocationHandler";
 
 function PortfolioHealthPage() {
   const { rows } = usePortfolioAllocations();
-  const { dashboard } = useDashboard();
+  const { dashboard, loading } = useDashboard();
   const { holdings } = useHoldings();
 
   const statusColors = {
@@ -174,12 +174,14 @@ function PortfolioHealthPage() {
       </div>
       <div className={styles.container}>
         <AppCard sx={{ maxWidth: "500px" }}>
-          <AllocationHandler
-            allocations={allocations}
-            onSave={(values) => {
-              console.log(values);
-            }}
-          />
+          {!loading && dashboard && (
+            <AllocationHandler
+              allocations={allocations}
+              onSave={(values) => {
+                console.log(values);
+              }}
+            />
+          )}
         </AppCard>
         <AppCard>
           {" "}
