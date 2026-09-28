@@ -1,8 +1,6 @@
 import { Box, Grid, Input, Slider } from "@mui/material";
 import styles from "./AllocationHandler.module.css";
 import { useState, type ChangeEvent } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import AppButton from "./AppButton";
 
 type AllocationItem = {
@@ -18,10 +16,7 @@ type AllocationHandlerProps = {
 const AllocationHandler = ({ allocations, onSave }: AllocationHandlerProps) => {
   const [values, setValues] = useState<Record<string, number>>(
     Object.fromEntries(
-      allocations.map((allocation) => [
-        allocation.accountType,
-        allocation.value
-      ])
+      allocations.map(({ accountType, value }) => [accountType, value])
     )
   );
 
@@ -36,19 +31,16 @@ const AllocationHandler = ({ allocations, onSave }: AllocationHandlerProps) => {
     onSave?.(values);
   };
 
-  const initialValues = Object.fromEntries(
-    allocations.map((allocation) => [allocation.accountType, allocation.value])
-  );
-
   const handleReset = () => {
-    setValues(initialValues);
+    setValues(
+      Object.fromEntries(allocations.map(({ accountType }) => [accountType, 0]))
+    );
   };
 
   const totalAllocation = Object.values(values).reduce(
     (sum, value) => sum + value,
     0
   );
-
   return (
     <>
       <h2>Målallokering</h2>
