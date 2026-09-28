@@ -79,7 +79,7 @@ int Fetch(const std::string &path, std::string &buf)
 
 int FxConvert(const double amount, const char *from, const char *to, double *outResult)
 {
-    // Error checks
+    // Parameter error checks
     if (!from || !to || !outResult)
         return FX_ERROR_NULL;
 
@@ -95,6 +95,7 @@ int FxConvert(const double amount, const char *from, const char *to, double *out
     try
     {
         std::lock_guard<std::mutex> lock(cacheMutex);
+
         // Convert "from" and "to" to uppercase characters
         std::string fromStr(from);
         std::string toStr(to);
@@ -126,11 +127,11 @@ int FxConvert(const double amount, const char *from, const char *to, double *out
         if (currencyMap.empty())
             return FX_ERROR_REQUEST_FAILED;
 
-        // Look for the "from" and "to" currencies in the map
+        // Check that find() is valid before touching them
         const auto fromIt = currencyMap.find(fromStr);
         const auto toIt = currencyMap.find(toStr);
 
-        // Check that find() is valid before touching them
+        // Look for the "from" and "to" currencies in the map
         if (toIt == currencyMap.end() || fromIt == currencyMap.end())
             return FX_ERROR_UNKNOWN_CURRENCY;
 
