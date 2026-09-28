@@ -3,16 +3,23 @@
 #include "http.hpp"
 
 #include <algorithm>
+#include <cctype>
+#include <chrono>
+#include <cstring>
+#include <iostream>
+#include <mutex>
 #include <stdexcept>
 #include <unordered_map>
-#include <cctype>
-#include <cstring>
 
 namespace
 {
-std::unordered_map<std::string, Currency> currencyMap{};
-constexpr const char *API_URL = "https://api.frankfurter.dev/v2/"; // E.g https://api.frankfurter.dev/v2/rates
 constexpr size_t CURRENCY_CODE_LENGTH = 3;
+constexpr std::chrono::seconds CACHE_EXPIRATION_S{60};
+constexpr const char *API_URL = "https://api.frankfurter.dev/v2/"; // E.g https://api.frankfurter.dev/v2/rates
+
+std::mutex cacheMutex;
+std::unordered_map<std::string, Currency> currencyMap{};
+std::chrono::time_point<std::chrono::steady_clock> latestFetch;
 
 // The API returns JSON with the fields always in this order:
 // {"date":"2026-09-21","base":"EUR","quote":"USD","rate":1.149}
@@ -87,20 +94,37 @@ int FxConvert(const double amount, const char *from, const char *to, double *out
 
     try
     {
+        std::lock_guard<std::mutex> lock(cacheMutex);
         // Convert "from" and "to" to uppercase characters
         std::string fromStr(from);
         std::string toStr(to);
         std::transform(fromStr.begin(), fromStr.end(), fromStr.begin(), toupper);
         std::transform(toStr.begin(), toStr.end(), toStr.begin(), toupper);
 
-        // Fetch the latest exchange rates from https://api.frankfurter.dev/v2/rates
-        // TODO: Add a timer. Use cache if last fetch was recent
-        std::string buf;
-        if (int err = Fetch("rates", buf); err != FX_OK)
-            return err;
+        // Determine if we need to fetch new data or use the cache
+        if (currencyMap.empty() || std::chrono::steady_clock::now() - latestFetch > CACHE_EXPIRATION_S)
+        {
+            std::cout << "Cache is outdated" << std::endl;
+            std::string buf;
+            int err = Fetch("rates", buf);
+            if (err == FX_OK)
+            {
+                auto parsedMap = ParseList(buf);
+                if (!parsedMap.empty())
+                {
+                    currencyMap = std::move(parsedMap);
+                    latestFetch = std::chrono::steady_clock::now();
+                }
+            }
+            else
+                std::cout << "Request failed. Using cache" << std::endl;
+        }
+        else
+            std::cout << "Cache is up to date" << std::endl;
 
-        // TODO: Check that the list is valid
-        currencyMap = ParseList(buf);
+        // If the map is still empty, there has been an issue
+        if (currencyMap.empty())
+            return FX_ERROR_REQUEST_FAILED;
 
         // Look for the "from" and "to" currencies in the map
         const auto fromIt = currencyMap.find(fromStr);
