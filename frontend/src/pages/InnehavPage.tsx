@@ -8,7 +8,7 @@ function InnehavPage() {
   const {
     holdings,
     loading,
-    error,
+    error
     // removeHolding,
   } = useHoldings();
 
@@ -25,14 +25,13 @@ function InnehavPage() {
           "instrumentName",
           "quantity",
           "avgBuyPrice",
-          "account_type",
+          "account_type"
         ]}
         // onDelete={removeHolding}
         // width="1200px"
         // showDelete
       />
       <InnehavsForm />
-      console.log(holdings);
     </Container>
   );
 }
