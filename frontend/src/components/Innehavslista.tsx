@@ -12,36 +12,32 @@ type InnehavsListaProps = {
   holdings: Holding[];
   columns?: ColumnKey[];
 };
-const InnehavsLista = ({
-  holdings,
-  columns
-}: InnehavsListaProps) => {
+const InnehavsLista = ({ holdings, columns }: InnehavsListaProps) => {
   const columnConfig: Record<
-  ColumnKey,
-  { field: ColumnKey; headerName: string }
-> = {
-  id: { field: "id", headerName: "ID" },
-  accountId: { field: "accountId", headerName: "Konto" },
-  ticker: { field: "ticker", headerName: "Ticker" },
-  instrumentName: { field: "instrumentName", headerName: "Instrument" },
-  quantity: { field: "quantity", headerName: "Antal" },
-  avgBuyPrice: { field: "avgBuyPrice", headerName: "Köppris" },
-  currentPrice: { field: "currentPrice", headerName: "Aktuellt pris" },
-  currency: { field: "currency", headerName: "Valuta" }
-};
+    ColumnKey,
+    { field: ColumnKey; headerName: string }
+  > = {
+    id: { field: "id", headerName: "ID" },
+    accountId: { field: "accountId", headerName: "Konto" },
+    ticker: { field: "ticker", headerName: "Ticker" },
+    instrumentName: { field: "instrumentName", headerName: "Instrument" },
+    quantity: { field: "quantity", headerName: "Antal" },
+    avgBuyPrice: { field: "avgBuyPrice", headerName: "Köppris" },
+    currentPrice: { field: "currentPrice", headerName: "Aktuellt pris" },
+    currency: { field: "currency", headerName: "Valuta" },
+    account_type: { field: "account_type", headerName: "Kontotyp" },
+  };
 
-const defaultColumnKeys: ColumnKey[] = [
-  "ticker",
-  "instrumentName",
-  "quantity",
-  "avgBuyPrice"
-];
+  const defaultColumnKeys: ColumnKey[] = [
+    "ticker",
+    "instrumentName",
+    "quantity",
+    "avgBuyPrice",
+  ];
 
-const selectedColumns = columns ?? defaultColumnKeys;
+  const selectedColumns = columns ?? defaultColumnKeys;
 
-const tableColumns = selectedColumns.map(
-  (column) => columnConfig[column]
-);
+  const tableColumns = selectedColumns.map((column) => columnConfig[column]);
 
   return (
     <DataTable
@@ -53,7 +49,6 @@ const tableColumns = selectedColumns.map(
 };
 
 export default InnehavsLista;
-
 
 // type Column<T> = {
 //   field: string;
