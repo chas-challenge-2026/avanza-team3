@@ -3,6 +3,8 @@ import InnehavsForm from "../components/InnehavForm";
 import InnehavsLista from "../components/Innehavslista";
 import styles from "./InnehavPage.module.css";
 import { useHoldings } from "../hooks/useHoldings";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPiggyBank } from "@fortawesome/free-solid-svg-icons";
 
 function InnehavPage() {
   const {
@@ -17,7 +19,14 @@ function InnehavPage() {
 
   return (
     <Container className={styles.InnehavPageWrapper}>
-      <h1>Innehav</h1>
+      <div className={styles.titleRow}>
+        <div className={styles.iconTitle}>
+          <FontAwesomeIcon icon={faPiggyBank} className={styles.icon} />
+          <div className={styles.titleText}>
+            <h1>Mina Innehav</h1>
+          </div>
+        </div>
+      </div>
       <InnehavsLista
         holdings={holdings}
         columns={[
