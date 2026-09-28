@@ -4,7 +4,7 @@ import {
   Snackbar,
   MenuItem,
   TextField,
-  Typography,
+  Typography
 } from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
@@ -33,7 +33,7 @@ const initialFormDataValue: InnehavFormData = {
   instrumentType: "",
   quantity: "",
   avgBuyPrice: "",
-  currency: "",
+  currency: ""
 };
 
 type InnehavsFormProps = {
@@ -41,7 +41,7 @@ type InnehavsFormProps = {
 };
 
 const InnehavsForm = ({}: InnehavsFormProps) => {
-  const { addHolding } = useHoldings();
+  const { holdings, addHolding } = useHoldings();
 
   const [formData, setFormData] =
     useState<InnehavFormData>(initialFormDataValue);
@@ -49,6 +49,20 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const accounts = [
+    ...new Map(
+      holdings.map((holding) => [
+        holding.accountId,
+        {
+          id: holding.accountId,
+          accountName: holding.account_name,
+          accountType: holding.account_type,
+          currency: holding.currency
+        }
+      ])
+    ).values()
+  ];
 
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -69,7 +83,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
         instrumentName: formData.instrumentName.trim(),
         quantity: Number(formData.quantity),
         avgBuyPrice: Number(formData.avgBuyPrice),
-        currency: formData.currency,
+        currency: formData.currency
       };
       console.log(submittedData);
       await addHolding(submittedData);
@@ -80,7 +94,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
       setOpenSnackbar(true);
     } catch (error) {
       setErrors({
-        submit: error instanceof Error ? error.message : "Något gick fel",
+        submit: error instanceof Error ? error.message : "Något gick fel"
       });
     } finally {
       setIsSubmitting(false);
@@ -95,7 +109,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
 
     setFormData((previusData) => ({
       ...previusData,
-      [name]: value,
+      [name]: value
     }));
     console.log(event.target.value);
   };
@@ -116,9 +130,9 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
     } else if (!onlyLettersRegex.test(formData.instrumentName.trim())) {
       newErrors.instrumentName = "Instrumentnamn får bara innehålla bokstäver";
     }
-    // if (!formData.instrumentType) {
-    //   newErrors.instrumentType = "Ange en instrumenttyp";
-    // }
+    if (!formData.instrumentType) {
+      newErrors.instrumentType = "Ange en instrumenttyp";
+    }
 
     const quantity = Number(formData.quantity);
 
@@ -142,18 +156,17 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
   };
 
   const textFieldSx = {
-    // width: "100%",
     "& .MuiFormHelperText-root": {
       marginBottom: "3px",
       marginTop: "0px",
-      fontWeight: "bold",
+      fontWeight: "bold"
     },
     "& .MuiInputLabel-root.Mui-error": {
-      color: "#999",
+      color: "#999"
     },
     "& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline": {
-      borderColor: "#999",
-    },
+      borderColor: "#999"
+    }
   };
 
   return (
@@ -177,7 +190,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
             flexDirection: "row",
             justifyContent: "space-between",
             width: "100%",
-            height: "auto",
+            height: "auto"
           }}
         >
           <div className={styles.containerRight}>
@@ -193,9 +206,11 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               helperText={errors.accountId || " "}
               sx={textFieldSx}
             >
-              <MenuItem value="1">Anna ISK (ISK)</MenuItem>
-              <MenuItem value="2">Anna KF (KF)</MenuItem>
-              <MenuItem value="3">Anna Depå (Depa)</MenuItem>
+              {accounts.map((account) => (
+                <MenuItem key={account.id} value={String(account.id)}>
+                  {account.accountName}
+                </MenuItem>
+              ))}
             </TextField>
 
             <TextField
@@ -223,11 +238,11 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               sx={textFieldSx}
             />
 
-            {/* <TextField
+            <TextField
               select
               fullWidth
               size="small"
-              label="Instrumenttyp"
+              label="Kontotyp"
               name="instrumentType"
               value={formData.instrumentType}
               onChange={handleChange}
@@ -235,10 +250,13 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               helperText={errors.instrumentType || " "}
               sx={textFieldSx}
             >
-              <MenuItem value="Aktie">Aktie</MenuItem>
-              <MenuItem value="Fond">Fond</MenuItem>
-              <MenuItem value="ETF">ETF</MenuItem>
-            </TextField> */}
+              {}
+              {accounts.map((account) => (
+                <MenuItem key={account.id} value={String(account.id)}>
+                  {account.accountType}
+                </MenuItem>
+              ))}
+            </TextField>
           </div>
 
           <div className={styles.containerLeft}>
@@ -282,16 +300,17 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               helperText={errors.currency || " "}
               sx={textFieldSx}
             >
-              <MenuItem value="SEK">SEK</MenuItem>
-              <MenuItem value="USD">USD</MenuItem>
-              <MenuItem value="EUR">EUR</MenuItem>
+              {accounts.map((account) => (
+                <MenuItem key={account.id} value={String(account.id)}>
+                  {account.currency}
+                </MenuItem>
+              ))}
             </TextField>
             <AppButton
               sx={{ maxWidth: "200px", padding: "8px" }}
               type="submit"
               variant="contained"
               disabled={isSubmitting}
-              // onClick={handleSubmit}
             >
               {isSubmitting ? "Lägger till..." : "Lägg till"}
             </AppButton>
