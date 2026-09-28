@@ -1,5 +1,6 @@
 #include "http.hpp"
 #include <iostream>
+#include <stdexcept>
 
 static size_t WriteCallback(char *data, size_t size, size_t nmemb, void *userdata)
 {
@@ -25,6 +26,7 @@ HttpClient::HttpClient()
     curl_easy_setopt(Handle, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(Handle, CURLOPT_CONNECTTIMEOUT, 5L);
     curl_easy_setopt(Handle, CURLOPT_TIMEOUT, 10L);
+    curl_easy_setopt(Handle, CURLOPT_FAILONERROR, 1L);
 }
 
 HttpClient::~HttpClient()
