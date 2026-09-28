@@ -127,11 +127,11 @@ int FxConvert(const double amount, const char *from, const char *to, double *out
         if (currencyMap.empty())
             return FX_ERROR_REQUEST_FAILED;
 
-        // Check that find() is valid before touching them
+        // Look for the "from" and "to" currencies in the map
         const auto fromIt = currencyMap.find(fromStr);
         const auto toIt = currencyMap.find(toStr);
 
-        // Look for the "from" and "to" currencies in the map
+        // Check that find() is valid before touching them
         if (toIt == currencyMap.end() || fromIt == currencyMap.end())
             return FX_ERROR_UNKNOWN_CURRENCY;
 
