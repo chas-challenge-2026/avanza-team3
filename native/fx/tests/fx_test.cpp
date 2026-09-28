@@ -16,11 +16,11 @@ TEST(FxConvert, HandlesSameCurrencies)
     const double amount = 100.0;
 
     FxConvert(amount, "sek", "sek", &res);
-    EXPECT_EQ(amount, res);
+    EXPECT_DOUBLE_EQ(amount, res);
     FxConvert(amount, "eur", "eur", &res);
-    EXPECT_EQ(amount, res);
+    EXPECT_DOUBLE_EQ(amount, res);
     FxConvert(amount, "usd", "usd", &res);
-    EXPECT_EQ(amount, res);
+    EXPECT_DOUBLE_EQ(amount, res);
 }
 
 TEST(FxConvert, HandlesInvalidCurrency)
