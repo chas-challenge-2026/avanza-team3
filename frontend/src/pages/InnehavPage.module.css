@@ -1,7 +1,26 @@
 .InnehavPageWrapper {
   display: flex;
   flex-direction: column;
+  gap: 20px;
+  padding: 32px 36px 10px 40px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-.form {
+.titleRow {
+  display: flex;
+  padding-bottom: 4px;
+}
+
+.iconTitle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.icon {
+  color: var(--primary);
+  font-size: 25px;
 }
