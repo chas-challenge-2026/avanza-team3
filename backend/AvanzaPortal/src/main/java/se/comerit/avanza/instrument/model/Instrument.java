@@ -17,7 +17,9 @@ public class Instrument {
     @Column(length = 100)
     private String sector;
 
-    private String instrumentType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "instrument_type", nullable = false, length = 20)
+    private InstrumentType instrumentType;
 
     @Column(nullable = false, length = 3)
     private String currency;
@@ -27,7 +29,7 @@ public class Instrument {
 
     protected Instrument() {}
 
-    public Instrument(String name, String sector, String instrumentType, String currency, String ticker) {
+    public Instrument(String name, String sector, InstrumentType instrumentType, String currency, String ticker) {
         this.name = name;
         this.sector = sector;
         this.instrumentType = instrumentType;
@@ -55,11 +57,11 @@ public class Instrument {
         this.sector = sector;
     }
 
-    public String getInstrumentType() {
+    public InstrumentType getInstrumentType() {
         return instrumentType;
     }
 
-    public void setInstrumentType(String instrumentType) {
+    public void setInstrumentType(InstrumentType instrumentType) {
         this.instrumentType = instrumentType;
     }
 
