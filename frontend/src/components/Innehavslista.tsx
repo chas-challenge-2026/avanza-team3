@@ -15,7 +15,7 @@ type InnehavsListaProps = {
 const InnehavsLista = ({ holdings, columns }: InnehavsListaProps) => {
   const columnConfig: Record<
     ColumnKey,
-    { field: ColumnKey; headerName: string }
+    { field: ColumnKey; headerName: string; isBadge?: Boolean }
   > = {
     id: { field: "id", headerName: "ID" },
     accountId: { field: "accountId", headerName: "Konto" },
@@ -25,7 +25,11 @@ const InnehavsLista = ({ holdings, columns }: InnehavsListaProps) => {
     avgBuyPrice: { field: "avgBuyPrice", headerName: "Köppris" },
     currentPrice: { field: "currentPrice", headerName: "Aktuellt pris" },
     currency: { field: "currency", headerName: "Valuta" },
-    account_type: { field: "account_type", headerName: "Kontotyp" },
+    account_type: {
+      field: "account_type",
+      headerName: "Kontotyp",
+      isBadge: true,
+    },
   };
 
   const defaultColumnKeys: ColumnKey[] = [
