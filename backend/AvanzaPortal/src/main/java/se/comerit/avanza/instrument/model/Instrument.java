@@ -1,4 +1,9 @@
-package main.java.se.comerit.avanza.instrument.model;
+package se.comerit.avanza.instrument.model;
 
+import jakarta.persistence.Entity;
+
+@Entity
 public class Instrument {
+
+
 }

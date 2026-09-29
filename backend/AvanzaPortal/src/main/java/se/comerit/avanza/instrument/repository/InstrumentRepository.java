@@ -1,4 +1,4 @@
-package main.java.se.comerit.avanza.instrument.repository;
+package se.comerit.avanza.instrument.repository;
 
 public class InstrumentRepository {
 }
