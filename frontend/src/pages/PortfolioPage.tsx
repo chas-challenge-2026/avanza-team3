@@ -8,7 +8,7 @@ import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
 import DonutChart from "../components/DonutChart";
 import NotificationCard from "../components/NotificationCard";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
-import CurrencyExposure from "../components/CurrencyExposure";
+// import CurrencyExposure from "../components/CurrencyExposure";
 import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import useDashboard from "../hooks/useDasboard";
 import useLiveAlerts from "../hooks/useLiveAlerts";
@@ -62,7 +62,9 @@ function PortfolioPage() {
       </AppCard>
 
       <div className={styles.row2}>
-        <DonutChart title="Fördelning per kontotyp" data={allocationData} />
+        <AppCard>
+          <DonutChart title="Fördelning per kontotyp" data={allocationData} />
+        </AppCard>
         <PortfolioHealth value={80} />
       </div>
 
