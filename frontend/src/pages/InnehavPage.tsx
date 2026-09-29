@@ -23,7 +23,7 @@ function InnehavPage() {
         <div className={styles.iconTitle}>
           <FontAwesomeIcon icon={faPiggyBank} className={styles.icon} />
           <div className={styles.titleText}>
-            <h1>Mina Innehav</h1>
+            <h1 className={styles.title}>Mina Innehav</h1>
           </div>
         </div>
       </div>

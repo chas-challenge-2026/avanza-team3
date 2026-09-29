@@ -24,3 +24,12 @@
   color: var(--primary);
   font-size: 25px;
 }
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
