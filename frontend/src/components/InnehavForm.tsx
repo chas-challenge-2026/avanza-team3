@@ -1,16 +1,7 @@
-import {
-  Box,
-  Alert,
-  Snackbar,
-  MenuItem,
-  TextField,
-  Typography
-} from "@mui/material";
+import { Box, Alert, Snackbar, MenuItem, TextField } from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
 import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "./AppCard";
 import { useHoldings } from "../hooks/useHoldings";
 
@@ -173,10 +164,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
     <div className={styles.formWrapper}>
       <AppCard>
         <div className={styles.titleWrapper}>
-          <FontAwesomeIcon icon={faBriefcase} className={styles.icon} />
-          <Typography sx={{ fontSize: "28px", fontWeight: 700 }}>
-            Lägg till innehav
-          </Typography>
+          <h2 className={styles.sectionTitle}>Lägg till innehav</h2>
         </div>
         <p className={styles.label}>
           Fyll i uppgifterna nedanför för att lägga till ett nytt innehav i din

@@ -7,6 +7,8 @@ import useDashboard from "../hooks/useDasboard";
 import InnehavsLista from "../components/Innehavslista";
 import { useHoldings } from "../hooks/useHoldings";
 import AllocationHandler from "../components/AllocationHandler";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
 
 function PortfolioHealthPage() {
   const { rows } = usePortfolioAllocations();
@@ -81,7 +83,16 @@ function PortfolioHealthPage() {
 
   return (
     <>
-      <h1>Portföljhälsa</h1>
+      <div className={styles.container}>
+        <div className={styles.titleRow}>
+          <div className={styles.iconTitle}>
+            <FontAwesomeIcon icon={faStethoscope} className={styles.icon} />
+            <div className={styles.titleText}>
+              <h1 className={styles.title}>Min Portföljhälsa</h1>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className={styles.container}>
         <AppCard>
           <div className={styles.kpiCard + " " + styles[riskLevel()]}>
@@ -173,7 +184,7 @@ function PortfolioHealthPage() {
         </AppCard>
       </div>
       <div className={styles.container}>
-        <AppCard sx={{ maxWidth: "500px" }}>
+        <AppCard>
           {!loading && dashboard && (
             <AllocationHandler
               allocations={allocations}
@@ -183,7 +194,14 @@ function PortfolioHealthPage() {
             />
           )}
         </AppCard>
-        <AppCard>
+        <AppCard
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            maxWidth: "500px"
+          }}
+        >
           {" "}
           <DonutChart
             title="Aktuell fördelning per kontotyp"
@@ -203,8 +221,6 @@ function PortfolioHealthPage() {
           ]}
         />
       </div>
-      <div className={styles.conatiner}></div>
-      <div className={styles.container}></div>
     </>
   );
 }

@@ -10,10 +10,12 @@
 }
 
 .title {
-  font-size: 1.75rem;
+  font-size: 1.7rem;
   font-weight: 700;
   color: var(--foreground);
-  margin: 0 0 12px;
+  margin: 0;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
 }
 
 .sectionTitle {
@@ -71,4 +73,15 @@
   font-size: 0.875rem;
   color: var(--muted-foreground);
   margin: 0 0 12px;
+}
+
+.iconTitle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.icon {
+  color: var(--primary);
+  font-size: 25px;
 }
