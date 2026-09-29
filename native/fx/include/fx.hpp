@@ -3,17 +3,26 @@
 enum
 {
     FX_OK = 0,
-    FX_ERROR
+    FX_ERROR_NULL,
+    FX_ERROR_REQUEST_FAILED,
+    FX_ERROR_UNKNOWN_CURRENCY,
+    FX_ERROR_INTERNAL
 };
 
-/** 
- * @brief Converts a given amount of one currency to 
- *        the corresponding amount of another currency
- *        (e.g from USD to SEK)
+#ifdef __cplusplus
+    extern "C"
+#endif
+
+/**
+ * @brief Converts exchange values. Gets the latest exchange data
+ * from api.frankfurter.dev via HTTP.
  *
- * @param[in]  
- * @param[out] 
- * 
- * @return Error code
+ * @param[in]  amount The amount that will be converted
+ * @param[in]  from The base currency to convert from
+ * @param[in]  to The currency to convert to
+ * @param[out] outResult A double pointer that will store the converted value
+ *
+ * @return FX_Error code.
+ * List of error codes are found in fx/README.md
  */
-int fxConvert(double *amount, const char *fromCurrency, const char *toCurrency);
+int FxConvert(double amount, const char *from, const char *to, double *outResult);
