@@ -5,32 +5,32 @@ import PortfolioHealth from "../components/PortfolioHealth";
 import styles from "./PorfolioPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
-// import DonutChart from "../components/DonutChart";
+import DonutChart from "../components/DonutChart";
 import NotificationCard from "../components/NotificationCard";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 // import CurrencyExposure from "../components/CurrencyExposure";
-// import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
+import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import useDashboard from "../hooks/useDasboard";
 import useLiveAlerts from "../hooks/useLiveAlerts";
 
 function PortfolioPage() {
-  // const { rows } = usePortfolioAllocations();
+  const { rows } = usePortfolioAllocations();
 
   const { dashboard } = useDashboard();
   const accounts = dashboard?.accounts ?? [];
   const { liveAlerts } = useLiveAlerts();
 
-  // const accountColors: Record<string, string> = {
-  //   ISK: "#16a34a",
-  //   KF: "#1976d2",
-  //   Depa: "#8b69a7"
-  // };
+  const accountColors: Record<string, string> = {
+    ISK: "#16a34a",
+    KF: "#1976d2",
+    Depa: "#8b69a7"
+  };
 
-  // const allocationData = rows.map((row) => ({
-  //   label: row.accountType,
-  //   value: row.actual,
-  //   color: accountColors[row.accountType]
-  // }));
+  const allocationData = rows.map((row) => ({
+    label: row.accountType,
+    value: row.actual,
+    color: accountColors[row.accountType]
+  }));
 
   return (
     <div className={styles.container}>
@@ -62,12 +62,14 @@ function PortfolioPage() {
       </AppCard>
 
       <div className={styles.row2}>
-        {/* <DonutChart title="Fördelning per kontotyp" data={allocationData} /> */}
-        <DataTable title="Konton" rows={accounts} columns={accountColumns} />
+        <AppCard>
+          <DonutChart title="Fördelning per kontotyp" data={allocationData} />
+        </AppCard>
         <PortfolioHealth value={80} />
       </div>
 
       <div className={styles.row3}>
+        <DataTable title="Konton" rows={accounts} columns={accountColumns} />
         <NotificationCard alerts={liveAlerts} />
       </div>
 
