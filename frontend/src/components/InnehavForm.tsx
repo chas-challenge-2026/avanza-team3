@@ -1,16 +1,7 @@
-import {
-  Box,
-  Alert,
-  Snackbar,
-  MenuItem,
-  TextField,
-  Typography
-} from "@mui/material";
+import { Box, Alert, Snackbar, MenuItem, TextField } from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
 import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "./AppCard";
 import { useHoldings } from "../hooks/useHoldings";
 
