@@ -88,7 +88,7 @@ function PortfolioHealthPage() {
           <div className={styles.iconTitle}>
             <FontAwesomeIcon icon={faStethoscope} className={styles.icon} />
             <div className={styles.titleText}>
-              <h1>Min Portföljhälsa</h1>
+              <h1 className={styles.title}>Min Portföljhälsa</h1>
             </div>
           </div>
         </div>

@@ -58,8 +58,12 @@ export default function NotificationPage() {
   console.log("Notifications:", notifications);
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Notifikationer</h1>
-
+      <div className={styles.titleRow}>
+        <div className={styles.iconTitle}>
+          <FontAwesomeIcon icon={faBell} className={styles.icon} />
+          <h1 className={styles.title}>Notifikationer</h1>
+        </div>
+      </div>
       <h2 className={styles.sectionTitle}>Live-varningar</h2>
       {liveAlerts.length === 0 && (
         <p className={styles.empty}>Inga live-varningar</p>

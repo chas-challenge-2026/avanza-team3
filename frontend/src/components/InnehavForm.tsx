@@ -173,10 +173,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
     <div className={styles.formWrapper}>
       <AppCard>
         <div className={styles.titleWrapper}>
-          <FontAwesomeIcon icon={faBriefcase} className={styles.icon} />
-          <Typography sx={{ fontSize: "28px", fontWeight: 700 }}>
-            Lägg till innehav
-          </Typography>
+          <h2 className={styles.sectionTitle}>Lägg till innehav</h2>
         </div>
         <p className={styles.label}>
           Fyll i uppgifterna nedanför för att lägga till ett nytt innehav i din
