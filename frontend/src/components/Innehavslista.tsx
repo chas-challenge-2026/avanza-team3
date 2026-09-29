@@ -26,6 +26,8 @@ const InnehavsLista = ({ holdings, columns }: InnehavsListaProps) => {
     currentPrice: { field: "currentPrice", headerName: "Aktuellt pris" },
     currency: { field: "currency", headerName: "Valuta" },
     account_type: { field: "account_type", headerName: "Kontotyp" },
+    marketValue: { field: "marketValue", headerName: "Marknadsvärde" },
+    account_name: { field: "account_name", headerName: "Kontonamn" },
   };
 
   const defaultColumnKeys: ColumnKey[] = [
