@@ -1,0 +1,23 @@
+services:
+  db:
+    ports:
+      - "15432:5432"
+
+  db15:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: avanza
+      POSTGRES_USER: avanza
+      POSTGRES_PASSWORD: avanza123
+    ports:
+      - "15433:5432"
+    volumes:
+      - postgres15_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U avanza" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres15_data:
