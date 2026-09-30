@@ -13,9 +13,8 @@ public class Instrument {
     @Column(nullable = false, length = 100)
     private String name;
 
-    //Osäker, kanske bättre som enum
     @Column(length = 100)
-    private String sector;
+    private Sector sector;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "instrument_type", nullable = false, length = 20)
@@ -24,12 +23,12 @@ public class Instrument {
     @Column(nullable = false, length = 3)
     private String currency;
 
-    @Column(nullable = false, length = 10, unique = true)
+    @Column(nullable = false, length = 10)
     private String ticker;
 
     protected Instrument() {}
 
-    public Instrument(String name, String sector, InstrumentType instrumentType, String currency, String ticker) {
+    public Instrument(String name, Sector sector, InstrumentType instrumentType, String currency, String ticker) {
         this.name = name;
         this.sector = sector;
         this.instrumentType = instrumentType;
@@ -49,11 +48,11 @@ public class Instrument {
         this.name = name;
     }
 
-    public String getSector() {
+    public Sector getSector() {
         return sector;
     }
 
-    public void setSector(String sector) {
+    public void setSector(Sector sector) {
         this.sector = sector;
     }
 
