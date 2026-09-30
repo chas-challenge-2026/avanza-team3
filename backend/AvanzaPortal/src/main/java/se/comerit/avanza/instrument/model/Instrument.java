@@ -28,12 +28,12 @@ public class Instrument {
 
     protected Instrument() {}
 
-    public Instrument(String name, Sector sector, InstrumentType instrumentType, String currency, String ticker) {
-        this.name = name;
-        this.sector = sector;
-        this.instrumentType = instrumentType;
-        this.currency = currency;
+    public Instrument(String ticker, String name, InstrumentType instrumentType, Sector sector,  String currency) {
         this.ticker = ticker;
+        this.name = name;
+        this.instrumentType = instrumentType;
+        this.sector = sector;
+        this.currency = currency;
     }
 
     public Integer getId() {
