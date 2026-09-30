@@ -1,10 +1,10 @@
 package se.comerit.avanza.instrument.controller;
 
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import se.comerit.avanza.instrument.model.Instrument;
-import se.comerit.avanza.instrument.model.InstrumentType;
-import se.comerit.avanza.instrument.model.Sector;
+import se.comerit.avanza.instrument.dto.InstrumentRequest;
+import se.comerit.avanza.instrument.dto.InstrumentResponse;
 import se.comerit.avanza.instrument.service.InstrumentService;
 
 @RestController
@@ -18,32 +18,29 @@ public class InstrumentController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Instrument create(
-            @RequestBody CreateInstrumentRequest request
+    public ResponseEntity<Void> addInstrument(
+            @Valid
+            @RequestBody
+            InstrumentRequest request
     ) {
-        return instrumentService.create(
+
+        instrumentService.create(
                 request.ticker(),
                 request.name(),
                 request.instrumentType(),
                 request.sector(),
                 request.currency()
         );
+
+        return ResponseEntity.status(201).build();
     }
 
-    @GetMapping("/{id}")
-    public Instrument getById(
-            @PathVariable Integer id
+    @GetMapping("/{instrumentId}")
+    public ResponseEntity<InstrumentResponse> getInstrument(
+            @PathVariable("instrumentId")
+            Integer instrumentId
     ) {
-        return instrumentService.getById(id);
-    }
-
-    public record CreateInstrumentRequest(
-            String ticker,
-            String name,
-            InstrumentType instrumentType,
-            Sector sector,
-            String currency
-    ) {
+        return ResponseEntity.ok(
+                instrumentService.getInstrumentById(instrumentId));
     }
 }
