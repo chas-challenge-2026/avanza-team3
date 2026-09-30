@@ -13,6 +13,7 @@ public class Instrument {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 100)
     private Sector sector;
 
