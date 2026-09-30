@@ -76,10 +76,17 @@ function PortfolioHealthPage() {
   }));
 
   const allocations =
-    dashboard?.allocationRows.map((row) => ({
-      accountType: row.accountType,
+    dashboard?.allocationRows.map((row, index) => ({
+      id: `${row.accountType}-${index}`,
+      label: row.accountType,
       value: row.target
     })) ?? [];
+
+  const mockAllocations = [
+    { id: "stocks", label: "Aktier", value: 50 },
+    { id: "funds", label: "Fonder", value: 30 },
+    { id: "bonds", label: "Obligationer", value: 20 }
+  ];
 
   return (
     <>
@@ -187,7 +194,7 @@ function PortfolioHealthPage() {
         <AppCard>
           {!loading && dashboard && (
             <AllocationHandler
-              allocations={allocations}
+              allocations={mockAllocations}
               onSave={(values) => {
                 console.log(values);
               }}
