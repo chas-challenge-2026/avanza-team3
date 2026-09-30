@@ -4,7 +4,8 @@ import { useState, type ChangeEvent } from "react";
 import AppButton from "./AppButton";
 
 type AllocationItem = {
-  accountType: string;
+  id: string;
+  label: string;
   value: number;
 };
 
@@ -15,15 +16,13 @@ type AllocationHandlerProps = {
 
 const AllocationHandler = ({ allocations, onSave }: AllocationHandlerProps) => {
   const [values, setValues] = useState<Record<string, number>>(
-    Object.fromEntries(
-      allocations.map(({ accountType, value }) => [accountType, value])
-    )
+    Object.fromEntries(allocations.map(({ id, value }) => [id, value]))
   );
 
-  const handleValueChange = (accountType: string, value: number) => {
+  const handleValueChange = (id: string, value: number) => {
     setValues((current) => ({
       ...current,
-      [accountType]: value
+      [id]: value
     }));
   };
 
@@ -32,9 +31,7 @@ const AllocationHandler = ({ allocations, onSave }: AllocationHandlerProps) => {
   };
 
   const handleReset = () => {
-    setValues(
-      Object.fromEntries(allocations.map(({ accountType }) => [accountType, 0]))
-    );
+    setValues(Object.fromEntries(allocations.map(({ id }) => [id, 0])));
   };
 
   const totalAllocation = Object.values(values).reduce(
@@ -49,17 +46,17 @@ const AllocationHandler = ({ allocations, onSave }: AllocationHandlerProps) => {
         Summan <u>måste</u> vara 100%.
       </p>
       {allocations.map((allocation) => (
-        <div className={styles.wrapper} key={allocation.accountType}>
+        <div className={styles.wrapper} key={allocation.id}>
           <div className={styles.content}>
-            <p className={styles.label}>{allocation.accountType}</p>
+            <p className={styles.label}>{allocation.label}</p>
             <Grid container spacing={2} sx={{ alignItems: "center" }}>
               <Grid size="grow">
                 <Slider
                   sx={{ height: 10 }}
-                  value={values[allocation.accountType] ?? 0}
+                  value={values[allocation.id] ?? 0}
                   onChange={(_, newValue) => {
                     if (typeof newValue === "number") {
-                      handleValueChange(allocation.accountType, newValue);
+                      handleValueChange(allocation.id, newValue);
                     }
                   }}
                   min={0}
@@ -67,19 +64,19 @@ const AllocationHandler = ({ allocations, onSave }: AllocationHandlerProps) => {
                 />
               </Grid>
               <Input
-                value={values[allocation.accountType] ?? 0}
+                value={values[allocation.id] ?? 0}
                 size="small"
                 onChange={(event: ChangeEvent<HTMLInputElement>) => {
                   const value =
                     event.target.value === "" ? 0 : Number(event.target.value);
 
-                  handleValueChange(allocation.accountType, value);
+                  handleValueChange(allocation.id, value);
                 }}
                 inputProps={{
                   min: 0,
                   max: 100,
                   type: "number",
-                  "aria-label": `${allocation.accountType} procent`
+                  "aria-label": `${allocation.label} procent`
                 }}
               />
               <p>%</p>
