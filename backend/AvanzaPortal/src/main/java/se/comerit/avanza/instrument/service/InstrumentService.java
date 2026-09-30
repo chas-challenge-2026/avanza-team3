@@ -2,6 +2,7 @@ package se.comerit.avanza.instrument.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import se.comerit.avanza.instrument.dto.InstrumentResponse;
 import se.comerit.avanza.instrument.model.Instrument;
 import se.comerit.avanza.instrument.model.InstrumentType;
 import se.comerit.avanza.instrument.model.Sector;
@@ -17,7 +18,7 @@ public class InstrumentService {
     }
 
     @Transactional
-    public Instrument create(
+    public void create(
             String ticker,
             String name,
             InstrumentType instrumentType,
@@ -38,16 +39,29 @@ public class InstrumentService {
                 currency
         );
 
-        return instrumentRepository.save(instrument);
+        instrumentRepository.save(instrument);
     }
 
     @Transactional(readOnly = true)
-    public Instrument getById(Integer id) {
-        return instrumentRepository.findById(id)
+    public InstrumentResponse getInstrumentById(Integer instrumentId) {
+
+        Instrument instrument = instrumentRepository.findById(instrumentId)
                 .orElseThrow(() ->
                         new IllegalArgumentException(
                                 "Instrument with id " + id + " not found"
                         )
                 );
+        return toInstrumentResponse(instrument);
+    }
+
+    private InstrumentResponse toInstrumentResponse(Instrument instrument) {
+        return new InstrumentResponse(
+                instrument.getId(),
+                instrument.getTicker(),
+                instrument.getName(),
+                instrument.getInstrumentType(),
+                instrument.getSector(),
+                instrument.getCurrency()
+        );
     }
 }
