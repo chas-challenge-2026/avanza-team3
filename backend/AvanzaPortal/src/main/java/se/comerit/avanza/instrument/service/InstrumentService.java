@@ -48,7 +48,7 @@ public class InstrumentService {
         Instrument instrument = instrumentRepository.findById(instrumentId)
                 .orElseThrow(() ->
                         new IllegalArgumentException(
-                                "Instrument with id " + id + " not found"
+                                "Instrument with id " + instrumentId + " not found"
                         )
                 );
         return toInstrumentResponse(instrument);
