@@ -12,9 +12,14 @@ type AllocationItem = {
 type AllocationHandlerProps = {
   allocations: AllocationItem[];
   onSave?: (values: Record<string, number>) => void;
+  title: string;
 };
 
-const AllocationHandler = ({ allocations, onSave }: AllocationHandlerProps) => {
+const AllocationHandler = ({
+  allocations,
+  onSave,
+  title
+}: AllocationHandlerProps) => {
   const [values, setValues] = useState<Record<string, number>>(
     Object.fromEntries(allocations.map(({ id, value }) => [id, value]))
   );
@@ -40,7 +45,7 @@ const AllocationHandler = ({ allocations, onSave }: AllocationHandlerProps) => {
   );
   return (
     <>
-      <h2 className={styles.sectionTitle}>Målallokering</h2>
+      <h2 className={styles.sectionTitle}>{title}</h2>
       <p className={styles.label}>
         Justera fördelning med reglagen för önskad fördelning. <br />
         Summan <u>måste</u> vara 100%.
