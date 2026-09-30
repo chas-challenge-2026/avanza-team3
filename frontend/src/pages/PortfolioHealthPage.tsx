@@ -195,6 +195,7 @@ function PortfolioHealthPage() {
           {!loading && dashboard && (
             <AllocationHandler
               allocations={mockAllocations}
+              title="Målalloekering över kontotyp"
               onSave={(values) => {
                 console.log(values);
               }}
@@ -204,15 +205,13 @@ function PortfolioHealthPage() {
         <AppCard
           sx={{
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            maxWidth: "500px"
+            alignItems: "center"
           }}
         >
           {" "}
           <DonutChart
             title="Aktuell fördelning per kontotyp"
-            data={allocationData}
+            data={mockAllocations}
           />
         </AppCard>
       </div>
