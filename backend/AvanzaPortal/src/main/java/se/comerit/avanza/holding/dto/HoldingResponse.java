@@ -1,10 +1,12 @@
 package se.comerit.avanza.holding.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import se.comerit.avanza.instrument.model.InstrumentType;
+import se.comerit.avanza.instrument.model.Sector;
 
 import java.math.BigDecimal;
 
-@Schema(description = "Holding information including current market value and profit/loss calculations")
+@Schema(description = "Holding information including instrument metadata and current market calculations")
 public record HoldingResponse(
 
         @Schema(
@@ -20,6 +22,12 @@ public record HoldingResponse(
         Integer accountId,
 
         @Schema(
+                description = "ID of the instrument attached to the holding.",
+                example = "3"
+        )
+        Integer instrumentId,
+
+        @Schema(
                 description = "Instrument ticker.",
                 example = "AAPL"
         )
@@ -30,6 +38,19 @@ public record HoldingResponse(
                 example = "Apple Inc."
         )
         String instrumentName,
+
+        @Schema(
+                description = "Instrument type.",
+                example = "STOCK"
+        )
+        InstrumentType instrumentType,
+
+
+        @Schema(
+                description = "Instrument sector.",
+                example = "TECHNOLOGY"
+        )
+        Sector sector,
 
         @Schema(
                 description = "Number of units held.",
@@ -44,7 +65,7 @@ public record HoldingResponse(
         BigDecimal avgBuyPrice,
 
         @Schema(
-                description = "Currency code of the holding.",
+                description = "Currency code of the instrument.",
                 example = "USD"
         )
         String currency,
