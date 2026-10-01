@@ -2,6 +2,7 @@ package se.comerit.avanza.holding.model;
 
 import jakarta.persistence.*;
 import se.comerit.avanza.account.model.Account;
+import se.comerit.avanza.instrument.model.Instrument;
 
 import java.math.BigDecimal;
 
@@ -21,9 +22,14 @@ public class Holding {
     @JoinColumn(name = "account_id", insertable = false, updatable = false)
     private Account account;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "instrument_id")
+    private Instrument instrument;
+
+    @Column(length = 20)
     private String ticker;
 
-    @Column(name = "instrument_name")
+    @Column(name = "instrument_name", length = 100)
     private String instrumentName;
 
 
@@ -33,10 +39,19 @@ public class Holding {
     @Column(name = "avg_buy_price")
     private BigDecimal avgBuyPrice;
 
+    @Column(length = 3)
     private String currency;
 
     protected Holding() {}
 
+    public Holding(Integer accountId, Instrument instrument, BigDecimal quantity, BigDecimal avgBuyPrice) {
+        this.accountId = accountId;
+        this.quantity = quantity;
+        this.avgBuyPrice = avgBuyPrice;
+        setInstrument(instrument);
+    }
+
+    @Deprecated
     public Holding(Integer accountId, String ticker, String instrumentName, BigDecimal quantity, BigDecimal avgBuyPrice, String currency) {
         this.accountId = accountId;
         this.ticker = ticker;
@@ -58,10 +73,24 @@ public class Holding {
         this.accountId = accountId;
     }
 
+    public Instrument getInstrument() {
+        return instrument;
+    }
+
+    public void setInstrument(Instrument instrument) {
+        this.instrument = instrument;
+        if (instrument != null) {
+            this.ticker = instrument.getTicker();
+            this.instrumentName = instrument.getName();
+            this.currency = instrument.getCurrency();
+        }
+    }
+
     public String getTicker() {
         return ticker;
     }
 
+    @Deprecated
     public void setTicker(String ticker) {
         this.ticker = ticker;
     }
@@ -70,6 +99,7 @@ public class Holding {
         return instrumentName;
     }
 
+    @Deprecated
     public void setInstrumentName(String instrumentName) {
         this.instrumentName = instrumentName;
     }
@@ -94,6 +124,7 @@ public class Holding {
         return currency;
     }
 
+    @Deprecated
     public void setCurrency(String currency) {
         this.currency = currency;
     }
