@@ -10,6 +10,8 @@ export type Holding = {
   currency: string;
   account_type: string;
   account_name: string;
+  pnl: number;
+  pnlPct: number;
 };
 
 export interface HoldingRequest {
@@ -30,7 +32,9 @@ export type HoldingApiResponse = {
   avg_buy_price: number;
   currentPrice: number;
   currency: string;
-  market_value: number;
+  marketValue: number;
   account_name: string;
   account_type: string;
+  pnl: number;
+  pnlPct: number;
 };
