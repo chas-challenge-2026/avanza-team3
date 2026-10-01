@@ -24,7 +24,7 @@ public class Instrument {
     @Column(nullable = false, length = 3)
     private String currency;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 20)
     private String ticker;
 
     protected Instrument() {}
