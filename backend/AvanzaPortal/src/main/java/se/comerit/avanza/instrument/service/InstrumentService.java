@@ -1,13 +1,16 @@
 package se.comerit.avanza.instrument.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import se.comerit.avanza.instrument.dto.InstrumentResponse;
 import se.comerit.avanza.instrument.model.Instrument;
 import se.comerit.avanza.instrument.model.InstrumentType;
 import se.comerit.avanza.instrument.model.Sector;
 import se.comerit.avanza.instrument.repository.InstrumentRepository;
 
+import java.util.Locale;
 @Service
 public class InstrumentService {
 
@@ -25,33 +28,41 @@ public class InstrumentService {
             Sector sector,
             String currency
     ) {
-        if (instrumentRepository.findByTickerIgnoreCase(ticker).isPresent()) {
-            throw new IllegalArgumentException(
-                    "Instrument with ticker " + ticker + " exists"
+        String normalizedTicker = normalizeTicker(ticker);
+        if (instrumentRepository.findByTickerIgnoreCase(normalizedTicker).isPresent()) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Instrument with ticker " + normalizedTicker + " already exists"
             );
         }
 
         Instrument instrument = new Instrument(
-                ticker,
-                name,
+                normalizedTicker,
+                name.trim(),
                 instrumentType,
                 sector,
-                currency
+                currency.trim().toUpperCase(Locale.ROOT)
         );
 
         instrumentRepository.save(instrument);
     }
 
     @Transactional(readOnly = true)
-    public InstrumentResponse getInstrumentById(Integer instrumentId) {
+    public Instrument getById(Integer instrumentId) {
+        return instrumentRepository.findById(instrumentId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Instrument with id " + instrumentId + " not found"
+                ));
+    }
 
-        Instrument instrument = instrumentRepository.findById(instrumentId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "Instrument with id " + instrumentId + " not found"
-                        )
-                );
-        return toInstrumentResponse(instrument);
+    @Transactional(readOnly = true)
+    public InstrumentResponse getInstrumentById(Integer instrumentId) {
+        return toInstrumentResponse(getById(instrumentId));
+    }
+
+    private String normalizeTicker(String ticker) {
+        return ticker.trim().toUpperCase(Locale.ROOT);
     }
 
     private InstrumentResponse toInstrumentResponse(Instrument instrument) {
