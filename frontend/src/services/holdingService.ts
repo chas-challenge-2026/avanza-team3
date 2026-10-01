@@ -1,7 +1,7 @@
 import type {
   Holding,
   HoldingRequest,
-  HoldingApiResponse
+  HoldingApiResponse,
 } from "../types/Holding";
 
 export const getHoldings = async (): Promise<Holding[]> => {
@@ -14,8 +14,8 @@ export const getHoldings = async (): Promise<Holding[]> => {
   const response = await fetch("/api/holdings", {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (!response.ok) {
@@ -33,7 +33,10 @@ export const getHoldings = async (): Promise<Holding[]> => {
     currentPrice: holding.currentPrice,
     currency: holding.currency,
     account_type: holding.account_type,
-    account_name: holding.account_name
+    account_name: holding.account_name,
+    marketValue: holding.marketValue,
+    pnl: holding.pnl,
+    pnlPct: holding.pnlPct,
   }));
 };
 
@@ -48,9 +51,9 @@ export const createHolding = async (holding: HoldingRequest): Promise<void> => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(holding)
+    body: JSON.stringify(holding),
   });
 
   if (!response.ok) {
@@ -68,8 +71,8 @@ export const deleteHolding = async (holdingId: number): Promise<void> => {
   const response = await fetch(`/api/holdings/${holdingId}`, {
     method: "DELETE",
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
   if (!response.ok) {
     throw new Error("Delete response failed");
