@@ -14,10 +14,10 @@
 }
 
 .label {
-  font-size: 0.9rem;
+  font-size: 0.8125rem;
   color: var(--muted-foreground);
-  margin: 0 0 1em 0;
-  font-weight: 500;
+  margin: 0 0 10px;
+  font-weight: 400;
 }
 
 .wrapper {
@@ -31,4 +31,13 @@
 .content {
   flex: 1;
   min-width: 0;
+}
+
+.sectionTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+  margin: 20px 0 8px;
 }

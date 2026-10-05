@@ -7,6 +7,8 @@ import useDashboard from "../hooks/useDasboard";
 import InnehavsLista from "../components/Innehavslista";
 import { useHoldings } from "../hooks/useHoldings";
 import AllocationHandler from "../components/AllocationHandler";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
 
 function PortfolioHealthPage() {
   const { rows } = usePortfolioAllocations();
@@ -16,13 +18,13 @@ function PortfolioHealthPage() {
   const statusColors = {
     good: "#16a34a",
     warning: "#d97706",
-    danger: "#dc2626"
+    danger: "#dc2626",
   };
 
   const accountColors: Record<string, string> = {
     ISK: "#16a34a",
     KF: "#1976d2",
-    Depa: "#8b69a7"
+    Depa: "#8b69a7",
   };
 
   const changePercent = 5;
@@ -46,7 +48,7 @@ function PortfolioHealthPage() {
   const riskLevelText = {
     good: "Låg Risk",
     warning: "Måttlig Risk",
-    danger: "Hög Risk"
+    danger: "Hög Risk",
   };
 
   const diversification = 72;
@@ -64,24 +66,33 @@ function PortfolioHealthPage() {
   const diversificationText = {
     good: "God spridning",
     warning: "Måttlig spridning",
-    danger: "Låg spridning"
+    danger: "Låg spridning",
   };
 
   const allocationData = rows.map((row) => ({
     label: row.accountType,
     value: row.actual,
-    color: accountColors[row.accountType]
+    color: accountColors[row.accountType],
   }));
 
   const allocations =
     dashboard?.allocationRows.map((row) => ({
       accountType: row.accountType,
-      value: row.target
+      value: row.target,
     })) ?? [];
 
   return (
     <>
-      <h1>Portföljhälsa</h1>
+      <div className={styles.container}>
+        <div className={styles.titleRow}>
+          <div className={styles.iconTitle}>
+            <FontAwesomeIcon icon={faStethoscope} className={styles.icon} />
+            <div className={styles.titleText}>
+              <h1 className={styles.title}>Min Portföljhälsa</h1>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className={styles.container}>
         <AppCard>
           <div className={styles.kpiCard + " " + styles[riskLevel()]}>
@@ -98,7 +109,7 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": { fill: statusColors[riskLevel()] },
-                  "& .MuiGauge-valueText": { display: "none" }
+                  "& .MuiGauge-valueText": { display: "none" },
                 }}
                 width={90}
                 height={90}
@@ -116,7 +127,7 @@ function PortfolioHealthPage() {
             </div>
             <p className={styles.value}>
               {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-                maximumFractionDigits: 0
+                maximumFractionDigits: 0,
               })}{" "}
               SEK
             </p>
@@ -156,9 +167,9 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": {
-                    fill: statusColors[diversificationLevel()]
+                    fill: statusColors[diversificationLevel()],
                   },
-                  "& .MuiGauge-valueText": { display: "none" }
+                  "& .MuiGauge-valueText": { display: "none" },
                 }}
                 width={90}
                 height={60}
@@ -173,7 +184,7 @@ function PortfolioHealthPage() {
         </AppCard>
       </div>
       <div className={styles.container}>
-        <AppCard sx={{ maxWidth: "500px" }}>
+        <AppCard>
           {!loading && dashboard && (
             <AllocationHandler
               allocations={allocations}
@@ -183,7 +194,14 @@ function PortfolioHealthPage() {
             />
           )}
         </AppCard>
-        <AppCard>
+        <AppCard
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            maxWidth: "500px",
+          }}
+        >
           {" "}
           <DonutChart
             title="Aktuell fördelning per kontotyp"
@@ -199,12 +217,14 @@ function PortfolioHealthPage() {
             "instrumentName",
             "quantity",
             "avgBuyPrice",
-            "account_type"
+            "account_type",
+            "account_name",
+            "marketValue",
+            "pnl",
+            "pnlPct",
           ]}
         />
       </div>
-      <div className={styles.conatiner}></div>
-      <div className={styles.container}></div>
     </>
   );
 }

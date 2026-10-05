@@ -18,12 +18,13 @@
 
 .iconTitle {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
 }
 
 .icon {
   color: var(--primary);
+  font-size: 25px;
 }
 
 .titleText {
@@ -42,7 +43,7 @@
 }
 
 .label {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--muted-foreground);
   margin: 0;
   font-weight: 400;

@@ -61,7 +61,9 @@ function PortfolioPage() {
       </AppCard>
 
       <div className={styles.row2}>
-        <DonutChart title="Fördelning per kontotyp" data={allocationData} />
+        <AppCard>
+          <DonutChart title="Fördelning per kontotyp" data={allocationData} />
+        </AppCard>
         <PortfolioHealth value={80} />
       </div>
 
