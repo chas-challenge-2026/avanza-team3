@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import se.comerit.avanza.auth.controller.AuthController;
 import se.comerit.avanza.auth.dto.LoginRequest;
+import se.comerit.avanza.auth.repository.UserRepository;
 import se.comerit.avanza.auth.service.AuthService;
 import se.comerit.avanza.security.JwtService;
 
@@ -33,6 +34,9 @@ class AuthControllerTest {
 
     @MockBean
     private AuthService authService;
+
+    @MockBean
+    private UserRepository userRepository;
 
     @MockBean
     private JwtService jwtService;
