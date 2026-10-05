@@ -8,7 +8,6 @@ import { faBriefcase } from "@fortawesome/free-solid-svg-icons";
 import DonutChart from "../components/DonutChart";
 import NotificationCard from "../components/NotificationCard";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
-// import CurrencyExposure from "../components/CurrencyExposure";
 import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import useDashboard from "../hooks/useDasboard";
 import useLiveAlerts from "../hooks/useLiveAlerts";
@@ -23,13 +22,13 @@ function PortfolioPage() {
   const accountColors: Record<string, string> = {
     ISK: "#16a34a",
     KF: "#1976d2",
-    Depa: "#8b69a7"
+    Depa: "#8b69a7",
   };
 
   const allocationData = rows.map((row) => ({
     label: row.accountType,
     value: row.actual,
-    color: accountColors[row.accountType]
+    color: accountColors[row.accountType],
   }));
 
   return (
@@ -54,7 +53,7 @@ function PortfolioPage() {
           </div>
           <p className={styles.value}>
             {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-              maximumFractionDigits: 0
+              maximumFractionDigits: 0,
             })}{" "}
             SEK
           </p>
