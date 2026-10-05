@@ -59,8 +59,38 @@ Here is what each value means:
 | `+1`  | `RISK_ERROR_NULL`          | `values` or `out` is NULL                         |
 | `+2`  | `RISK_ERROR_TOO_SHORT`     | `length < 3`                                      |
 | `+3`  | `RISK_ERROR_BAD_RATE`      | `risk_free_rate` is NaN, infinite, or `<= -1.0`.  |
-| `+4`  | `RISK_ERROR_BAD_PERIODS`   | `periods_per_year < 1`                            |
+| `+4`  | `RISK_ERROR_BAD_PERIODS`   | `periods_per_year < 1` or `>= 366`                |
 | `+5`  | `RISK_ERROR_INVALID_VALUE` | `values[i]` is NaN, infinite or `<= 0.0`          |
+| `+6`  | `RISK_ERROR_BAD_WINDOW`    | `window < 2` or `window > length - 1`             |
+| `+7`  | `RISK_ERROR_BAD_LAMBDA`    | `lambda` is not strictly between 0 and 1          |
+| `+8`  | `RISK_ERROR_SMALL_BUFFER`  | `out_capacity` is too small for the result        |
+
+---
+
+## EWMA and rolling window
+
+```c
+    int risk_ewma_vol(const double *values, int length, double lambda,
+                      int periods_per_year, double *out, int out_capacity);
+
+    int risk_rolling_count(int length, int window);
+
+    int risk_rolling(const double *values, int length, int window,
+                     double risk_free_rate, int periods_per_year,
+                     double *vol_out, double *sharpe_out, double *mdd_out,
+                     int out_capacity);
+```
+
+The caller allocates all output arrays, the C code never allocates.
+
+- `risk_ewma_vol`: annualized volatility after each return, `length - 1` values.
+  The last one is the current volatility. `lambda` is typically 0.94 for daily data.
+  The first squared return seeds the variance, and the mean is assumed to be zero.
+- `risk_rolling`: `window` is counted in returns, so each window uses `window + 1` values.
+  Result `k` covers `values[k]` to `values[k + window]`. The output has
+  `risk_rolling_count(length, window)` entries, starting at the first full window.
+  Max drawdown is measured inside each window only.
+- Sharpe is NaN when the standard deviation is below 1e-12 (constant series).
 
 ---
 
@@ -93,7 +123,9 @@ File structure
     /include
         risk.h
     /src
-        main.c (for testing)
         risk.c
+    /tests
+        risk_test.c
+        CMakeLists.txt
     CMakeLists.txt
 ```
