@@ -76,10 +76,17 @@ function PortfolioHealthPage() {
   }));
 
   const allocations =
-    dashboard?.allocationRows.map((row) => ({
-      accountType: row.accountType,
-      value: row.target,
+    dashboard?.allocationRows.map((row, index) => ({
+      id: `${row.accountType}-${index}`,
+      label: row.accountType,
+      value: row.target
     })) ?? [];
+
+  const mockAllocations = [
+    { id: "stocks", label: "Aktier", value: 50 },
+    { id: "funds", label: "Fonder", value: 30 },
+    { id: "bonds", label: "Obligationer", value: 20 }
+  ];
 
   return (
     <>
@@ -187,7 +194,8 @@ function PortfolioHealthPage() {
         <AppCard>
           {!loading && dashboard && (
             <AllocationHandler
-              allocations={allocations}
+              allocations={mockAllocations}
+              title="Målalloekering över kontotyp"
               onSave={(values) => {
                 console.log(values);
               }}
@@ -197,15 +205,13 @@ function PortfolioHealthPage() {
         <AppCard
           sx={{
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            maxWidth: "500px",
+            alignItems: "center"
           }}
         >
           {" "}
           <DonutChart
             title="Aktuell fördelning per kontotyp"
-            data={allocationData}
+            data={mockAllocations}
           />
         </AppCard>
       </div>
