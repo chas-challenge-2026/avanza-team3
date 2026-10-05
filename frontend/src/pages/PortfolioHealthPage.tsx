@@ -18,13 +18,13 @@ function PortfolioHealthPage() {
   const statusColors = {
     good: "#16a34a",
     warning: "#d97706",
-    danger: "#dc2626"
+    danger: "#dc2626",
   };
 
   const accountColors: Record<string, string> = {
     ISK: "#16a34a",
     KF: "#1976d2",
-    Depa: "#8b69a7"
+    Depa: "#8b69a7",
   };
 
   const changePercent = 5;
@@ -48,7 +48,7 @@ function PortfolioHealthPage() {
   const riskLevelText = {
     good: "Låg Risk",
     warning: "Måttlig Risk",
-    danger: "Hög Risk"
+    danger: "Hög Risk",
   };
 
   const diversification = 72;
@@ -66,13 +66,13 @@ function PortfolioHealthPage() {
   const diversificationText = {
     good: "God spridning",
     warning: "Måttlig spridning",
-    danger: "Låg spridning"
+    danger: "Låg spridning",
   };
 
   const allocationData = rows.map((row) => ({
     label: row.accountType,
     value: row.actual,
-    color: accountColors[row.accountType]
+    color: accountColors[row.accountType],
   }));
 
   const allocations =
@@ -116,7 +116,7 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": { fill: statusColors[riskLevel()] },
-                  "& .MuiGauge-valueText": { display: "none" }
+                  "& .MuiGauge-valueText": { display: "none" },
                 }}
                 width={90}
                 height={90}
@@ -134,7 +134,7 @@ function PortfolioHealthPage() {
             </div>
             <p className={styles.value}>
               {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-                maximumFractionDigits: 0
+                maximumFractionDigits: 0,
               })}{" "}
               SEK
             </p>
@@ -174,9 +174,9 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": {
-                    fill: statusColors[diversificationLevel()]
+                    fill: statusColors[diversificationLevel()],
                   },
-                  "& .MuiGauge-valueText": { display: "none" }
+                  "& .MuiGauge-valueText": { display: "none" },
                 }}
                 width={90}
                 height={60}
@@ -223,7 +223,11 @@ function PortfolioHealthPage() {
             "instrumentName",
             "quantity",
             "avgBuyPrice",
-            "account_type"
+            "account_type",
+            "account_name",
+            "marketValue",
+            "pnl",
+            "pnlPct",
           ]}
         />
       </div>
