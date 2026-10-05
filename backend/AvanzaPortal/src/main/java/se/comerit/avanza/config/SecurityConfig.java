@@ -1,8 +1,8 @@
 package se.comerit.avanza.config;
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -12,15 +12,21 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import se.comerit.avanza.security.JwtAuthenticationFilter;
+import se.comerit.avanza.security.RateLimitFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableConfigurationProperties(RateLimitProperties.class)
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final RateLimitProperties rateLimitProperties;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthFilter,
+            RateLimitProperties rateLimitProperties) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.rateLimitProperties = rateLimitProperties;
     }
 
     @Bean
@@ -39,6 +45,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        if (rateLimitProperties.enabled()) {
+            http.addFilterAfter(
+                    new RateLimitFilter(rateLimitProperties),
+                    JwtAuthenticationFilter.class);
+        }
 
         return http.build();
     }
