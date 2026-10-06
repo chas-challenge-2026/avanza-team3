@@ -2,6 +2,7 @@ import { Box, Grid, Input, Slider } from "@mui/material";
 import styles from "./AllocationHandler.module.css";
 import { useState, type ChangeEvent } from "react";
 import AppButton from "./AppButton";
+import PopOver from "./Popover";
 
 type AllocationItem = {
   id: string;
@@ -43,8 +44,15 @@ const AllocationHandler = ({
     (sum, value) => sum + value,
     0
   );
+  const helpTitle = "Vad är Målalloekering?";
+  const helpText =
+    "Det visar hur ditt sparande är tänkt att fördelas mellan aktier, fonder och obligationer. Målet hjälper dig att se om fördelningen stämmer med din sparplan.";
   return (
     <>
+      <div className={styles.popoverWrapper}>
+        <PopOver title={helpTitle} content={helpText} />
+      </div>
+
       <h2 className={styles.sectionTitle}>{title}</h2>
       <p className={styles.label}>
         Justera fördelning med reglagen för önskad fördelning. <br />
