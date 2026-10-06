@@ -10,6 +10,7 @@ import se.comerit.avanza.instrument.model.InstrumentType;
 import se.comerit.avanza.instrument.model.Sector;
 import se.comerit.avanza.instrument.repository.InstrumentRepository;
 
+import java.util.List;
 import java.util.Locale;
 @Service
 public class InstrumentService {
@@ -54,6 +55,14 @@ public class InstrumentService {
                         HttpStatus.NOT_FOUND,
                         "Instrument with id " + instrumentId + " not found"
                 ));
+    }
+
+    @Transactional(readOnly = true)
+    public List<InstrumentResponse> getAllInstruments() {
+        return instrumentRepository.findAllByOrderByTickerAsc()
+                .stream()
+                .map(this::toInstrumentResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)

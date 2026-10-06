@@ -105,6 +105,28 @@ public class HoldingService {
     }
 
     @PreAuthorize("#userId == authentication.details")
+    @Transactional(readOnly = true)
+    @Cacheable(
+            value = "holdingsByUser",
+            key = "'summary-' + #userId + '-' + #accountId + '-' + #instrumentType"
+    )
+    public List<Map<String, Object>> getHoldingsSummary(
+            Integer userId,
+            Integer accountId,
+            InstrumentType instrumentType
+    ) {
+        List<Holding> holdings = holdingRepository.findAllFilteredByUserId(
+                userId,
+                accountId,
+                instrumentType
+        );
+
+        return holdings.stream()
+                .map(this::toHoldingMap)
+                .toList();
+    }
+
+    @PreAuthorize("#userId == authentication.details")
     @Transactional
     public HoldingResponse getHoldingById(Integer holdingId, Integer userId) {
         Holding holding = getOwnedHolding(holdingId, userId);

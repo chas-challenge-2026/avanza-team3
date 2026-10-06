@@ -34,4 +34,18 @@ public interface HoldingRepository extends JpaRepository<Holding, Integer> {
             @Param("instrumentType") InstrumentType instrumentType,
             Pageable pageable
     );
+
+    @Query("""
+            SELECT h
+            FROM Holding h
+            WHERE h.account.userId = :userId
+              AND (:accountId IS NULL OR h.accountId = :accountId)
+              AND (:instrumentType IS NULL OR h.instrument.instrumentType = :instrumentType)
+            ORDER BY h.account.accountType ASC, h.instrument.ticker ASC
+            """)
+    List<Holding> findAllFilteredByUserId(
+            @Param("userId") Integer userId,
+            @Param("accountId") Integer accountId,
+            @Param("instrumentType") InstrumentType instrumentType
+    );
 }

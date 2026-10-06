@@ -7,6 +7,8 @@ import se.comerit.avanza.instrument.dto.InstrumentRequest;
 import se.comerit.avanza.instrument.dto.InstrumentResponse;
 import se.comerit.avanza.instrument.service.InstrumentService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/instruments")
 public class InstrumentController {
@@ -33,6 +35,11 @@ public class InstrumentController {
         );
 
         return ResponseEntity.status(201).build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<InstrumentResponse>> listInstruments() {
+        return ResponseEntity.ok(instrumentService.getAllInstruments());
     }
 
     @GetMapping("/{instrumentId}")
