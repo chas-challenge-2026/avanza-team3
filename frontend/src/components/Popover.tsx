@@ -39,9 +39,8 @@ const PopOver = ({ content, sx, title }: PopoverProps) => {
           vertical: "bottom",
           horizontal: "left"
         }}
-        sx={{ maxWidth: "600px" }}
       >
-        <Box sx={{ padding: 1 }}>
+        <Box sx={{ maxWidth: "300px", p: 1 }}>
           <h2>{title}</h2>
 
           <p className={styles.label}>{content}</p>
