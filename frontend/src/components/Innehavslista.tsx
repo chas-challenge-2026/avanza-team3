@@ -1,9 +1,3 @@
-// import DataTable from "./DataTable";
-// import type { Holding } from "../types/Holding";
-// import { Paper, TableContainer } from "@mui/material";
-// import type { ReactNode } from "react";
-// import AppButton from "./AppButton";
-
 import DataTable from "./DataTable";
 import type { Holding } from "../types/Holding";
 type ColumnKey = keyof Holding;
@@ -15,17 +9,48 @@ type InnehavsListaProps = {
 const InnehavsLista = ({ holdings, columns }: InnehavsListaProps) => {
   const columnConfig: Record<
     ColumnKey,
-    { field: ColumnKey; headerName: string }
+    {
+      field: ColumnKey;
+      headerName: string;
+      isBadge?: Boolean;
+      render?: (row: Holding) => string;
+    }
   > = {
     id: { field: "id", headerName: "ID" },
     accountId: { field: "accountId", headerName: "Konto" },
+    marketValue: {
+      field: "marketValue",
+      headerName: "Marknadsvärde",
+      render: (row: Holding) =>
+        `${row.marketValue.toLocaleString("sv-SE")} SEK`,
+    },
+    account_name: { field: "account_name", headerName: "Konto" },
     ticker: { field: "ticker", headerName: "Ticker" },
     instrumentName: { field: "instrumentName", headerName: "Instrument" },
     quantity: { field: "quantity", headerName: "Antal" },
-    avgBuyPrice: { field: "avgBuyPrice", headerName: "Köppris" },
+    avgBuyPrice: {
+      field: "avgBuyPrice",
+      headerName: "Köppris",
+      render: (row: Holding) =>
+        `${row.avgBuyPrice.toLocaleString("sv-SE")} SEK`,
+    },
     currentPrice: { field: "currentPrice", headerName: "Aktuellt pris" },
     currency: { field: "currency", headerName: "Valuta" },
-    account_type: { field: "account_type", headerName: "Kontotyp" },
+    account_type: {
+      field: "account_type",
+      headerName: "Kontotyp",
+      isBadge: true,
+    },
+    pnl: {
+      field: "pnl",
+      headerName: "Vinst/Förlust",
+      render: (row: Holding) => `${row.pnl.toLocaleString("sv-SE")} SEK`,
+    },
+    pnlPct: {
+      field: "pnlPct",
+      headerName: "Vinst/Förlust %",
+      render: (row: Holding) => `${row.pnlPct}%`,
+    },
   };
 
   const defaultColumnKeys: ColumnKey[] = [
@@ -49,81 +74,3 @@ const InnehavsLista = ({ holdings, columns }: InnehavsListaProps) => {
 };
 
 export default InnehavsLista;
-
-// type Column<T> = {
-//   field: string;
-//   headerName: string;
-//   render?: (row: T) => ReactNode;
-//   isBadge?: boolean;
-// };
-
-// type InnehavsListaProps = {
-//   holdings: Holding[];
-//   width?: string | number;
-//   showDelete?: boolean;
-//   onDelete?: (id: number) => void;
-//   detailed?: boolean;
-// };
-
-// const InnehavsLista = ({
-//   holdings,
-//   width,
-
-//   onDelete,
-//   detailed = false,
-//   showDelete
-// }: InnehavsListaProps) => {
-//   const columns: Column<Holding>[] = [
-//     { field: "ticker", headerName: "Ticker" },
-//     { field: "instrumentName", headerName: "Instrument" },
-//     { field: "accountId", headerName: "konto" },
-//     { field: "accountType", headerName: "typ" },
-//     { field: "quantity", headerName: "Antal" },
-//     { field: "avgBuyPrice", headerName: "Köppris" }
-//   ];
-
-//   if (detailed) {
-//     columns.push(
-//       { field: "currentPrice", headerName: "Aktuellt pris" },
-//       { field: "risk", headerName: "Risk" },
-//       { field: "allocation", headerName: "Allokering" },
-//       { field: "value", headerName: "Värde" }
-//     );
-//   }
-
-//   if (showDelete) {
-//     columns.push({
-//       field: "actions",
-//       headerName: "",
-//       render: (holdings: Holding) => (
-//         <AppButton
-//           color="error"
-//           variant="outlined"
-//           onClick={() => onDelete?.(holdings.id)}
-//         >
-//           Ta bort
-//         </AppButton>
-//       )
-//     });
-//   }
-//   return (
-//     <TableContainer
-//       component={Paper}
-//       sx={{
-//         width: "100%",
-//         maxWidth: width || 1200,
-//         minWidth: 600,
-//         overflowX: "auto",
-//         tableLayout: "fixed"
-//       }}
-//     >
-//       <DataTable
-//         width="100%"
-//         rows={holdings}
-//         columns={columns}
-//         title="Nuvarande innehav"
-//       />
-//     </TableContainer>
-//   );
-// };
-// export default InnehavsLista;
