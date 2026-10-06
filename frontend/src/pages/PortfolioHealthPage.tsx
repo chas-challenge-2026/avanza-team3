@@ -9,6 +9,7 @@ import { useHoldings } from "../hooks/useHoldings";
 import AllocationHandler from "../components/AllocationHandler";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
+import CurrencyExposure from "../components/CurrencyExposure";
 
 function PortfolioHealthPage() {
   const { rows } = usePortfolioAllocations();
@@ -209,6 +210,11 @@ function PortfolioHealthPage() {
           />
         </AppCard>
       </div>
+
+      <div className={styles.container}>
+        <CurrencyExposure />
+      </div>
+
       <div className={styles.container}>
         <InnehavsLista
           holdings={holdings}
