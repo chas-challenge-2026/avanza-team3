@@ -9,26 +9,24 @@ function CurrencyExposure() {
   const totals: Record<string, number> = {};
   let total = 0;
 
+  // currency code -> display name
+  const currencyNames: Record<string, string> = {
+    SEK: "Svenska kronor",
+    USD: "Amerikanska dollar",
+  };
+
   for (const holding of holdings) {
     totals[holding.currency] =
       (totals[holding.currency] ?? 0) + holding.valueSek;
     total = total + holding.valueSek;
   }
 
-  const mockCurrencyExposure = [
-    {
-      currency: "SEK",
-      name: "Svenska kronor",
-      percentage: 48,
-      value: 342032,
-    },
-    {
-      currency: "USD",
-      name: "Amerikanska dollar",
-      percentage: 31,
-      value: 220896,
-    },
-  ];
+  const currencyExposure = Object.entries(totals).map(([currency, value]) => ({
+    currency,
+    name: currencyNames[currency] ?? currency,
+    value,
+    percentage: Math.round((value / total) * 100),
+  }));
 
   return (
     <AppCard
@@ -44,7 +42,7 @@ function CurrencyExposure() {
       </div>
 
       <div className={styles.currencyBar}>
-        {mockCurrencyExposure.map((item) => (
+        {currencyExposure.map((item) => (
           <div
             key={item.currency}
             className={`${styles.currencySegment} ${
@@ -59,7 +57,7 @@ function CurrencyExposure() {
       </div>
 
       <div className={styles.currencyGrid}>
-        {mockCurrencyExposure.map((item) => (
+        {currencyExposure.map((item) => (
           <div key={item.currency} className={styles.currencyCard}>
             <div className={styles.currencyCardTop}>
               <div
