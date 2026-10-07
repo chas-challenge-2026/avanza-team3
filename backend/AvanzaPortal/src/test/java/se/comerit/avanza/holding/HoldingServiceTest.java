@@ -11,9 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.server.ResponseStatusException;
 import se.comerit.avanza.account.model.Account;
 import se.comerit.avanza.account.service.AccountService;
+import se.comerit.avanza.exception.ResourceNotFoundException;
 import se.comerit.avanza.holding.dto.HoldingPatchRequest;
 import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.model.Holding;
@@ -217,12 +217,12 @@ class HoldingServiceTest {
     void deleteHoldingShouldRejectHoldingNotOwnedByUser() {
         when(holdingRepository.findByIdAndAccountUserId(31, 7)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
                 () -> holdingService.deleteHolding(31, 7)
         );
 
-        assertEquals("Holding not Found", exception.getMessage());
+        assertEquals("Holding not found", exception.getMessage());
         verify(holdingRepository, never()).delete(any());
     }
 
@@ -266,7 +266,7 @@ class HoldingServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(
-                ResponseStatusException.class,
+                ResourceNotFoundException.class,
                 () -> holdingService.getHoldingById(31, 7)
         );
 
@@ -318,7 +318,7 @@ class HoldingServiceTest {
         );
 
         assertThrows(
-                ResponseStatusException.class,
+                ResourceNotFoundException.class,
                 () -> holdingService.updateHolding(31, 7, request)
         );
 
@@ -329,10 +329,10 @@ class HoldingServiceTest {
     @Test
     void addHoldingShouldNotSaveWhenAccountOwnershipCheckFails() {
         when(accountService.getAccountByIdAndUserId(11, 7))
-                .thenThrow(new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
+                .thenThrow(new ResourceNotFoundException("Account not found"));
 
         assertThrows(
-                ResponseStatusException.class,
+                ResourceNotFoundException.class,
                 () -> holdingService.addHolding(
                         7, 11, 101,
                         new BigDecimal("5"), new BigDecimal("71.50")
