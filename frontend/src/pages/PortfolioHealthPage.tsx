@@ -199,7 +199,7 @@ function PortfolioHealthPage() {
           {!loading && dashboard && (
             <AllocationHandler
               allocations={mockAllocations}
-              title="Målalloekering över kontotyp"
+              title="Målalloekering över instrumenttyp"
               onSave={(values) => {
                 console.log(values);
               }}
@@ -216,7 +216,7 @@ function PortfolioHealthPage() {
             <PopOver title={helpTitle} content={helpText} />
           </div>
           <DonutChart
-            title="Aktuell fördelning per kontotyp"
+            title="Aktuell fördelning per instrumenttyp"
             data={mockAllocations}
           />
         </AppCard>
