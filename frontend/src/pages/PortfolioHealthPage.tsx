@@ -9,6 +9,7 @@ import { useHoldings } from "../hooks/useHoldings";
 import AllocationHandler from "../components/AllocationHandler";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
+import PopOver from "../components/Popover";
 
 function PortfolioHealthPage() {
   const { rows } = usePortfolioAllocations();
@@ -18,13 +19,13 @@ function PortfolioHealthPage() {
   const statusColors = {
     good: "#16a34a",
     warning: "#d97706",
-    danger: "#dc2626",
+    danger: "#dc2626"
   };
 
   const accountColors: Record<string, string> = {
     ISK: "#16a34a",
     KF: "#1976d2",
-    Depa: "#8b69a7",
+    Depa: "#8b69a7"
   };
 
   const changePercent = 5;
@@ -48,7 +49,7 @@ function PortfolioHealthPage() {
   const riskLevelText = {
     good: "Låg Risk",
     warning: "Måttlig Risk",
-    danger: "Hög Risk",
+    danger: "Hög Risk"
   };
 
   const diversification = 72;
@@ -66,13 +67,13 @@ function PortfolioHealthPage() {
   const diversificationText = {
     good: "God spridning",
     warning: "Måttlig spridning",
-    danger: "Låg spridning",
+    danger: "Låg spridning"
   };
 
   const allocationData = rows.map((row) => ({
     label: row.accountType,
     value: row.actual,
-    color: accountColors[row.accountType],
+    color: accountColors[row.accountType]
   }));
 
   const allocations =
@@ -87,6 +88,9 @@ function PortfolioHealthPage() {
     { id: "funds", label: "Fonder", value: 30 },
     { id: "bonds", label: "Obligationer", value: 20 }
   ];
+
+  const helpTitle = "title";
+  const helpText = "text";
 
   return (
     <>
@@ -116,7 +120,7 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": { fill: statusColors[riskLevel()] },
-                  "& .MuiGauge-valueText": { display: "none" },
+                  "& .MuiGauge-valueText": { display: "none" }
                 }}
                 width={90}
                 height={90}
@@ -134,7 +138,7 @@ function PortfolioHealthPage() {
             </div>
             <p className={styles.value}>
               {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-                maximumFractionDigits: 0,
+                maximumFractionDigits: 0
               })}{" "}
               SEK
             </p>
@@ -174,9 +178,9 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": {
-                    fill: statusColors[diversificationLevel()],
+                    fill: statusColors[diversificationLevel()]
                   },
-                  "& .MuiGauge-valueText": { display: "none" },
+                  "& .MuiGauge-valueText": { display: "none" }
                 }}
                 width={90}
                 height={60}
@@ -208,7 +212,9 @@ function PortfolioHealthPage() {
             alignItems: "center"
           }}
         >
-          {" "}
+          <div className={styles.popoverWrapper}>
+            <PopOver title={helpTitle} content={helpText} />
+          </div>
           <DonutChart
             title="Aktuell fördelning per kontotyp"
             data={mockAllocations}
@@ -227,7 +233,7 @@ function PortfolioHealthPage() {
             "account_name",
             "marketValue",
             "pnl",
-            "pnlPct",
+            "pnlPct"
           ]}
         />
       </div>

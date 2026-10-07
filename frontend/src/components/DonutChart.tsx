@@ -19,7 +19,7 @@ const DonutChart = ({ title, data }: DonutChartProps) => {
   const pieData = data.map((item) => ({
     label: `${item.label} (${((item.value / total) * 100).toFixed(0)}%)`,
     value: item.value,
-    color: item.color,
+    color: item.color
   }));
 
   const theme = useTheme();
@@ -43,8 +43,8 @@ const DonutChart = ({ title, data }: DonutChartProps) => {
               cornerRadius: 5,
               paddingAngle: 0.5,
               valueFormatter: (item) =>
-                item ? `${((item.value / total) * 100).toFixed(0)}%` : "",
-            },
+                item ? `${((item.value / total) * 100).toFixed(0)}%` : ""
+            }
           ]}
           slotProps={{
             legend: {
@@ -53,10 +53,10 @@ const DonutChart = ({ title, data }: DonutChartProps) => {
                   fontSize: "13px",
                   fontWeight: 500,
                   fontFamily: "Roboto",
-                  color: "#5a6569",
-                },
-              },
-            },
+                  color: "#5a6569"
+                }
+              }
+            }
           }}
           margin={{ right: 5 }}
           hideLegend={false}
