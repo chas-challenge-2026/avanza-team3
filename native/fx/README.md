@@ -49,13 +49,14 @@ int err = FxConvert(100.0, "usd", "eur", &result);
 One of the following values will be returned.
 Here is what each value means:
 
-| Value | Name                       | Meaning                                           |
-|-------|----------------------------|---------------------------------------------------|
-| `0`   | `FX_OK`                    |                                |
-| `+1`  | `FX_ERROR_NULL`            |                        |
-| `+2`  | `FX_ERROR_REQUEST_FAILED`     |                        |
-| `+3`  | `FX_ERROR_UNKNOWN_CURRENCY`      |   |
-| `+4`  | `FX_ERROR_INTERNAL`   |                             |
+| Value | Name                        | Meaning                                           |
+|-------|-----------------------------|---------------------------------------------------|
+| `0`   | `FX_OK`                     | Success|
+| `+1`  | `FX_ERROR_NULL`             | At least one input variable is null |
+| `+2`  | `FX_ERROR_REQUEST_FAILED`   | The API returned some error code |
+| `+3`  | `FX_ERROR_UNKNOWN_CURRENCY` | ``from`` or ``to`` is not a valid currency|
+| `+4`  | `FX_ERROR_INTERNAL`         | Internal exception was thrown |
+| `+5`  | `FX_ERROR_API_UNRESPONSIVE` | HTTP fetch has failed for too long |
 
 ---
 
@@ -77,6 +78,9 @@ File structure
         currency.cpp
         fx.cpp
         http.cpp
+    /tests
+        CMakeLists.txt
+        fx_test.cpp
     CMakeLists.txt
 ```
 
