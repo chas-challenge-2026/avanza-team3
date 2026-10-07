@@ -16,23 +16,41 @@ import { formatCurrency } from "../utils/formatCurrency";
 import AppButton from "./AppButton";
 import { useState } from "react";
 
-type DataTableProps = {
+type BadgeVariant =
+  | "over"
+  | "under"
+  | "ok"
+  | "isk"
+  | "kf"
+  | "tjp"
+  | "depa"
+  | "aktie"
+  | "drift";
+
+type DataTableColumn<T> = {
+  field: keyof T;
+  headerName: string;
+  isBadge?: boolean;
+  render?: (row: T) => React.ReactNode;
+};
+
+type DataTableProps<T extends { id: number }> = {
   title?: string;
-  rows: any[];
-  columns: any[];
+  rows: T[];
+  columns: readonly DataTableColumn<T>[];
   width?: string;
   showDelete?: boolean;
   onDelete?: (id: number) => Promise<void>;
 };
 
-const DataTable = ({
+const DataTable = <T extends { id: number }>({
   title,
   rows,
   columns,
   width,
   showDelete,
   onDelete,
-}: DataTableProps) => {
+}: DataTableProps<T>) => {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   return (
@@ -53,7 +71,7 @@ const DataTable = ({
             <TableRow sx={{ backgroundColor: "var(--secondary)" }}>
               {columns.map((col) => (
                 <TableCell
-                  key={col.field}
+                  key={String(col.field)}
                   sx={{
                     fontSize: "0.75rem",
                     fontWeight: 700,
@@ -79,17 +97,21 @@ const DataTable = ({
                 }}
               >
                 {columns.map((col) => (
-                  <TableCell key={col.field}>
+                  <TableCell key={String(col.field)}>
                     {col.render ? (
                       col.render(row)
                     ) : col.isBadge ? (
-                      <Badge variant={row[col.field].toLowerCase()}>
-                        {row[col.field]}
+                      <Badge
+                        variant={
+                          String(row[col.field]).toLowerCase() as BadgeVariant
+                        }
+                      >
+                        {String(row[col.field])}
                       </Badge>
                     ) : col.field === "totalValueSek" ? (
-                      formatCurrency(row[col.field])
+                      formatCurrency(Number(row[col.field]))
                     ) : (
-                      row[col.field]
+                      String(row[col.field] ?? "")
                     )}
                   </TableCell>
                 ))}
