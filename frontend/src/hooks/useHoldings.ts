@@ -3,8 +3,9 @@ import {
   getHoldings,
   deleteHolding,
   createHolding,
+  updateHolding,
 } from "../services/holdingService";
-import type { Holding, HoldingRequest } from "../types/Holding";
+import type { Holding, HoldingRequest, HoldingPatchRequest } from "../types/Holding";
 
 export const useHoldings = () => {
     const [holdings, setHoldings] = useState<Holding[]>([]);
@@ -43,6 +44,14 @@ export const useHoldings = () => {
         current.filter((holding) => holding.id !== id)
       );
     };
+
+    const editHolding = async (
+      id: number,
+      changes: HoldingPatchRequest
+    ) => {
+      await updateHolding(id, changes);
+      await refreshHoldings();
+    };
   
     return {
       holdings,
@@ -50,5 +59,6 @@ export const useHoldings = () => {
       error,
       addHolding,
       removeHolding,
+      editHolding
     };
   };

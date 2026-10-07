@@ -5,14 +5,23 @@ type ColumnKey = keyof Holding;
 type InnehavsListaProps = {
   holdings: Holding[];
   columns?: ColumnKey[];
+  width?: string;
+  showDelete?: boolean;
+  onDelete?: (id: number) => Promise<void>;
 };
-const InnehavsLista = ({ holdings, columns }: InnehavsListaProps) => {
+const InnehavsLista = ({
+  holdings,
+  columns,
+  width,
+  showDelete,
+  onDelete,
+}: InnehavsListaProps) => {
   const columnConfig: Record<
     ColumnKey,
     {
       field: ColumnKey;
       headerName: string;
-      isBadge?: Boolean;
+      isBadge?: boolean;
       render?: (row: Holding) => string;
     }
   > = {
@@ -69,6 +78,9 @@ const InnehavsLista = ({ holdings, columns }: InnehavsListaProps) => {
       rows={holdings}
       columns={tableColumns}
       title="Nuvarande innehav"
+      width={width}
+      showDelete={showDelete}
+      onDelete={onDelete}
     />
   );
 };
