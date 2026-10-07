@@ -44,16 +44,16 @@ const AllocationHandler = ({
     (sum, value) => sum + value,
     0
   );
-  const helpTitle = "Vad är Målalloekering?";
+  const helpTitle = "Vad betyder Målalloekering?";
   const helpText =
     "Det visar hur ditt sparande är tänkt att fördelas mellan aktier, fonder och obligationer. Målet hjälper dig att se om fördelningen stämmer med din sparplan.";
   return (
     <>
-      <div className={styles.popoverWrapper}>
+      <div className={styles.header}>
+        <h2 className={styles.sectionTitle}>{title}</h2>
         <PopOver title={helpTitle} content={helpText} />
       </div>
 
-      <h2 className={styles.sectionTitle}>{title}</h2>
       <p className={styles.label}>
         Justera fördelning med reglagen för önskad fördelning. <br />
         Summan <u>måste</u> vara 100%.

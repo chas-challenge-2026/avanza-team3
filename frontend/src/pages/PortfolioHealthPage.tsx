@@ -89,9 +89,6 @@ function PortfolioHealthPage() {
     { id: "bonds", label: "Obligationer", value: 20 }
   ];
 
-  const helpTitle = "title";
-  const helpText = "text";
-
   return (
     <>
       <div className={styles.container}>
@@ -109,6 +106,10 @@ function PortfolioHealthPage() {
           <div className={styles.kpiCard + " " + styles[riskLevel()]}>
             <div className={styles.header}>
               <p className={styles.label}>Riskpoäng</p>
+              <PopOver
+                title="Vad betyder Riskpoäng?"
+                content="Riskpoäng sammanfattar hur mycket värdet på en investering kan svänga och hur stor risken är för förlust. Ju högre poäng, desto större svängningar kan du behöva tåla."
+              />
             </div>
             <div className={styles.row}>
               <div>
@@ -163,6 +164,11 @@ function PortfolioHealthPage() {
           <div className={styles.kpiCard}>
             <div className={styles.header}>
               <p className={styles.label}>Diversifieringsgrad</p>
+              <PopOver
+                title="Vad betyder Diversifieringsgrad?"
+                content="Diversifieringsgrad visar hur spridd en portfölj är.
+              Bra spridning: investeringar i många bolag och branscher."
+              />
             </div>
             <div className={styles.row}>
               <div>
@@ -206,16 +212,13 @@ function PortfolioHealthPage() {
             />
           )}
         </AppCard>
-        <AppCard
-          sx={{
-            display: "flex",
-            alignItems: "center"
-          }}
-        >
-          <div className={styles.popoverWrapper}>
-            <PopOver title={helpTitle} content={helpText} />
-          </div>
+        <AppCard>
           <DonutChart
+            help={{
+              title: "Vad betyder instrumenttyp?",
+              content:
+                "Här ser du hur portföljens instrumenttyp är fördelat mellan dina konton."
+            }}
             title="Aktuell fördelning per instrumenttyp"
             data={mockAllocations}
           />

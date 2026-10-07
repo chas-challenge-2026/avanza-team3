@@ -42,7 +42,13 @@
   margin: 0 0 8px;
 }
 
-.popoverWrapper {
+.header {
   display: flex;
-  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
