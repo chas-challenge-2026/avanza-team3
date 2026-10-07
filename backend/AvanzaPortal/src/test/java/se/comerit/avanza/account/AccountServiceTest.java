@@ -9,13 +9,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.server.ResponseStatusException;
 import se.comerit.avanza.account.dto.AccountResponse;
 import se.comerit.avanza.account.model.Account;
 import se.comerit.avanza.account.repository.AccountRepository;
 import se.comerit.avanza.account.service.AccountService;
+import se.comerit.avanza.exception.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.Map;
@@ -73,13 +72,12 @@ class AccountServiceTest {
     void getAccountByIdAndUserIdShouldRejectAccountNotOwnedByUser() {
         when(accountRepository.findByIdAndUserId(11, 7)).thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
                 () -> accountService.getAccountByIdAndUserId(11, 7)
         );
 
-        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertEquals("Account not found", exception.getReason());
+        assertEquals("Account not found", exception.getMessage());
     }
 
     @Test
