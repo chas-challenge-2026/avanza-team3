@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import se.comerit.avanza.account.service.AccountService;
+import se.comerit.avanza.exception.ResourceNotFoundException;
 import se.comerit.avanza.holding.dto.HoldingPatchRequest;
 import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.model.Holding;
@@ -148,8 +149,6 @@ public class HoldingService {
 
         Holding updatedHolding = holdingRepository.save(holding);
         return toHoldingResponse(updatedHolding);
-
-
     }
 
     @PreAuthorize("#userId == authentication.details")
@@ -183,7 +182,7 @@ public class HoldingService {
     {
         Holding holdingToDelete = holdingRepository
                 .findByIdAndAccountUserId(holdingId, userId)
-                        .orElseThrow(() -> new IllegalArgumentException("Holding not Found"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Holding not found"));
         holdingRepository.delete(holdingToDelete);
     }
 
@@ -213,7 +212,7 @@ public class HoldingService {
 
     private Holding getOwnedHolding(Integer holdingId, Integer userId) {
         return holdingRepository.findByIdAndAccountUserId(holdingId, userId)
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Holding not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Holding not found"));
     }
 
     private Instrument requireInstrument(Holding holding) {

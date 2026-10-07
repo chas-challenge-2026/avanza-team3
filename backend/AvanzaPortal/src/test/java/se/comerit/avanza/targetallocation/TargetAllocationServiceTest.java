@@ -9,12 +9,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.server.ResponseStatusException;
 import se.comerit.avanza.targetallocation.dto.TargetAllocationResponse;
 import se.comerit.avanza.targetallocation.model.TargetAllocation;
 import se.comerit.avanza.targetallocation.repository.TargetAllocationRepository;
+import se.comerit.avanza.exception.ResourceNotFoundException;
 import se.comerit.avanza.targetallocation.service.TargetAllocationService;
 
 import java.math.BigDecimal;
@@ -74,13 +73,12 @@ class TargetAllocationServiceTest {
     void getTargetAllocationByIdForUserShouldRejectAllocationNotOwnedByUser() {
         when(targetAllocationRepository.findByIdAndUserId(21, 7)).thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
                 () -> targetAllocationService.getTargetAllocationByIdForUser(21, 7)
         );
 
-        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertEquals("Target allocation not found", exception.getReason());
+        assertEquals("Target allocation not found", exception.getMessage());
     }
 
     @Test

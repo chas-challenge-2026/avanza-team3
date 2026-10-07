@@ -4,10 +4,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+import se.comerit.avanza.exception.ResourceNotFoundException;
 import se.comerit.avanza.targetallocation.dto.TargetAllocationResponse;
 import se.comerit.avanza.targetallocation.model.TargetAllocation;
 import se.comerit.avanza.targetallocation.repository.TargetAllocationRepository;
@@ -50,10 +49,7 @@ public class TargetAllocationService {
     @Transactional(readOnly = true)
     public TargetAllocation getTargetAllocationByIdForUser(Integer targetAllocationId, Integer userId) {
         return targetAllocationRepository.findByIdAndUserId(targetAllocationId, userId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Target allocation not found"
-                ));
+                .orElseThrow(() -> new ResourceNotFoundException("Target allocation not found"));
     }
 
     @PreAuthorize("#userId == authentication.details")
