@@ -7,15 +7,23 @@ import TableRow from "@mui/material/TableRow";
 import { Paper } from "@mui/material";
 import Badge from "./Badge";
 import { formatCurrency } from "../utils/formatCurrency";
+import AppButton from "./AppButton";
 
 type DataTableProps = {
   title?: string;
   rows: any[];
   columns: any[];
   width?: string;
+  showDelete?: boolean;
+  onDelete?: (id: number) => Promise<void>;
 };
 
-const DataTable = ({ title, rows, columns, width }: DataTableProps) => {
+const DataTable = ({   title,
+  rows,
+  columns,
+  width,
+  showDelete,
+  onDelete, }: DataTableProps) => {
   return (
     <TableContainer
       component={Paper}
@@ -46,6 +54,7 @@ const DataTable = ({ title, rows, columns, width }: DataTableProps) => {
                 {col.headerName}
               </TableCell>
             ))}
+            {showDelete && <TableCell />}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -72,6 +81,14 @@ const DataTable = ({ title, rows, columns, width }: DataTableProps) => {
                   )}
                 </TableCell>
               ))}
+
+              {showDelete && (
+                <TableCell>
+                  <AppButton color="warning" onClick={() => onDelete?.(row.id)}>
+                    Ta bort
+                  </AppButton>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
