@@ -16,6 +16,8 @@ import se.comerit.avanza.holding.controller.HoldingController;
 import se.comerit.avanza.holding.dto.HoldingPatchRequest;
 import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.service.HoldingService;
+import se.comerit.avanza.instrument.model.InstrumentType;
+import se.comerit.avanza.instrument.model.Sector;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -42,13 +44,28 @@ class HoldingControllerTest {
     }
 
     @Test
-    void listHoldingsShouldUseAuthenticatedUser() throws Exception {
-        when(holdingService.getHoldingsByUserId(7, 0, 20)).thenReturn(Page.empty(PageRequest.of(0, 20)));
+    void listHoldingsShouldUseAuthenticatedUserWithoutFilters() throws Exception {
+        when(holdingService.getHoldingsByUserId(7, 0, 20, null, null)).thenReturn(Page.empty(PageRequest.of(0, 20)));
+
         mockMvc.perform(get("/api/holdings")
                         .principal(authenticationForUser(7)))
                 .andExpect(status().isOk());
 
-        verify(holdingService).getHoldingsByUserId(7, 0, 20);
+        verify(holdingService).getHoldingsByUserId(7, 0, 20, null, null);
+    }
+
+    @Test
+    void listHoldingsShouldPassAccountAndInstrumentTypeFilters() throws Exception {
+        when(holdingService.getHoldingsByUserId(7, 0, 20, 11, InstrumentType.STOCK))
+                .thenReturn(Page.empty(PageRequest.of(0, 20)));
+
+        mockMvc.perform(get("/api/holdings")
+                        .param("accountId", "11")
+                        .param("instrumentType", "STOCK")
+                        .principal(authenticationForUser(7)))
+                .andExpect(status().isOk());
+
+        verify(holdingService).getHoldingsByUserId(7, 0, 20, 11, InstrumentType.STOCK);
     }
 
     @Test
@@ -56,11 +73,9 @@ class HoldingControllerTest {
         String body = """
                 {
                   "accountId": 11,
-                  "ticker": "ERIC-B",
-                  "instrumentName": "Ericsson B",
+                  "instrumentId": 101,
                   "quantity": 5,
-                  "avgBuyPrice": 71.50,
-                  "currency": "SEK"
+                  "avgBuyPrice": 71.50
                 }
                 """;
 
@@ -71,10 +86,9 @@ class HoldingControllerTest {
                 .andExpect(status().isCreated());
 
         verify(holdingService).addHolding(
-                eq(7), eq(11), eq("ERIC-B"), eq("Ericsson B"),
+                eq(7), eq(11), eq(101),
                 eq(new BigDecimal("5")),
-                eq(new BigDecimal("71.50")),
-                eq("SEK")
+                eq(new BigDecimal("71.50"))
         );
     }
 
@@ -83,11 +97,8 @@ class HoldingControllerTest {
         String body = """
                 {
                   "accountId": 11,
-                  "ticker": "",
-                  "instrumentName": "Ericsson B",
                   "quantity": 0,
-                  "avgBuyPrice": 71.50,
-                  "currency": "SEK"
+                  "avgBuyPrice": 71.50
                 }
                 """;
 
@@ -109,16 +120,6 @@ class HoldingControllerTest {
         verify(holdingService).deleteHolding(31, 7);
     }
 
-    private UsernamePasswordAuthenticationToken authenticationForUser(Integer userId) {
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
-                        "test@example.com",
-                        null,
-                        Collections.emptyList());
-        authentication.setDetails(userId);
-        return authentication;
-    }
-
     @Test
     void getHoldingShouldReturnHoldingResponseForAuthenticatedUser() throws Exception {
         HoldingResponse response = holdingResponse(31, new BigDecimal("10"));
@@ -129,8 +130,11 @@ class HoldingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(31))
                 .andExpect(jsonPath("$.accountId").value(11))
+                .andExpect(jsonPath("$.instrumentId").value(101))
                 .andExpect(jsonPath("$.ticker").value("ERIC-B"))
                 .andExpect(jsonPath("$.instrumentName").value("Ericsson B"))
+                .andExpect(jsonPath("$.instrumentType").value("STOCK"))
+                .andExpect(jsonPath("$.sector").value("UNKNOWN"))
                 .andExpect(jsonPath("$.quantity").value(10))
                 .andExpect(jsonPath("$.avgBuyPrice").value(70.00))
                 .andExpect(jsonPath("$.currency").value("SEK"))
@@ -168,10 +172,7 @@ class HoldingControllerTest {
                 eq(7),
                 argThat(request ->
                         new BigDecimal("15").compareTo(request.quantity()) == 0
-                                && request.ticker() == null
-                                && request.instrumentName() == null
                                 && request.avgBuyPrice() == null
-                                && request.currency() == null
                 )
         );
     }
@@ -195,7 +196,7 @@ class HoldingControllerTest {
 
     @Test
     void listHoldingsShouldNormalizeInvalidPageAndLimitSizeToOneHundred() throws Exception {
-        when(holdingService.getHoldingsByUserId(7, 0, 100))
+        when(holdingService.getHoldingsByUserId(7, 0, 100, null, null))
                 .thenReturn(Page.empty(PageRequest.of(0, 100)));
 
         mockMvc.perform(get("/api/holdings")
@@ -204,7 +205,17 @@ class HoldingControllerTest {
                         .principal(authenticationForUser(7)))
                 .andExpect(status().isOk());
 
-        verify(holdingService).getHoldingsByUserId(7, 0, 100);
+        verify(holdingService).getHoldingsByUserId(7, 0, 100, null, null);
+    }
+
+    private UsernamePasswordAuthenticationToken authenticationForUser(Integer userId) {
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "test@example.com",
+                        null,
+                        Collections.emptyList());
+        authentication.setDetails(userId);
+        return authentication;
     }
 
     private HoldingResponse holdingResponse(Integer holdingId, BigDecimal quantity) {
@@ -217,8 +228,11 @@ class HoldingControllerTest {
         return new HoldingResponse(
                 holdingId,
                 11,
+                101,
                 "ERIC-B",
                 "Ericsson B",
+                InstrumentType.STOCK,
+                Sector.UNKNOWN,
                 quantity,
                 avgBuyPrice,
                 "SEK",

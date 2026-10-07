@@ -15,7 +15,9 @@ import se.comerit.avanza.holding.dto.HoldingPatchRequest;
 import se.comerit.avanza.holding.dto.HoldingRequest;
 import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.service.HoldingService;
+import se.comerit.avanza.instrument.model.InstrumentType;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -64,6 +66,20 @@ public class HoldingController {
             @RequestParam(defaultValue = "20")
             int size,
 
+            @Parameter(
+                    description = "Optional account ID filter.",
+                    example = "1"
+            )
+            @RequestParam(required = false)
+            Integer accountId,
+
+            @Parameter(
+                    description = "Optional instrument type filter, for example STOCK, FUND or ETF.",
+                    example = "STOCK"
+            )
+            @RequestParam(required = false)
+            InstrumentType instrumentType,
+
             @Parameter(hidden = true)
             Authentication authentication) {
 
@@ -80,11 +96,55 @@ public class HoldingController {
         size = Math.min(size, 100);
 
         Page<Map<String, Object>> holdings =
-                holdingService.getHoldingsByUserId(userId, page, size);
+                holdingService.getHoldingsByUserId(userId, page, size, accountId, instrumentType);
 
         return ResponseEntity.ok(holdings);
     }
 
+    @Operation(
+            summary = "Get holdings summary data",
+            description = "Returns the complete filtered holdings dataset without pagination, intended for portfolio summaries and charts."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Summary data retrieved successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            )
+    })
+    @GetMapping("/summary")
+    public ResponseEntity<List<Map<String, Object>>> getHoldingsSummary(
+
+            @Parameter(
+                    description = "Optional account ID filter.",
+                    example = "1"
+            )
+            @RequestParam(required = false)
+            Integer accountId,
+
+            @Parameter(
+                    description = "Optional instrument type filter, for example STOCK, FUND or ETF.",
+                    example = "STOCK"
+            )
+            @RequestParam(required = false)
+            InstrumentType instrumentType,
+
+            @Parameter(hidden = true)
+            Authentication authentication) {
+
+        Integer userId = (Integer) authentication.getDetails();
+
+        return ResponseEntity.ok(
+                holdingService.getHoldingsSummary(
+                        userId,
+                        accountId,
+                        instrumentType
+                )
+        );
+    }
 
     @Operation(
             summary = "Create holding",
@@ -105,9 +165,10 @@ public class HoldingController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Account not found for the authenticated user"
+                    description = "Account or instrument not found for the authenticated user"
             )
     })
+
     @PostMapping
     public ResponseEntity<Void> addHolding(
 
@@ -123,11 +184,9 @@ public class HoldingController {
         holdingService.addHolding(
                 userId,
                 request.accountId(),
-                request.ticker(),
-                request.instrumentName(),
+                request.instrumentId(),
                 request.quantity(),
-                request.avgBuyPrice(),
-                request.currency()
+                request.avgBuyPrice()
         );
 
         return ResponseEntity.status(201).build();

@@ -1,14 +1,15 @@
 package se.comerit.avanza.holding.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
 @Schema(description = "Data required to create a new holding")
 public record HoldingRequest(
 
-        // Sen innan all backend slogs ihop. Ska plockas bort
         @Schema(
                 description = "ID of the account where the holding should be created.",
                 example = "1"
@@ -17,20 +18,11 @@ public record HoldingRequest(
         Integer accountId,
 
         @Schema(
-                description = "Instrument ticker.",
-                example = "AAPL"
+                description = "ID of an existing instrument to attach to the holding.",
+                example = "1"
         )
-        @NotBlank
-        @Size(max = 20)
-        String ticker,
-
-        @Schema(
-                description = "Instrument name.",
-                example = "Apple Inc."
-        )
-        @NotBlank
-        @Size(max = 100)
-        String instrumentName,
+        @NotNull
+        Integer instrumentId,
 
         @Schema(
                 description = "Number of units to add to the holding.",
@@ -48,14 +40,6 @@ public record HoldingRequest(
         @NotNull
         @DecimalMin(value = "0")
         @Digits(integer = 10, fraction = 2)
-        BigDecimal avgBuyPrice,
-
-        @Schema(
-                description = "Currency code for the holding.",
-                example = "USD"
-        )
-        @NotBlank
-        @Size(max = 3)
-        String currency
+        BigDecimal avgBuyPrice
 
 ) {}
