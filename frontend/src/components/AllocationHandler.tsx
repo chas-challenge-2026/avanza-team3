@@ -43,7 +43,7 @@ const AllocationHandler = ({ allocations, onSave }: AllocationHandlerProps) => {
   );
   return (
     <>
-      <h2>Målallokering</h2>
+      <h2 className={styles.sectionTitle}>Målallokering</h2>
       <p className={styles.label}>
         Justera fördelning med reglagen för önskad fördelning. <br />
         Summan <u>måste</u> vara 100%.
@@ -55,7 +55,7 @@ const AllocationHandler = ({ allocations, onSave }: AllocationHandlerProps) => {
             <Grid container spacing={2} sx={{ alignItems: "center" }}>
               <Grid size="grow">
                 <Slider
-                  sx={{ height: 7 }}
+                  sx={{ height: 10 }}
                   value={values[allocation.accountType] ?? 0}
                   onChange={(_, newValue) => {
                     if (typeof newValue === "number") {

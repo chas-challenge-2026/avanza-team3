@@ -19,6 +19,10 @@ import se.comerit.avanza.holding.dto.HoldingResponse;
 import se.comerit.avanza.holding.model.Holding;
 import se.comerit.avanza.holding.repository.HoldingRepository;
 import se.comerit.avanza.holding.service.HoldingService;
+import se.comerit.avanza.instrument.model.Instrument;
+import se.comerit.avanza.instrument.model.InstrumentType;
+import se.comerit.avanza.instrument.model.Sector;
+import se.comerit.avanza.instrument.service.InstrumentService;
 import se.comerit.avanza.market.service.MarketDataService;
 
 import java.math.BigDecimal;
@@ -27,6 +31,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +47,9 @@ class HoldingServiceTest {
     @Mock
     private MarketDataService marketDataService;
 
+    @Mock
+    private InstrumentService instrumentService;
+
     @InjectMocks
     private HoldingService holdingService;
 
@@ -48,11 +57,11 @@ class HoldingServiceTest {
     void getHoldingsByUserIdShouldCalculateMarketValueAndPnlWithBigDecimal() {
         Holding holding = holdingWithAccount(
                 31, 11, 7, "ISK", "Main ISK",
-                "ERIC-B", "Ericsson B",
+                101, "ERIC-B", "Ericsson B",
                 new BigDecimal("10"), new BigDecimal("70.00"), "SEK"
         );
 
-        when(holdingRepository.findByAccountUserIdOrderByAccountAccountTypeAscTickerAsc(7))
+        when(holdingRepository.findByAccountUserIdOrderByAccountAccountTypeAscInstrumentTickerAsc(7))
                 .thenReturn(List.of(holding));
         when(marketDataService.getPrice("ERIC-B"))
                 .thenReturn(new BigDecimal("74.20"));
@@ -63,8 +72,11 @@ class HoldingServiceTest {
         Map<String, Object> row = result.getFirst();
         assertEquals(31, row.get("id"));
         assertEquals(11, row.get("account_id"));
+        assertEquals(101, row.get("instrument_id"));
         assertEquals("ERIC-B", row.get("ticker"));
         assertEquals("Ericsson B", row.get("instrument_name"));
+        assertEquals(InstrumentType.STOCK, row.get("instrument_type"));
+        assertEquals(Sector.UNKNOWN, row.get("sector"));
         assertEquals(new BigDecimal("74.20"), row.get("currentPrice"));
         assertEquals(new BigDecimal("742.00"), row.get("marketValue"));
         assertEquals(new BigDecimal("42.00"), row.get("pnl"));
@@ -79,7 +91,7 @@ class HoldingServiceTest {
     void paginatedGetHoldingsShouldUseRequestedPageSizeAndSort() {
         Holding holding = holdingWithAccount(
                 31, 11, 7, "ISK", "Main ISK",
-                "ERIC-B", "Ericsson B",
+                101, "ERIC-B", "Ericsson B",
                 new BigDecimal("2"), new BigDecimal("70.00"), "SEK"
         );
 
@@ -97,9 +109,9 @@ class HoldingServiceTest {
         assertEquals(2, pageable.getPageNumber());
         assertEquals(15, pageable.getPageSize());
         assertNotNull(pageable.getSort().getOrderFor("account.accountType"));
-        assertNotNull(pageable.getSort().getOrderFor("ticker"));
+        assertNotNull(pageable.getSort().getOrderFor("instrument.ticker"));
         assertTrue(pageable.getSort().getOrderFor("account.accountType").isAscending());
-        assertTrue(pageable.getSort().getOrderFor("ticker").isAscending());
+        assertTrue(pageable.getSort().getOrderFor("instrument.ticker").isAscending());
 
         Map<String, Object> row = result.getContent().getFirst();
         assertEquals(new BigDecimal("148.40"), row.get("marketValue"));
@@ -109,22 +121,77 @@ class HoldingServiceTest {
     }
 
     @Test
-    void addHoldingShouldVerifyAccountOwnershipBeforeSaving() {
-        Account account = new Account(7, "ISK", "Main ISK", "SEK");
-        when(accountService.getAccountByIdAndUserId(11, 7)).thenReturn(account);
-
-        holdingService.addHolding(
-                7, 11, "ERIC-B", "Ericsson B",
-                new BigDecimal("5"), new BigDecimal("71.50"), "SEK"
+    void filteredPaginatedGetHoldingsShouldPassAccountAndInstrumentTypeToRepository() {
+        Holding holding = holdingWithAccount(
+                31, 11, 7, "ISK", "Main ISK",
+                101, "ERIC-B", "Ericsson B",
+                new BigDecimal("2"), new BigDecimal("70.00"), "SEK"
         );
 
-        InOrder inOrder = inOrder(accountService, holdingRepository);
+        when(holdingRepository.findFilteredByUserId(
+                eq(7),
+                eq(11),
+                eq(InstrumentType.STOCK),
+                any(Pageable.class)
+        )).thenAnswer(invocation -> new PageImpl<>(List.of(holding), invocation.getArgument(3), 1));
+
+        when(marketDataService.getPrice("ERIC-B"))
+                .thenReturn(new BigDecimal("74.20"));
+
+        Page<Map<String, Object>> result = holdingService.getHoldingsByUserId(
+                7,
+                0,
+                20,
+                11,
+                InstrumentType.STOCK
+        );
+
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(holdingRepository).findFilteredByUserId(
+                eq(7),
+                eq(11),
+                eq(InstrumentType.STOCK),
+                pageableCaptor.capture()
+        );
+
+        Pageable pageable = pageableCaptor.getValue();
+        assertEquals(0, pageable.getPageNumber());
+        assertEquals(20, pageable.getPageSize());
+        assertNotNull(pageable.getSort().getOrderFor("account.accountType"));
+        assertNotNull(pageable.getSort().getOrderFor("instrument.ticker"));
+        assertEquals(1, result.getTotalElements());
+        assertEquals("ERIC-B", result.getContent().getFirst().get("ticker"));
+    }
+
+    @Test
+    void addHoldingShouldVerifyAccountAndInstrumentBeforeSaving() {
+        Account account = new Account(7, "ISK", "Main ISK", "SEK");
+        Instrument instrument = instrument(
+                101,
+                "ERIC-B",
+                "Ericsson B",
+                InstrumentType.STOCK,
+                Sector.UNKNOWN,
+                "SEK"
+        );
+
+        when(accountService.getAccountByIdAndUserId(11, 7)).thenReturn(account);
+        when(instrumentService.getById(101)).thenReturn(instrument);
+
+        holdingService.addHolding(
+                7, 11, 101,
+                new BigDecimal("5"), new BigDecimal("71.50")
+        );
+
+        InOrder inOrder = inOrder(accountService, instrumentService, holdingRepository);
         inOrder.verify(accountService).getAccountByIdAndUserId(11, 7);
+        inOrder.verify(instrumentService).getById(101);
 
         ArgumentCaptor<Holding> holdingCaptor = ArgumentCaptor.forClass(Holding.class);
         inOrder.verify(holdingRepository).save(holdingCaptor.capture());
         Holding saved = holdingCaptor.getValue();
         assertEquals(11, saved.getAccountId());
+        assertSame(instrument, saved.getInstrument());
         assertEquals("ERIC-B", saved.getTicker());
         assertEquals("Ericsson B", saved.getInstrumentName());
         assertEquals(new BigDecimal("5"), saved.getQuantity());
@@ -134,8 +201,8 @@ class HoldingServiceTest {
 
     @Test
     void deleteHoldingShouldDeleteOnlyHoldingOwnedByUser() {
-        Holding holding = new Holding(
-                11, "ERIC-B", "Ericsson B",
+        Holding holding = holdingWithAccount(
+                31, 11, 7, "ISK", "Main ISK", 101, "ERIC-B", "Ericsson B",
                 BigDecimal.ONE, new BigDecimal("70.00"), "SEK"
         );
         when(holdingRepository.findByIdAndAccountUserId(31, 7)).thenReturn(Optional.of(holding));
@@ -159,32 +226,11 @@ class HoldingServiceTest {
         verify(holdingRepository, never()).delete(any());
     }
 
-    private Holding holdingWithAccount(
-            Integer holdingId,
-            Integer accountId,
-            Integer userId,
-            String accountType,
-            String accountName,
-            String ticker,
-            String instrumentName,
-            BigDecimal quantity,
-            BigDecimal avgBuyPrice,
-            String currency) {
-
-        Account account = new Account(userId, accountType, accountName, "SEK");
-        ReflectionTestUtils.setField(account, "id", accountId);
-
-        Holding holding = new Holding(accountId, ticker, instrumentName, quantity, avgBuyPrice, currency);
-        ReflectionTestUtils.setField(holding, "id", holdingId);
-        ReflectionTestUtils.setField(holding, "account", account);
-        return holding;
-    }
-
     @Test
     void getHoldingByIdShouldReturnHoldingOwnedByUserWithCalculatedValues() {
         Holding holding = holdingWithAccount(
                 31, 11, 7, "ISK", "Main ISK",
-                "ERIC-B", "Ericsson B",
+                101, "ERIC-B", "Ericsson B",
                 new BigDecimal("10"), new BigDecimal("70.00"), "SEK"
         );
 
@@ -197,8 +243,11 @@ class HoldingServiceTest {
 
         assertEquals(31, response.id());
         assertEquals(11, response.accountId());
+        assertEquals(101, response.instrumentId());
         assertEquals("ERIC-B", response.ticker());
         assertEquals("Ericsson B", response.instrumentName());
+        assertEquals(InstrumentType.STOCK, response.instrumentType());
+        assertEquals(Sector.UNKNOWN, response.sector());
         assertEquals(new BigDecimal("10"), response.quantity());
         assertEquals(new BigDecimal("70.00"), response.avgBuyPrice());
         assertEquals("SEK", response.currency());
@@ -228,7 +277,7 @@ class HoldingServiceTest {
     void updateHoldingShouldOnlyChangeFieldsIncludedInPatch() {
         Holding holding = holdingWithAccount(
                 31, 11, 7, "ISK", "Main ISK",
-                "ERIC-B", "Ericsson B",
+                101, "ERIC-B", "Ericsson B",
                 new BigDecimal("10"), new BigDecimal("70.00"), "SEK"
         );
 
@@ -240,10 +289,7 @@ class HoldingServiceTest {
                 .thenReturn(new BigDecimal("74.20"));
 
         HoldingPatchRequest request = new HoldingPatchRequest(
-                null,
-                null,
                 new BigDecimal("15"),
-                null,
                 null
         );
 
@@ -268,7 +314,7 @@ class HoldingServiceTest {
                 .thenReturn(Optional.empty());
 
         HoldingPatchRequest request = new HoldingPatchRequest(
-                null, null, new BigDecimal("15"), null, null
+                new BigDecimal("15"), null
         );
 
         assertThrows(
@@ -288,11 +334,62 @@ class HoldingServiceTest {
         assertThrows(
                 ResponseStatusException.class,
                 () -> holdingService.addHolding(
-                        7, 11, "ERIC-B", "Ericsson B",
-                        new BigDecimal("5"), new BigDecimal("71.50"), "SEK"
+                        7, 11, 101,
+                        new BigDecimal("5"), new BigDecimal("71.50")
                 )
         );
 
+        verifyNoInteractions(instrumentService);
         verify(holdingRepository, never()).save(any());
+    }
+
+    private Holding holdingWithAccount(
+            Integer holdingId,
+            Integer accountId,
+            Integer userId,
+            String accountType,
+            String accountName,
+            Integer instrumentId,
+            String ticker,
+            String instrumentName,
+            BigDecimal quantity,
+            BigDecimal avgBuyPrice,
+            String currency) {
+
+        Account account = new Account(userId, accountType, accountName, "SEK");
+        ReflectionTestUtils.setField(account, "id", accountId);
+
+        Instrument instrument = instrument(
+                instrumentId,
+                ticker,
+                instrumentName,
+                InstrumentType.STOCK,
+                Sector.UNKNOWN,
+                currency
+        );
+
+        Holding holding = new Holding(accountId, instrument, quantity, avgBuyPrice);
+        ReflectionTestUtils.setField(holding, "id", holdingId);
+        ReflectionTestUtils.setField(holding, "account", account);
+        return holding;
+    }
+
+    private Instrument instrument(
+            Integer id,
+            String ticker,
+            String name,
+            InstrumentType instrumentType,
+            Sector sector,
+            String currency) {
+
+        Instrument instrument = new Instrument(
+                ticker,
+                name,
+                instrumentType,
+                sector,
+                currency
+        );
+        ReflectionTestUtils.setField(instrument, "id", id);
+        return instrument;
     }
 }
