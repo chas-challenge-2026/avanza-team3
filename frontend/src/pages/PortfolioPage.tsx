@@ -66,16 +66,16 @@ function PortfolioPage() {
             title="Fördelning per kontotyp"
             data={allocationData}
             help={{
-              title: "Vad är kontotyp",
+              title: "Vad betyder kontotyp?",
               content:
-                "Här ser du hur portföljens värde är fördelat mellan dina konton."
+                "Kontotyp visar hur ditt konto är upplagt. ISK, KF och depå är olika sätt att äga och hantera investeringar."
             }}
           />
         </AppCard>
         <PortfolioHealth
           value={80}
           help={{
-            title: "Vad är portföljhälsa?",
+            title: "Vad betyder portföljhälsa?",
             content:
               "Portföljhälsa ger en överblick över hur väl din portfölj är balanserad, till exempel utifrån risk, diversifiering och fördelning mellan innehav."
           }}

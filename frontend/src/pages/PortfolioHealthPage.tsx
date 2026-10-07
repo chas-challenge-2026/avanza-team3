@@ -217,7 +217,7 @@ function PortfolioHealthPage() {
             help={{
               title: "Vad betyder instrumenttyp?",
               content:
-                "Här ser du hur portföljens instrumenttyp är fördelat mellan dina konton."
+                "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie, fond eller obligation."
             }}
             title="Aktuell fördelning per instrumenttyp"
             data={mockAllocations}
