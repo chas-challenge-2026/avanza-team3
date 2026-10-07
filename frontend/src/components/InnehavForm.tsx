@@ -4,14 +4,14 @@ import styles from "./InnehavForm.module.css";
 import { useState } from "react";
 import AppCard from "./AppCard";
 import { useHoldings } from "../hooks/useHoldings";
+import { useAccounts } from "../hooks/useAccounts";
 
-type Currency = "SEK" | "USD" | "EUR" | "";
+type Currency = "SEK" | "USD" | "";
 
 type InnehavFormData = {
   accountId: string;
   ticker: string;
   instrumentName: string;
-  instrumentType: string;
   quantity: string;
   avgBuyPrice: string;
   currency: Currency;
@@ -21,10 +21,9 @@ const initialFormDataValue: InnehavFormData = {
   accountId: "",
   ticker: "",
   instrumentName: "",
-  instrumentType: "",
   quantity: "",
   avgBuyPrice: "",
-  currency: ""
+  currency: "",
 };
 
 type InnehavsFormProps = {
@@ -32,7 +31,8 @@ type InnehavsFormProps = {
 };
 
 const InnehavsForm = ({}: InnehavsFormProps) => {
-  const { holdings, addHolding } = useHoldings();
+  const { addHolding } = useHoldings();
+  const { accounts } = useAccounts();
 
   const [formData, setFormData] =
     useState<InnehavFormData>(initialFormDataValue);
@@ -40,20 +40,6 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [openSnackbar, setOpenSnackbar] = useState(false);
-
-  const accounts = [
-    ...new Map(
-      holdings.map((holding) => [
-        holding.accountId,
-        {
-          id: holding.accountId,
-          accountName: holding.account_name,
-          accountType: holding.account_type,
-          currency: holding.currency
-        }
-      ])
-    ).values()
-  ];
 
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -74,7 +60,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
         instrumentName: formData.instrumentName.trim(),
         quantity: Number(formData.quantity),
         avgBuyPrice: Number(formData.avgBuyPrice),
-        currency: formData.currency
+        currency: formData.currency,
       };
       console.log(submittedData);
       await addHolding(submittedData);
@@ -85,7 +71,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
       setOpenSnackbar(true);
     } catch (error) {
       setErrors({
-        submit: error instanceof Error ? error.message : "Något gick fel"
+        submit: error instanceof Error ? error.message : "Något gick fel",
       });
     } finally {
       setIsSubmitting(false);
@@ -100,7 +86,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
 
     setFormData((previusData) => ({
       ...previusData,
-      [name]: value
+      [name]: value,
     }));
     console.log(event.target.value);
   };
@@ -121,10 +107,6 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
     } else if (!onlyLettersRegex.test(formData.instrumentName.trim())) {
       newErrors.instrumentName = "Instrumentnamn får bara innehålla bokstäver";
     }
-    if (!formData.instrumentType) {
-      newErrors.instrumentType = "Ange en instrumenttyp";
-    }
-
     const quantity = Number(formData.quantity);
 
     if (!formData.quantity || quantity <= 0) {
@@ -150,14 +132,14 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
     "& .MuiFormHelperText-root": {
       marginBottom: "3px",
       marginTop: "0px",
-      fontWeight: "bold"
+      fontWeight: "bold",
     },
     "& .MuiInputLabel-root.Mui-error": {
-      color: "#999"
+      color: "#999",
     },
     "& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline": {
-      borderColor: "#999"
-    }
+      borderColor: "#999",
+    },
   };
 
   return (
@@ -178,7 +160,7 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
             flexDirection: "row",
             justifyContent: "space-between",
             width: "100%",
-            height: "auto"
+            height: "auto",
           }}
         >
           <div className={styles.containerRight}>
@@ -225,26 +207,6 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               helperText={errors.instrumentName || " "}
               sx={textFieldSx}
             />
-
-            <TextField
-              select
-              fullWidth
-              size="small"
-              label="Kontotyp"
-              name="instrumentType"
-              value={formData.instrumentType}
-              onChange={handleChange}
-              error={Boolean(errors.instrumentType)}
-              helperText={errors.instrumentType || " "}
-              sx={textFieldSx}
-            >
-              {}
-              {accounts.map((account) => (
-                <MenuItem key={account.id} value={String(account.id)}>
-                  {account.accountType}
-                </MenuItem>
-              ))}
-            </TextField>
           </div>
 
           <div className={styles.containerLeft}>
@@ -288,11 +250,8 @@ const InnehavsForm = ({}: InnehavsFormProps) => {
               helperText={errors.currency || " "}
               sx={textFieldSx}
             >
-              {accounts.map((account) => (
-                <MenuItem key={account.id} value={String(account.id)}>
-                  {account.currency}
-                </MenuItem>
-              ))}
+              <MenuItem value="SEK">SEK</MenuItem>
+              <MenuItem value="USD">USD</MenuItem>
             </TextField>
             <AppButton
               sx={{ maxWidth: "200px", padding: "8px" }}
