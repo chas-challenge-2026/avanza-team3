@@ -33,7 +33,7 @@ function PortfolioHealthPage() {
     return changePercent >= 0 ? "good" : "danger";
   };
 
-  let riskPoint = 42;
+  const riskPoint = 42;
 
   const riskLevel = () => {
     if (riskPoint < 30) {
@@ -85,7 +85,7 @@ function PortfolioHealthPage() {
   const mockAllocations = [
     { id: "stocks", label: "Aktier", value: 50 },
     { id: "funds", label: "Fonder", value: 30 },
-    { id: "bonds", label: "Obligationer", value: 20 }
+    { id: "bonds", label: "Obligationer", value: 20 },
   ];
 
   return (
@@ -205,7 +205,7 @@ function PortfolioHealthPage() {
         <AppCard
           sx={{
             display: "flex",
-            alignItems: "center"
+            alignItems: "center",
           }}
         >
           {" "}

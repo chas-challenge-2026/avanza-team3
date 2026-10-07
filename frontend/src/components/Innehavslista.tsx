@@ -9,17 +9,19 @@ type InnehavsListaProps = {
   showDelete?: boolean;
   onDelete?: (id: number) => Promise<void>;
 };
-const InnehavsLista = ({   holdings,
+const InnehavsLista = ({
+  holdings,
   columns,
   width,
   showDelete,
-  onDelete, }: InnehavsListaProps) => {
+  onDelete,
+}: InnehavsListaProps) => {
   const columnConfig: Record<
     ColumnKey,
     {
       field: ColumnKey;
       headerName: string;
-      isBadge?: Boolean;
+      isBadge?: boolean;
       render?: (row: Holding) => string;
     }
   > = {

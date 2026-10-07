@@ -26,11 +26,7 @@ const initialFormDataValue: InnehavFormData = {
   currency: "",
 };
 
-type InnehavsFormProps = {
-  width?: string;
-};
-
-const InnehavsForm = ({}: InnehavsFormProps) => {
+const InnehavsForm = () => {
   const { addHolding } = useHoldings();
   const { accounts } = useAccounts();
 
