@@ -34,7 +34,7 @@ function PortfolioHealthPage() {
     return changePercent >= 0 ? "good" : "danger";
   };
 
-  let riskPoint = 42;
+  const riskPoint = 42;
 
   const riskLevel = () => {
     if (riskPoint < 30) {

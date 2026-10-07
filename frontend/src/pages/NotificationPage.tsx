@@ -18,7 +18,7 @@ export default function NotificationPage() {
 
   function dismissNotification(id: number) {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, dismissed: true } : n))
+      prev.map((n) => (n.id === id ? { ...n, dismissed: true } : n)),
     );
   }
 
@@ -27,11 +27,11 @@ export default function NotificationPage() {
       try {
         const [alertsRes, liveAlertsRes] = await Promise.all([
           fetch("/api/alerts", {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           }),
           fetch("/api/alerts/live", {
-            headers: { Authorization: `Bearer ${token}` }
-          })
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
         if (!alertsRes.ok || !liveAlertsRes.ok) {
@@ -43,7 +43,7 @@ export default function NotificationPage() {
 
         setNotifications(alertsData);
         setLiveAlerts(liveAlertsData);
-      } catch (err) {
+      } catch {
         setError("Kunde inte hämta notifikationer");
       } finally {
         setLoading(false);
@@ -98,7 +98,7 @@ export default function NotificationPage() {
                 day: "2-digit",
                 month: "2-digit",
                 hour: "2-digit",
-                minute: "2-digit"
+                minute: "2-digit",
               })}{" "}
             </span>
             <span onClick={() => dismissNotification(n.id)}>
