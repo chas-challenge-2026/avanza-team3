@@ -10,6 +10,7 @@ import se.comerit.avanza.account.service.AccountService;
 import se.comerit.avanza.alert.dto.AlertResponse;
 import se.comerit.avanza.alert.model.Alert;
 import se.comerit.avanza.alert.repository.AlertRepository;
+import se.comerit.avanza.exception.ResourceNotFoundException;
 import se.comerit.avanza.holding.service.HoldingService;
 import se.comerit.avanza.targetallocation.service.TargetAllocationService;
 
@@ -86,7 +87,7 @@ public class AlertService {
     @PreAuthorize("#userId == authentication.details")
     @Transactional
     public void dismissAlert(Integer alertId, Integer userId) {
-        Alert alert = alertRepository.findByIdAndUserId(alertId, userId).orElseThrow(() -> new IllegalArgumentException("Alert not found"));
+        Alert alert = alertRepository.findByIdAndUserId(alertId, userId).orElseThrow(() -> new ResourceNotFoundException("Alert not found"));
         alert.setDismissed(true);
     }
 

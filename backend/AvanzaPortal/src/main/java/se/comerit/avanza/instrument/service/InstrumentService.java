@@ -1,9 +1,9 @@
 package se.comerit.avanza.instrument.service;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+import se.comerit.avanza.exception.ResourceConflictException;
+import se.comerit.avanza.exception.ResourceNotFoundException;
 import se.comerit.avanza.instrument.dto.InstrumentResponse;
 import se.comerit.avanza.instrument.model.Instrument;
 import se.comerit.avanza.instrument.model.InstrumentType;
@@ -12,6 +12,7 @@ import se.comerit.avanza.instrument.repository.InstrumentRepository;
 
 import java.util.List;
 import java.util.Locale;
+
 @Service
 public class InstrumentService {
 
@@ -31,8 +32,7 @@ public class InstrumentService {
     ) {
         String normalizedTicker = normalizeTicker(ticker);
         if (instrumentRepository.findByTickerIgnoreCase(normalizedTicker).isPresent()) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
+            throw new ResourceConflictException(
                     "Instrument with ticker " + normalizedTicker + " already exists"
             );
         }
@@ -51,8 +51,7 @@ public class InstrumentService {
     @Transactional(readOnly = true)
     public Instrument getById(Integer instrumentId) {
         return instrumentRepository.findById(instrumentId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Instrument with id " + instrumentId + " not found"
                 ));
     }

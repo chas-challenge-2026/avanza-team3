@@ -4,13 +4,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import se.comerit.avanza.account.dto.AccountResponse;
 import se.comerit.avanza.account.model.Account;
 import se.comerit.avanza.account.repository.AccountRepository;
+import se.comerit.avanza.exception.ResourceNotFoundException;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -45,7 +44,7 @@ public class AccountService {
     @Transactional
     public Account getAccountByIdAndUserId(Integer accountId, Integer userId) {
         return accountRepository.findByIdAndUserId(accountId, userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
     }
 
     @PreAuthorize("#userId == authentication.details")

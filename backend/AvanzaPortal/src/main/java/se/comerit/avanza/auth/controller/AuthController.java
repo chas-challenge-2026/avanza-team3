@@ -21,6 +21,7 @@ import se.comerit.avanza.auth.dto.LoginRequest;
 import se.comerit.avanza.auth.model.User;
 import se.comerit.avanza.auth.repository.UserRepository;
 import se.comerit.avanza.auth.service.AuthService;
+import se.comerit.avanza.exception.ResourceNotFoundException;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -91,7 +92,7 @@ public class AuthController {
         Integer userId = (Integer) authentication.getDetails();
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Användaren hittades inte."));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return ResponseEntity.ok(
                 Map.of(
