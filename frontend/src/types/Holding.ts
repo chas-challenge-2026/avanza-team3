@@ -38,3 +38,11 @@ export type HoldingApiResponse = {
   pnl: number;
   pnlPct: number;
 };
+
+export type HoldingPatchRequest = {
+  ticker?: string;
+  instrumentName?: string;
+  quantity?: number;
+  avgBuyPrice?: number;
+  currency?: string;
+};

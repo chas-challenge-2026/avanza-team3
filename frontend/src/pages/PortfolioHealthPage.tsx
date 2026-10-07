@@ -1,7 +1,7 @@
 import AppCard from "../components/AppCard";
 import styles from "./PortfolioHealthPage.module.css";
 import { Gauge } from "@mui/x-charts/Gauge";
-import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
+// import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import DonutChart from "../components/DonutChart";
 import useDashboard from "../hooks/useDasboard";
 import InnehavsLista from "../components/Innehavslista";
@@ -12,7 +12,7 @@ import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
 import PopOver from "../components/Popover";
 
 function PortfolioHealthPage() {
-  const { rows } = usePortfolioAllocations();
+  // const { rows } = usePortfolioAllocations();
   const { dashboard, loading } = useDashboard();
   const { holdings } = useHoldings();
 
@@ -22,11 +22,11 @@ function PortfolioHealthPage() {
     danger: "#dc2626"
   };
 
-  const accountColors: Record<string, string> = {
-    ISK: "#16a34a",
-    KF: "#1976d2",
-    Depa: "#8b69a7"
-  };
+  // const accountColors: Record<string, string> = {
+  //   ISK: "#16a34a",
+  //   KF: "#1976d2",
+  //   Depa: "#8b69a7",
+  // };
 
   const changePercent = 5;
 
@@ -70,18 +70,18 @@ function PortfolioHealthPage() {
     danger: "Låg spridning"
   };
 
-  const allocationData = rows.map((row) => ({
-    label: row.accountType,
-    value: row.actual,
-    color: accountColors[row.accountType]
-  }));
+  // const allocationData = rows.map((row) => ({
+  //   label: row.accountType,
+  //   value: row.actual,
+  //   color: accountColors[row.accountType],
+  // }));
 
-  const allocations =
-    dashboard?.allocationRows.map((row, index) => ({
-      id: `${row.accountType}-${index}`,
-      label: row.accountType,
-      value: row.target
-    })) ?? [];
+  // const allocations =
+  //   dashboard?.allocationRows.map((row, index) => ({
+  //     id: `${row.accountType}-${index}`,
+  //     label: row.accountType,
+  //     value: row.target
+  //   })) ?? [];
 
   const mockAllocations = [
     { id: "stocks", label: "Aktier", value: 50 },

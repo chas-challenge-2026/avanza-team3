@@ -10,8 +10,8 @@ function InnehavPage() {
   const {
     holdings,
     loading,
-    error
-    // removeHolding,
+    error,
+    removeHolding,
   } = useHoldings();
 
   if (loading) return <p>Laddar...</p>;
@@ -36,9 +36,9 @@ function InnehavPage() {
           "avgBuyPrice",
           "account_type"
         ]}
-        // onDelete={removeHolding}
-        // width="1200px"
-        // showDelete
+        onDelete={removeHolding}
+        width="1200px"
+        showDelete
       />
       <InnehavsForm />
     </Container>
