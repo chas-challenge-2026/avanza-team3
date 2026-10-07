@@ -2,6 +2,7 @@ import type {
   Holding,
   HoldingRequest,
   HoldingApiResponse,
+  HoldingPatchRequest
 } from "../types/Holding";
 
 export const getHoldings = async (): Promise<Holding[]> => {
@@ -76,5 +77,29 @@ export const deleteHolding = async (holdingId: number): Promise<void> => {
   });
   if (!response.ok) {
     throw new Error("Delete response failed");
+  }
+};
+
+export const updateHolding = async (
+  holdingId: number,
+  changes: HoldingPatchRequest
+): Promise<void> => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    throw new Error("No token found");
+  }
+
+  const response = await fetch(`/api/holdings/${holdingId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(changes),
+  });
+
+  if (!response.ok) {
+    throw new Error("Update holding failed");
   }
 };
