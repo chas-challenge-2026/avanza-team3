@@ -6,7 +6,6 @@
 #include <cctype>
 #include <chrono>
 #include <cstring>
-#include <iostream>
 #include <mutex>
 #include <stdexcept>
 #include <unordered_map>
@@ -14,7 +13,8 @@
 namespace
 {
 constexpr size_t CURRENCY_CODE_LENGTH = 3;
-constexpr std::chrono::seconds CACHE_EXPIRATION_S{60};
+constexpr std::chrono::seconds CACHE_EXPIRATION_S{600}; // 10 minutes
+constexpr std::chrono::hours CACHE_MAXIMUM_AGE_H{168};  // 7 days
 constexpr const char *API_URL = "https://api.frankfurter.dev/v2/"; // E.g https://api.frankfurter.dev/v2/rates
 
 std::mutex cacheMutex;
@@ -102,13 +102,12 @@ int FxConvert(const double amount, const char *from, const char *to, double *out
         std::transform(fromStr.begin(), fromStr.end(), fromStr.begin(), toupper);
         std::transform(toStr.begin(), toStr.end(), toStr.begin(), toupper);
 
-        // Determine if we need to fetch new data or use the cache
+        // We need to fetch new data if the cache is empty or outdated
         if (currencyMap.empty() || std::chrono::steady_clock::now() - latestFetch > CACHE_EXPIRATION_S)
         {
-            std::cout << "Cache is outdated" << std::endl;
             std::string buf;
             int err = Fetch("rates", buf);
-            if (err == FX_OK)
+            if (err == FX_OK) // Fetch succeeded
             {
                 auto parsedMap = ParseList(buf);
                 if (!parsedMap.empty())
@@ -117,11 +116,14 @@ int FxConvert(const double amount, const char *from, const char *to, double *out
                     latestFetch = std::chrono::steady_clock::now();
                 }
             }
-            else
-                std::cout << "Request failed. Using cache" << std::endl;
+            else // Fetch failed
+            {
+                if (std::chrono::steady_clock::now() - latestFetch > CACHE_MAXIMUM_AGE_H)
+                    return FX_ERROR_API_UNRESPONSIVE;
+
+                // Else use the cache
+            }
         }
-        else
-            std::cout << "Cache is up to date" << std::endl;
 
         // If the map is still empty, there has been an issue
         if (currencyMap.empty())
@@ -137,6 +139,9 @@ int FxConvert(const double amount, const char *from, const char *to, double *out
 
         // Finally, do the actual conversion
         *outResult = amount * toIt->second.GetRate() / fromIt->second.GetRate();
+
+        // Debug print
+        // printf("from: %f\nto: %f\nresult: %f\n", fromIt->second.GetRate(), toIt->second.GetRate(), *outResult);
 
         return FX_OK;
     }
