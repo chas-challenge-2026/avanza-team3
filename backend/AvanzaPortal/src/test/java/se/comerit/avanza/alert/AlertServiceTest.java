@@ -11,6 +11,7 @@ import se.comerit.avanza.alert.dto.AlertResponse;
 import se.comerit.avanza.alert.model.Alert;
 import se.comerit.avanza.alert.repository.AlertRepository;
 import se.comerit.avanza.alert.service.AlertService;
+import se.comerit.avanza.exception.ResourceNotFoundException;
 import se.comerit.avanza.holding.service.HoldingService;
 import se.comerit.avanza.targetallocation.service.TargetAllocationService;
 
@@ -76,8 +77,8 @@ class AlertServiceTest {
     void dismissAlertShouldRejectAlertNotOwnedByUser() {
         when(alertRepository.findByIdAndUserId(42, 7)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
                 () -> alertService.dismissAlert(42, 7)
         );
 
