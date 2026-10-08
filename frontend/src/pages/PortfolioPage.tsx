@@ -22,13 +22,14 @@ function PortfolioPage() {
   const accountColors: Record<string, string> = {
     ISK: "#16a34a",
     KF: "#1976d2",
-    Depa: "#8b69a7",
+    Depa: "#8b69a7"
   };
 
   const allocationData = rows.map((row) => ({
     label: row.accountType,
     value: row.actual,
     color: accountColors[row.accountType],
+    target: row.target
   }));
 
   return (
@@ -53,7 +54,7 @@ function PortfolioPage() {
           </div>
           <p className={styles.value}>
             {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-              maximumFractionDigits: 0,
+              maximumFractionDigits: 0
             })}{" "}
             SEK
           </p>
@@ -62,9 +63,24 @@ function PortfolioPage() {
 
       <div className={styles.row2}>
         <AppCard>
-          <DonutChart title="Fördelning per kontotyp" data={allocationData} />
+          <DonutChart
+            title="Fördelning per kontotyp"
+            data={allocationData}
+            help={{
+              title: "Vad betyder kontotyp?",
+              content:
+                "Kontotyp visar hur ditt konto är upplagt. ISK, KF och depå är olika sätt att äga och hantera investeringar."
+            }}
+          />
         </AppCard>
-        <PortfolioHealth value={80} />
+        <PortfolioHealth
+          value={80}
+          help={{
+            title: "Vad betyder portföljhälsa?",
+            content:
+              "Portföljhälsa ger en överblick över hur väl din portfölj är balanserad, till exempel utifrån risk, diversifiering och fördelning mellan innehav."
+          }}
+        />
       </div>
 
       <div className={styles.row3}>

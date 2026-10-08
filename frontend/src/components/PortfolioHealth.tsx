@@ -4,12 +4,17 @@ import styles from "./PortfolioHealth.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "./AppCard";
+import PopOver from "./Popover";
 
 type PortfolioHealthProps = {
   value: number;
+  help: {
+    title: string;
+    content: string;
+  };
 };
 
-const PortfolioHealth = ({ value }: PortfolioHealthProps) => {
+const PortfolioHealth = ({ value, help }: PortfolioHealthProps) => {
   const valueStatus = () => {
     if (value < 40) {
       return "Dålig";
@@ -21,13 +26,16 @@ const PortfolioHealth = ({ value }: PortfolioHealthProps) => {
   const statusColors = {
     God: "var(--text-green)",
     Okej: "var(--text-warning)",
-    Dålig: "var(--text-error)",
+    Dålig: "var(--text-error)"
   };
 
   return (
     <AppCard>
       <div className={styles.container}>
-        <h2>Portföljhälsa</h2>
+        <div className={styles.headerWrapper}>
+          <h2>Portföljhälsa</h2>
+          <PopOver title={help.title} content={help.content} />
+        </div>
         <Gauge
           cornerRadius={"50%"}
           width={300}
@@ -38,14 +46,14 @@ const PortfolioHealth = ({ value }: PortfolioHealthProps) => {
           endAngle={90}
           sx={{
             [`& .${gaugeClasses.valueArc}`]: {
-              fill: "url(#gaugeGradient)",
+              fill: "url(#gaugeGradient)"
             },
             [`& .${gaugeClasses.valueText} text`]: {
               fontSize: 25,
               fontWeight: 500,
               fill: statusColors[valueStatus()],
-              transform: "translateY(-40px)",
-            },
+              transform: "translateY(-40px)"
+            }
           }}
         >
           <defs>

@@ -1,4 +1,3 @@
-import { Container } from "@mui/material";
 import InnehavsForm from "../components/InnehavForm";
 import InnehavsLista from "../components/Innehavslista";
 import styles from "./InnehavPage.module.css";
@@ -7,18 +6,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPiggyBank } from "@fortawesome/free-solid-svg-icons";
 
 function InnehavPage() {
-  const {
-    holdings,
-    loading,
-    error
-    // removeHolding,
-  } = useHoldings();
+  const { holdings, loading, error, removeHolding } = useHoldings();
 
   if (loading) return <p>Laddar...</p>;
   if (error) return <p>{error}</p>;
 
   return (
-    <Container className={styles.InnehavPageWrapper}>
+    <div className={styles.InnehavPageWrapper}>
       <div className={styles.titleRow}>
         <div className={styles.iconTitle}>
           <FontAwesomeIcon icon={faPiggyBank} className={styles.icon} />
@@ -36,12 +30,12 @@ function InnehavPage() {
           "avgBuyPrice",
           "account_type"
         ]}
-        // onDelete={removeHolding}
+        onDelete={removeHolding}
         // width="1200px"
-        // showDelete
+        showDelete
       />
       <InnehavsForm />
-    </Container>
+    </div>
   );
 }
 

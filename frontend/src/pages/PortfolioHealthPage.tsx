@@ -1,7 +1,7 @@
 import AppCard from "../components/AppCard";
 import styles from "./PortfolioHealthPage.module.css";
 import { Gauge } from "@mui/x-charts/Gauge";
-import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
+// import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import DonutChart from "../components/DonutChart";
 import useDashboard from "../hooks/useDasboard";
 import InnehavsLista from "../components/Innehavslista";
@@ -10,9 +10,10 @@ import AllocationHandler from "../components/AllocationHandler";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
+import PopOver from "../components/Popover";
 
 function PortfolioHealthPage() {
-  const { rows } = usePortfolioAllocations();
+  // const { rows } = usePortfolioAllocations();
   const { dashboard, loading } = useDashboard();
   const { holdings } = useHoldings();
 
@@ -22,11 +23,11 @@ function PortfolioHealthPage() {
     danger: "#dc2626",
   };
 
-  const accountColors: Record<string, string> = {
-    ISK: "#16a34a",
-    KF: "#1976d2",
-    Depa: "#8b69a7",
-  };
+  // const accountColors: Record<string, string> = {
+  //   ISK: "#16a34a",
+  //   KF: "#1976d2",
+  //   Depa: "#8b69a7",
+  // };
 
   const changePercent = 5;
 
@@ -34,7 +35,7 @@ function PortfolioHealthPage() {
     return changePercent >= 0 ? "good" : "danger";
   };
 
-  let riskPoint = 42;
+  const riskPoint = 42;
 
   const riskLevel = () => {
     if (riskPoint < 30) {
@@ -70,17 +71,24 @@ function PortfolioHealthPage() {
     danger: "Låg spridning",
   };
 
-  const allocationData = rows.map((row) => ({
-    label: row.accountType,
-    value: row.actual,
-    color: accountColors[row.accountType],
-  }));
+  // const allocationData = rows.map((row) => ({
+  //   label: row.accountType,
+  //   value: row.actual,
+  //   color: accountColors[row.accountType],
+  // }));
 
-  const allocations =
-    dashboard?.allocationRows.map((row) => ({
-      accountType: row.accountType,
-      value: row.target,
-    })) ?? [];
+  // const allocations =
+  //   dashboard?.allocationRows.map((row, index) => ({
+  //     id: `${row.accountType}-${index}`,
+  //     label: row.accountType,
+  //     value: row.target
+  //   })) ?? [];
+
+  const mockAllocations = [
+    { id: "stocks", label: "Aktier", value: 50, target: 60 },
+    { id: "funds", label: "Fonder", value: 30, target: 50 },
+    { id: "bonds", label: "Ränteplaceringar", value: 20, target: 10 },
+  ];
 
   return (
     <>
@@ -99,6 +107,10 @@ function PortfolioHealthPage() {
           <div className={styles.kpiCard + " " + styles[riskLevel()]}>
             <div className={styles.header}>
               <p className={styles.label}>Riskpoäng</p>
+              <PopOver
+                title="Vad betyder Riskpoäng?"
+                content="Riskpoäng sammanfattar hur mycket värdet på en investering kan svänga och hur stor risken är för förlust. Ju högre poäng, desto större svängningar kan du behöva tåla."
+              />
             </div>
             <div className={styles.row}>
               <div>
@@ -153,6 +165,11 @@ function PortfolioHealthPage() {
           <div className={styles.kpiCard}>
             <div className={styles.header}>
               <p className={styles.label}>Diversifieringsgrad</p>
+              <PopOver
+                title="Vad betyder Diversifieringsgrad?"
+                content="Diversifieringsgrad visar hur spridd en portfölj är.
+              Bra spridning: investeringar i många bolag och branscher."
+              />
             </div>
             <div className={styles.row}>
               <div>
@@ -188,25 +205,23 @@ function PortfolioHealthPage() {
         <AppCard>
           {!loading && dashboard && (
             <AllocationHandler
-              allocations={allocations}
+              allocations={mockAllocations}
+              title="Målalloekering över instrumenttyp"
               onSave={(values) => {
                 console.log(values);
               }}
             />
           )}
         </AppCard>
-        <AppCard
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            maxWidth: "500px",
-          }}
-        >
-          {" "}
+        <AppCard>
           <DonutChart
-            title="Aktuell fördelning per kontotyp"
-            data={allocationData}
+            help={{
+              title: "Vad betyder instrumenttyp?",
+              content:
+                "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie, fond eller obligation.",
+            }}
+            title="Aktuell fördelning per instrumenttyp"
+            data={mockAllocations}
           />
         </AppCard>
       </div>
