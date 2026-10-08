@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -71,6 +73,7 @@ public class HoldingController {
                     example = "1"
             )
             @RequestParam(required = false)
+            @Positive
             Integer accountId,
 
             @Parameter(
@@ -123,6 +126,7 @@ public class HoldingController {
                     example = "1"
             )
             @RequestParam(required = false)
+            @Positive
             Integer accountId,
 
             @Parameter(
@@ -173,6 +177,7 @@ public class HoldingController {
     public ResponseEntity<Void> addHolding(
 
             @Valid
+            @NotNull
             @RequestBody
             HoldingRequest request,
 
@@ -223,9 +228,11 @@ public class HoldingController {
                     example = "1"
             )
             @PathVariable("holdingId")
+            @Positive
             Integer holdingId,
 
             @Valid
+            @NotNull
             @RequestBody
             HoldingPatchRequest request,
 
@@ -270,6 +277,7 @@ public class HoldingController {
                     example = "1"
             )
             @PathVariable("holdingId")
+            @Positive
             Integer holdingId,
 
             @Parameter(hidden = true)
@@ -308,6 +316,7 @@ public class HoldingController {
                     example = "1"
             )
             @PathVariable("holdingId")
+            @Positive
             Integer holdingId,
 
             @Parameter(hidden = true)
