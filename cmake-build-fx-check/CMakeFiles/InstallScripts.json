@@ -1,0 +1,11 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/alexa/CLionProjects/avanza-team3/cmake-build-fx-check/cmake_install.cmake",
+		"C:/Users/alexa/CLionProjects/avanza-team3/cmake-build-fx-check/curl-build/cmake_install.cmake",
+		"C:/Users/alexa/CLionProjects/avanza-team3/cmake-build-fx-check/curl-build/scripts/cmake_install.cmake",
+		"C:/Users/alexa/CLionProjects/avanza-team3/cmake-build-fx-check/curl-build/lib/cmake_install.cmake",
+		"C:/Users/alexa/CLionProjects/avanza-team3/cmake-build-fx-check/curl-build/docs/examples/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
