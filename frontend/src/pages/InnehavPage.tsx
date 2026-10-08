@@ -31,7 +31,7 @@ function InnehavPage() {
           "account_type"
         ]}
         onDelete={removeHolding}
-        width="1200px"
+        // width="1200px"
         showDelete
       />
       <InnehavsForm />
