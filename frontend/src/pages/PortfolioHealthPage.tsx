@@ -86,7 +86,7 @@ function PortfolioHealthPage() {
   const mockAllocations = [
     { id: "stocks", label: "Aktier", value: 50, target: 60 },
     { id: "funds", label: "Fonder", value: 30, target: 50 },
-    { id: "bonds", label: "Obligationer", value: 20, target: 10 }
+    { id: "bonds", label: "Ränteplaceringar", value: 20, target: 10 }
   ];
 
   return (
