@@ -9,6 +9,7 @@ import { useHoldings } from "../hooks/useHoldings";
 import AllocationHandler from "../components/AllocationHandler";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
+import PopOver from "../components/Popover";
 
 function PortfolioHealthPage() {
   // const { rows } = usePortfolioAllocations();
@@ -18,7 +19,7 @@ function PortfolioHealthPage() {
   const statusColors = {
     good: "#16a34a",
     warning: "#d97706",
-    danger: "#dc2626",
+    danger: "#dc2626"
   };
 
   // const accountColors: Record<string, string> = {
@@ -48,7 +49,7 @@ function PortfolioHealthPage() {
   const riskLevelText = {
     good: "Låg Risk",
     warning: "Måttlig Risk",
-    danger: "Hög Risk",
+    danger: "Hög Risk"
   };
 
   const diversification = 72;
@@ -66,7 +67,7 @@ function PortfolioHealthPage() {
   const diversificationText = {
     good: "God spridning",
     warning: "Måttlig spridning",
-    danger: "Låg spridning",
+    danger: "Låg spridning"
   };
 
   // const allocationData = rows.map((row) => ({
@@ -85,7 +86,7 @@ function PortfolioHealthPage() {
   const mockAllocations = [
     { id: "stocks", label: "Aktier", value: 50 },
     { id: "funds", label: "Fonder", value: 30 },
-    { id: "bonds", label: "Obligationer", value: 20 },
+    { id: "bonds", label: "Obligationer", value: 20 }
   ];
 
   return (
@@ -105,6 +106,10 @@ function PortfolioHealthPage() {
           <div className={styles.kpiCard + " " + styles[riskLevel()]}>
             <div className={styles.header}>
               <p className={styles.label}>Riskpoäng</p>
+              <PopOver
+                title="Vad betyder Riskpoäng?"
+                content="Riskpoäng sammanfattar hur mycket värdet på en investering kan svänga och hur stor risken är för förlust. Ju högre poäng, desto större svängningar kan du behöva tåla."
+              />
             </div>
             <div className={styles.row}>
               <div>
@@ -116,7 +121,7 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": { fill: statusColors[riskLevel()] },
-                  "& .MuiGauge-valueText": { display: "none" },
+                  "& .MuiGauge-valueText": { display: "none" }
                 }}
                 width={90}
                 height={90}
@@ -134,7 +139,7 @@ function PortfolioHealthPage() {
             </div>
             <p className={styles.value}>
               {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-                maximumFractionDigits: 0,
+                maximumFractionDigits: 0
               })}{" "}
               SEK
             </p>
@@ -159,6 +164,11 @@ function PortfolioHealthPage() {
           <div className={styles.kpiCard}>
             <div className={styles.header}>
               <p className={styles.label}>Diversifieringsgrad</p>
+              <PopOver
+                title="Vad betyder Diversifieringsgrad?"
+                content="Diversifieringsgrad visar hur spridd en portfölj är.
+              Bra spridning: investeringar i många bolag och branscher."
+              />
             </div>
             <div className={styles.row}>
               <div>
@@ -174,9 +184,9 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": {
-                    fill: statusColors[diversificationLevel()],
+                    fill: statusColors[diversificationLevel()]
                   },
-                  "& .MuiGauge-valueText": { display: "none" },
+                  "& .MuiGauge-valueText": { display: "none" }
                 }}
                 width={90}
                 height={60}
@@ -195,22 +205,21 @@ function PortfolioHealthPage() {
           {!loading && dashboard && (
             <AllocationHandler
               allocations={mockAllocations}
-              title="Målalloekering över kontotyp"
+              title="Målalloekering över instrumenttyp"
               onSave={(values) => {
                 console.log(values);
               }}
             />
           )}
         </AppCard>
-        <AppCard
-          sx={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          {" "}
+        <AppCard>
           <DonutChart
-            title="Aktuell fördelning per kontotyp"
+            help={{
+              title: "Vad betyder instrumenttyp?",
+              content:
+                "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie, fond eller obligation."
+            }}
+            title="Aktuell fördelning per instrumenttyp"
             data={mockAllocations}
           />
         </AppCard>
@@ -227,7 +236,7 @@ function PortfolioHealthPage() {
             "account_name",
             "marketValue",
             "pnl",
-            "pnlPct",
+            "pnlPct"
           ]}
         />
       </div>
