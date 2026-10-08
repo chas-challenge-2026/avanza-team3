@@ -65,7 +65,7 @@ function CurrencyExposure() {
                   styles[item.currency.toLowerCase()]
                 }`}
               >
-                {item.currency.slice(0, 2)}
+                {item.currency}
               </div>
               <span className={styles.currencyPercentage}>
                 {item.percentage}%
@@ -73,7 +73,6 @@ function CurrencyExposure() {
             </div>
 
             <div className={styles.currencyText}>
-              <strong>{item.currency}</strong>
               <span>{item.name}</span>
             </div>
 
