@@ -28,7 +28,8 @@ function PortfolioPage() {
   const allocationData = rows.map((row) => ({
     label: row.accountType,
     value: row.actual,
-    color: accountColors[row.accountType]
+    color: accountColors[row.accountType],
+    target: row.target
   }));
 
   return (
