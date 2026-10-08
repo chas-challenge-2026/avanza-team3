@@ -34,7 +34,7 @@ const DonutChart = ({ title, data, help }: DonutChartProps) => {
             }${(item.value - item.target).toFixed(0)}% från mål`;
 
     return {
-      label: `${item.label} (${percentage}%)${deviationText}`,
+      label: `${item.label} ${percentage}%${deviationText}`,
       value: item.value,
       color: item.color
     };
