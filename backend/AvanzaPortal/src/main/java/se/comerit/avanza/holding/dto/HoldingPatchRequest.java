@@ -1,9 +1,9 @@
 package se.comerit.avanza.holding.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
@@ -14,7 +14,7 @@ public record HoldingPatchRequest(
                 description = "Number of units held. Must be greater than 0 if provided.",
                 example = "10.0000"
         )
-        @DecimalMin(value = "0.00001")
+        @DecimalMin(value = "0.0001")
         @Digits(integer = 8, fraction = 4)
         BigDecimal quantity,
 
@@ -25,4 +25,9 @@ public record HoldingPatchRequest(
         @DecimalMin(value = "0")
         @Digits(integer = 10, fraction = 2)
         BigDecimal avgBuyPrice
-) {}
+) {
+    @AssertTrue(message = "At least one field must be provided")
+    public boolean isUpdatePresent() {
+        return quantity != null || avgBuyPrice != null;
+    }
+}

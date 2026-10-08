@@ -16,6 +16,7 @@ import se.comerit.avanza.auth.repository.UserRepository;
 import se.comerit.avanza.auth.service.AuthService;
 import se.comerit.avanza.security.JwtService;
 
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -78,6 +79,34 @@ class AuthControllerTest {
                 .andExpect(content().json(
                     "{\"error\":\"Fel e-post eller lösenord.\"}"
                 ));
+    }
+
+    @Test
+    void loginRejectsInvalidEmailBeforeCallingService() throws Exception {
+        LoginRequest request = new LoginRequest();
+        request.setEmail("not-an-email");
+        request.setPassword("password123");
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(authService);
+    }
+
+    @Test
+    void loginRejectsBlankPasswordBeforeCallingService() throws Exception {
+        LoginRequest request = new LoginRequest();
+        request.setEmail("test@example.com");
+        request.setPassword("   ");
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(authService);
     }
 
 }

@@ -112,6 +112,26 @@ class HoldingControllerTest {
     }
 
     @Test
+    void addHoldingShouldRejectNonPositiveIdsBeforeCallingService() throws Exception {
+        String body = """
+                {
+                  "accountId": 0,
+                  "instrumentId": -1,
+                  "quantity": 1,
+                  "avgBuyPrice": 71.50
+                }
+                """;
+
+        mockMvc.perform(post("/api/holdings")
+                        .principal(authenticationForUser(7))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(holdingService);
+    }
+
+    @Test
     void deleteHoldingShouldReturnNoContentAndPassUserIdForOwnershipCheck() throws Exception {
         mockMvc.perform(delete("/api/holdings/31").principal(authenticationForUser(7)))
 
@@ -189,6 +209,17 @@ class HoldingControllerTest {
                         .principal(authenticationForUser(7))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(holdingService);
+    }
+
+    @Test
+    void updateHoldingShouldRejectEmptyPatchBeforeCallingService() throws Exception {
+        mockMvc.perform(patch("/api/holdings/31")
+                        .principal(authenticationForUser(7))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(holdingService);

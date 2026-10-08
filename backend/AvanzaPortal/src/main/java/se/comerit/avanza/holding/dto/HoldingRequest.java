@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
@@ -15,6 +16,7 @@ public record HoldingRequest(
                 example = "1"
         )
         @NotNull
+        @Positive
         Integer accountId,
 
         @Schema(
@@ -22,6 +24,7 @@ public record HoldingRequest(
                 example = "1"
         )
         @NotNull
+        @Positive
         Integer instrumentId,
 
         @Schema(
@@ -29,7 +32,7 @@ public record HoldingRequest(
                 example = "10.0000"
         )
         @NotNull
-        @DecimalMin(value = "0.00001")
+        @DecimalMin(value = "0.0001")
         @Digits(integer = 8, fraction = 4)
         BigDecimal quantity,
 

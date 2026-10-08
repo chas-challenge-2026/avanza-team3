@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.comerit.avanza.instrument.controller.InstrumentController;
@@ -17,8 +18,10 @@ import se.comerit.avanza.instrument.service.InstrumentService;
 import java.util.List;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,4 +71,24 @@ class InstrumentControllerTest {
 
         verify(instrumentService).getAllInstruments();
     }
+    @Test
+    void addInstrumentShouldRejectInvalidCurrencyBeforeCallingService() throws Exception {
+        String body = """
+                {
+                  "ticker": "AAPL",
+                  "name": "Apple Inc.",
+                  "instrumentType": "STOCK",
+                  "sector": "UNKNOWN",
+                  "currency": "US"
+                }
+                """;
+
+        mockMvc.perform(post("/api/instruments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(instrumentService);
+    }
+
 }

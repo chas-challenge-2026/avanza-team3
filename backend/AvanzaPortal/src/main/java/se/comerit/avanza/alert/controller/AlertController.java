@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -105,7 +106,7 @@ public class AlertController {
     @PatchMapping("/{alertId}/dismiss")
     public ResponseEntity<Void> dismissAlert(
             @Parameter(description = "ID of the alert to dismiss", example = "42")
-            @PathVariable Integer alertId,
+            @PathVariable @Positive Integer alertId,
 
             @Parameter(hidden = true)
             Authentication authentication) {
