@@ -1,4 +1,4 @@
-import { Box, Grid, Input, Slider } from "@mui/material";
+import { Alert, Box, Grid, Input, Slider, Snackbar } from "@mui/material";
 import styles from "./AllocationHandler.module.css";
 import { useState, type ChangeEvent } from "react";
 import AppButton from "./AppButton";
@@ -21,6 +21,8 @@ const AllocationHandler = ({
   onSave,
   title
 }: AllocationHandlerProps) => {
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const [values, setValues] = useState<Record<string, number>>(
     Object.fromEntries(allocations.map(({ id, value }) => [id, value]))
   );
@@ -33,7 +35,10 @@ const AllocationHandler = ({
   };
 
   const handleSaveGoal = () => {
+    setSuccessMessage("");
     onSave?.(values);
+    setSuccessMessage("Din önskade målalloekering är uppdaterad!");
+    setOpenSnackbar(true);
   };
 
   const handleReset = () => {
@@ -114,6 +119,21 @@ const AllocationHandler = ({
         >
           Spara
         </AppButton>
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={() => setOpenSnackbar(false)}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            onClose={() => setOpenSnackbar(false)}
+            severity="success"
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {successMessage}
+          </Alert>
+        </Snackbar>
       </Box>
     </>
   );
