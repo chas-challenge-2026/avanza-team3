@@ -5,6 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 import se.comerit.avanza.account.service.AccountService;
 import se.comerit.avanza.alert.dto.AlertResponse;
@@ -65,6 +69,58 @@ class AlertServiceTest {
 
         assertSame(holdings, result);
         verify(holdingService).getHoldingsByUserId(7);
+    }
+
+
+
+    @Test
+    void getTargetByUserIdShouldHandOverToTargetAllocationService() {
+        List<Map<String, Object>> targets = List.of(
+                targetMap("ISK", new BigDecimal("60.00"))
+        );
+        when(targetAllocationService.getTargetMapsByUserId(7)).thenReturn(targets);
+
+        List<Map<String, Object>> result = alertService.getTargetByUserId(7);
+
+        assertSame(targets, result);
+        verify(targetAllocationService).getTargetMapsByUserId(7);
+    }
+
+    @Test
+    void getAlertsByUserIdPagedShouldReturnMappedPage() {
+        LocalDateTime createdAt = LocalDateTime.of(2026, 10, 12, 9, 0);
+        Alert alert = new Alert(7, "DRIFT", "Rebalance", false, createdAt);
+        ReflectionTestUtils.setField(alert, "id", 42);
+
+        Page<Alert> repositoryPage = new PageImpl<>(
+                List.of(alert),
+                PageRequest.of(1, 2),
+                3
+        );
+
+        when(alertRepository.findByUserIdAndDismissedOrderByCreatedAtDesc(
+                eq(7),
+                eq(false),
+                any(Pageable.class)
+        )).thenReturn(repositoryPage);
+
+        Page<AlertResponse> result = alertService.getAlertsByUserId(7, false, 1, 2);
+
+        assertEquals(1, result.getContent().size());
+        assertEquals(42, result.getContent().getFirst().id());
+        assertEquals("DRIFT", result.getContent().getFirst().alertType());
+        assertEquals("Rebalance", result.getContent().getFirst().message());
+        assertFalse(result.getContent().getFirst().dismissed());
+        assertEquals(createdAt, result.getContent().getFirst().createdAt());
+        assertEquals(1, result.getNumber());
+        assertEquals(2, result.getSize());
+        assertEquals(3, result.getTotalElements());
+
+        verify(alertRepository).findByUserIdAndDismissedOrderByCreatedAtDesc(
+                eq(7),
+                eq(false),
+                eq(PageRequest.of(1, 2))
+        );
     }
 
     @Test
