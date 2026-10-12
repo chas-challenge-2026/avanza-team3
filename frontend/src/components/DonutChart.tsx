@@ -55,6 +55,7 @@ const DonutChart = ({ title, data, help }: DonutChartProps) => {
         </div>
         <div className={styles.chartBox}>
           <PieChart
+            slots={{ tooltip: () => null }}
             series={[
               {
                 innerRadius,
