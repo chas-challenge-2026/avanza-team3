@@ -41,7 +41,7 @@ export default function NotificationPage() {
         const alertsData = await alertsRes.json();
         const liveAlertsData = await liveAlertsRes.json();
 
-        setNotifications(alertsData);
+        setNotifications(alertsData.content);
         setLiveAlerts(liveAlertsData);
       } catch {
         setError("Kunde inte hämta notifikationer");
