@@ -55,6 +55,19 @@ class AlertServiceTest {
     }
 
     @Test
+    void getHoldingsForAlertByUserIdShouldHandOverToHoldingService() {
+        List<Map<String, Object>> holdings = List.of(
+                holdingMap(11, "ERIC-B", "SEK", new BigDecimal("10"))
+        );
+        when(holdingService.getHoldingsByUserId(7)).thenReturn(holdings);
+
+        List<Map<String, Object>> result = alertService.getHoldingsForAlertByUserId(7);
+
+        assertSame(holdings, result);
+        verify(holdingService).getHoldingsByUserId(7);
+    }
+
+    @Test
     void getAlertsByUserIdShouldMapEntitiesToAlertResponses() {
         LocalDateTime createdAt = LocalDateTime.of(2026, 9, 1, 10, 0);
         Alert alert = new Alert(7, "DRIFT", "Rebalance", false, createdAt);
