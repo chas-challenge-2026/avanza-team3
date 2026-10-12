@@ -10,7 +10,7 @@ type PopoverProps = {
   sx?: SxProps;
 };
 
-const PopOver = ({ content, sx, title }: PopoverProps) => {
+const PopOver = ({ content, title }: PopoverProps) => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
   );
