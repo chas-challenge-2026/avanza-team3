@@ -44,6 +44,17 @@ class AlertServiceTest {
     private AlertService alertService;
 
     @Test
+    void getAccountsByUserIdShouldHandOverToAccountService() {
+        List<Map<String, Object>> accounts = List.of(accountMap(11, "ISK"));
+        when(accountService.getAccountMapsByUserId(7)).thenReturn(accounts);
+
+        List<Map<String, Object>> result = alertService.getAccountsByUserId(7);
+
+        assertSame(accounts, result);
+        verify(accountService).getAccountMapsByUserId(7);
+    }
+
+    @Test
     void getAlertsByUserIdShouldMapEntitiesToAlertResponses() {
         LocalDateTime createdAt = LocalDateTime.of(2026, 9, 1, 10, 0);
         Alert alert = new Alert(7, "DRIFT", "Rebalance", false, createdAt);
