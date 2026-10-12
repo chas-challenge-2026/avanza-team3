@@ -13,14 +13,14 @@
 
 .currencyHeader p {
   color: var(--text-gray);
-  font-weight: 700;
+  font-weight: 400;
   font-size: var(--font-sm);
 }
 
 .currencyBar {
   display: flex;
   width: 100%;
-  /* height: 90px; */
+  height: 40px;
   overflow: hidden;
   border-radius: 12px;
   margin-bottom: 1.5rem;
@@ -28,11 +28,16 @@
 
 .currencySegment {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
   color: white;
   padding: 0 8px;
   min-width: 0;
+}
+
+.currencySegment + .currencySegment {
+  border-left: 2px solid white;
 }
 
 .currencySegment strong {
@@ -88,7 +93,8 @@
 .currencyCardTop {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 12px;
 }
 
 .currencyPercentage {
@@ -109,7 +115,7 @@
   border-radius: 50%;
   color: white;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.75rem;
 }
 
 .currencyText {
