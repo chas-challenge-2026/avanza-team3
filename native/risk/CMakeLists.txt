@@ -7,7 +7,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_library(risk SHARED src/risk.c)
 target_include_directories(risk PUBLIC include)
-set_target_properties(risk PROPERTIES PREFIX "")
+
+if(WIN32)
+    set_target_properties(risk PROPERTIES PREFIX "")
+endif()
+
 if(UNIX)
     target_link_libraries(risk PUBLIC m)
 endif()

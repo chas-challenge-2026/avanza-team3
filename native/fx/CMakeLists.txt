@@ -25,7 +25,10 @@ add_subdirectory(../libs/curl-8.22.0 ${CMAKE_BINARY_DIR}/curl-build)
 target_link_libraries(fx PRIVATE CURL::libcurl)
 target_include_directories(fx PUBLIC include)
 
-set_target_properties(fx PROPERTIES PREFIX "")
+if(WIN32)
+    set_target_properties(fx PROPERTIES PREFIX "")
+endif()
+
 if (UNIX)
     target_link_libraries(fx PRIVATE m)
 endif ()
