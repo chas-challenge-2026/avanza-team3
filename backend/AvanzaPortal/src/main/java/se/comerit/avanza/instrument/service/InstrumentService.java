@@ -57,6 +57,15 @@ public class InstrumentService {
     }
 
     @Transactional(readOnly = true)
+    public Instrument getByTicker(String ticker) {
+        String normalizedTicker = normalizeTicker(ticker);
+        return instrumentRepository.findByTickerIgnoreCase(normalizedTicker)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Instrument with ticker " + normalizedTicker + " not found"
+                ));
+    }
+
+    @Transactional(readOnly = true)
     public List<InstrumentResponse> getAllInstruments() {
         return instrumentRepository.findAllByOrderByTickerAsc()
                 .stream()
