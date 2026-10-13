@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import se.comerit.avanza.market.provider.MarketDataProvider;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -39,5 +40,28 @@ public class MarketDataService {
                 .flatMap(java.util.Optional::stream)
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("No market data provider returned an FX rate"));
+    }
+
+    public BigDecimal convert(BigDecimal amount, String fromCurrency, String toCurrency) {
+        if (amount == null) {
+            return BigDecimal.ZERO;
+        }
+
+        return amount.multiply(getEffectiveFxRate(fromCurrency, toCurrency));
+    }
+
+    public BigDecimal getEffectiveFxRate(String fromCurrency, String toCurrency) {
+        String from = fromCurrency.toUpperCase();
+        String to = toCurrency.toUpperCase();
+        if (from.equals(to)) {
+            return BigDecimal.ONE;
+        }
+
+        try {
+            return getFxRate(from, to);
+        } catch (IllegalStateException exception) {
+            BigDecimal inverseRate = getFxRate(to, from);
+            return BigDecimal.ONE.divide(inverseRate, 8, RoundingMode.HALF_UP);
+        }
     }
 }

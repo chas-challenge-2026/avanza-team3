@@ -49,7 +49,7 @@ class MarketControllerTest {
 
     @Test
     void getFxRateShouldReturnCurrencyPairAndRate() throws Exception {
-        when(marketDataService.getFxRate("usd", "sek")).thenReturn(new BigDecimal("10.45"));
+        when(marketDataService.getEffectiveFxRate("usd", "sek")).thenReturn(new BigDecimal("10.45"));
 
         mockMvc.perform(get("/api/market/fx/usd/sek"))
                 .andExpect(status().isOk())
@@ -57,6 +57,26 @@ class MarketControllerTest {
                 .andExpect(jsonPath("$.toCurrency").value("SEK"))
                 .andExpect(jsonPath("$.rate").value(10.45));
 
-        verify(marketDataService).getFxRate("usd", "sek");
+        verify(marketDataService).getEffectiveFxRate("usd", "sek");
+    }
+
+    @Test
+    void convertShouldReturnConvertedAmount() throws Exception {
+        when(marketDataService.convert(new BigDecimal("100.00"), "usd", "sek")).thenReturn(new BigDecimal("1045.00"));
+        when(marketDataService.getEffectiveFxRate("usd", "sek")).thenReturn(new BigDecimal("10.45"));
+
+        mockMvc.perform(get("/api/market/fx/convert")
+                        .param("amount", "100.00")
+                        .param("from", "usd")
+                        .param("to", "sek"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.amount").value(100.00))
+                .andExpect(jsonPath("$.fromCurrency").value("USD"))
+                .andExpect(jsonPath("$.toCurrency").value("SEK"))
+                .andExpect(jsonPath("$.rate").value(10.45))
+                .andExpect(jsonPath("$.convertedAmount").value(1045.00));
+
+        verify(marketDataService).convert(new BigDecimal("100.00"), "usd", "sek");
+        verify(marketDataService).getEffectiveFxRate("usd", "sek");
     }
 }
