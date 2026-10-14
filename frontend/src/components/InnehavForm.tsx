@@ -3,8 +3,8 @@ import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
 import { useState } from "react";
 import AppCard from "./AppCard";
-import { useHoldings } from "../hooks/useHoldings";
 import { useAccounts } from "../hooks/useAccounts";
+import type { HoldingRequest } from "../types/Holding";
 
 type Currency = "SEK" | "USD" | "";
 
@@ -23,11 +23,14 @@ const initialFormDataValue: InnehavFormData = {
   instrumentName: "",
   quantity: "",
   avgBuyPrice: "",
-  currency: "",
+  currency: ""
 };
 
-const InnehavsForm = () => {
-  const { addHolding } = useHoldings();
+type InnehavFormProps = {
+  onSubmit: (holding: HoldingRequest) => Promise<void>;
+};
+
+const InnehavsForm = ({ onSubmit }: InnehavFormProps) => {
   const { accounts } = useAccounts();
 
   const [formData, setFormData] =
@@ -35,12 +38,15 @@ const InnehavsForm = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setSuccessMessage("");
+    setErrorMessage("");
 
     if (!handleValidate()) {
       return;
@@ -56,19 +62,17 @@ const InnehavsForm = () => {
         instrumentName: formData.instrumentName.trim(),
         quantity: Number(formData.quantity),
         avgBuyPrice: Number(formData.avgBuyPrice),
-        currency: formData.currency,
+        currency: formData.currency
       };
       console.log(submittedData);
-      await addHolding(submittedData);
+      await onSubmit(submittedData);
 
       setFormData(initialFormDataValue);
       setErrors({});
       setSuccessMessage("Innehavet har lagts till");
       setOpenSnackbar(true);
     } catch (error) {
-      setErrors({
-        submit: error instanceof Error ? error.message : "Något gick fel",
-      });
+      setErrorMessage("Innehav kunde inte skapas");
     } finally {
       setIsSubmitting(false);
     }
@@ -82,7 +86,7 @@ const InnehavsForm = () => {
 
     setFormData((previusData) => ({
       ...previusData,
-      [name]: value,
+      [name]: value
     }));
     console.log(event.target.value);
   };
@@ -128,14 +132,14 @@ const InnehavsForm = () => {
     "& .MuiFormHelperText-root": {
       marginBottom: "3px",
       marginTop: "0px",
-      fontWeight: "bold",
+      fontWeight: "bold"
     },
     "& .MuiInputLabel-root.Mui-error": {
-      color: "#999",
+      color: "#999"
     },
     "& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline": {
-      borderColor: "#999",
-    },
+      borderColor: "#999"
+    }
   };
 
   return (
@@ -148,6 +152,11 @@ const InnehavsForm = () => {
           Fyll i uppgifterna nedanför för att lägga till ett nytt innehav i din
           portfölj.
         </p>
+        {errorMessage && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {errorMessage}
+          </Alert>
+        )}
         <Box
           component="form"
           onSubmit={handleSubmit}
@@ -156,7 +165,7 @@ const InnehavsForm = () => {
             flexDirection: "row",
             justifyContent: "space-between",
             width: "100%",
-            height: "auto",
+            height: "auto"
           }}
         >
           <div className={styles.containerRight}>

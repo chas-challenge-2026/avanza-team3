@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPiggyBank } from "@fortawesome/free-solid-svg-icons";
 
 function InnehavPage() {
-  const { holdings, loading, error, removeHolding } = useHoldings();
+  const { holdings, loading, error, removeHolding, addHolding } = useHoldings();
 
   if (loading) return <p>Laddar...</p>;
   if (error) return <p>{error}</p>;
@@ -34,7 +34,7 @@ function InnehavPage() {
         // width="1200px"
         showDelete
       />
-      <InnehavsForm />
+      <InnehavsForm onSubmit={addHolding} />
     </div>
   );
 }
