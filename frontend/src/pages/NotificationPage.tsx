@@ -10,8 +10,13 @@ type LiveAlertCardProps = {
 };
 
 const LiveAlertCard = ({ alert, onDismiss }: LiveAlertCardProps) => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <div className={`${styles.card} ${styles["border-left"]}`}>
+    <div
+      className={`${styles.card} ${styles["border-left"]}`}
+      onClick={() => setOpen(!open)}
+    >
       <span className={styles.iconWrapper}>
         <FontAwesomeIcon icon={faBell} />
       </span>
