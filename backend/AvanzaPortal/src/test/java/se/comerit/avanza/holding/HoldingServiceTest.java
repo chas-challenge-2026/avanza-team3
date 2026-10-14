@@ -75,8 +75,8 @@ class HoldingServiceTest {
         assertEquals(101, row.get("instrument_id"));
         assertEquals("ERIC-B", row.get("ticker"));
         assertEquals("Ericsson B", row.get("instrument_name"));
-        assertEquals(InstrumentType.STOCK, row.get("instrument_type"));
-        assertEquals(Sector.UNKNOWN, row.get("sector"));
+        assertEquals("Aktie", row.get("instrument_type"));
+        assertEquals("Teknik", row.get("sector"));
         assertEquals(new BigDecimal("74.20"), row.get("currentPrice"));
         assertEquals(new BigDecimal("742.00"), row.get("marketValue"));
         assertEquals(new BigDecimal("42.00"), row.get("pnl"));
@@ -176,16 +176,16 @@ class HoldingServiceTest {
         );
 
         when(accountService.getAccountByIdAndUserId(11, 7)).thenReturn(account);
-        when(instrumentService.getById(101)).thenReturn(instrument);
+        when(instrumentService.getByTicker("ERIC-B")).thenReturn(instrument);
 
         holdingService.addHolding(
-                7, 11, 101,
+                7, 11, "ERIC-B",
                 new BigDecimal("5"), new BigDecimal("71.50")
         );
 
         InOrder inOrder = inOrder(accountService, instrumentService, holdingRepository);
         inOrder.verify(accountService).getAccountByIdAndUserId(11, 7);
-        inOrder.verify(instrumentService).getById(101);
+        inOrder.verify(instrumentService).getByTicker("ERIC-B");
 
         ArgumentCaptor<Holding> holdingCaptor = ArgumentCaptor.forClass(Holding.class);
         inOrder.verify(holdingRepository).save(holdingCaptor.capture());
@@ -246,8 +246,8 @@ class HoldingServiceTest {
         assertEquals(101, response.instrumentId());
         assertEquals("ERIC-B", response.ticker());
         assertEquals("Ericsson B", response.instrumentName());
-        assertEquals(InstrumentType.STOCK, response.instrumentType());
-        assertEquals(Sector.UNKNOWN, response.sector());
+        assertEquals("Aktie", response.instrumentType());
+        assertEquals("Teknik", response.sector());
         assertEquals(new BigDecimal("10"), response.quantity());
         assertEquals(new BigDecimal("70.00"), response.avgBuyPrice());
         assertEquals("SEK", response.currency());
@@ -258,6 +258,32 @@ class HoldingServiceTest {
 
         verify(holdingRepository).findByIdAndAccountUserId(31, 7);
         verify(marketDataService).getPrice("ERIC-B");
+    }
+
+    @Test
+    void getHoldingByIdShouldExposeFundAsFondAndFonder() {
+        Account account = new Account(7, "ISK", "Main ISK", "SEK");
+        ReflectionTestUtils.setField(account, "id", 11);
+
+        Instrument fund = instrument(
+                202,
+                "GLOBAL-FUND",
+                "Global Fund",
+                InstrumentType.FUND,
+                Sector.UNKNOWN,
+                "SEK"
+        );
+        Holding holding = new Holding(11, fund, new BigDecimal("10"), new BigDecimal("100.00"));
+        ReflectionTestUtils.setField(holding, "id", 32);
+        ReflectionTestUtils.setField(holding, "account", account);
+
+        when(holdingRepository.findByIdAndAccountUserId(32, 7)).thenReturn(Optional.of(holding));
+        when(marketDataService.getPrice("GLOBAL-FUND")).thenReturn(new BigDecimal("110.00"));
+
+        HoldingResponse response = holdingService.getHoldingById(32, 7);
+
+        assertEquals("Fond", response.instrumentType());
+        assertEquals("Fonder", response.sector());
     }
 
     @Test
@@ -334,7 +360,7 @@ class HoldingServiceTest {
         assertThrows(
                 ResourceNotFoundException.class,
                 () -> holdingService.addHolding(
-                        7, 11, 101,
+                        7, 11, "ERIC-B",
                         new BigDecimal("5"), new BigDecimal("71.50")
                 )
         );
@@ -364,7 +390,7 @@ class HoldingServiceTest {
                 ticker,
                 instrumentName,
                 InstrumentType.STOCK,
-                Sector.UNKNOWN,
+                Sector.TECHNOLOGY,
                 currency
         );
 

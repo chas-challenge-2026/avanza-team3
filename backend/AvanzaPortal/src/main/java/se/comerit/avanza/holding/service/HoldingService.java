@@ -160,10 +160,10 @@ public class HoldingService {
     @Transactional
     @CacheEvict(value = "holdingsByUser", allEntries = true)
     public void addHolding(Integer userId, Integer accountId,
-            Integer instrumentId,
+                           String ticker,
             BigDecimal quantity, BigDecimal avgBuyPrice) {
         accountService.getAccountByIdAndUserId(accountId, userId);
-        Instrument instrument = instrumentService.getById(instrumentId);
+        Instrument instrument = instrumentService.getByTicker(ticker);
 
         Holding holding = new Holding(
                 accountId,
@@ -198,8 +198,8 @@ public class HoldingService {
                 instrument.getId(),
                 instrument.getTicker(),
                 instrument.getName(),
-                instrument.getInstrumentType(),
-                instrument.getSector(),
+                instrument.getInstrumentType().getDisplayName(),
+                getSectorDisplayName(instrument),
                 holding.getQuantity(),
                 holding.getAvgBuyPrice(),
                 instrument.getCurrency(),
@@ -282,8 +282,8 @@ public class HoldingService {
         result.put("instrument_id", instrument.getId());
         result.put("ticker", instrument.getTicker());
         result.put("instrument_name", instrument.getName());
-        result.put("instrument_type", instrument.getInstrumentType());
-        result.put("sector", instrument.getSector());
+        result.put("instrument_type", instrument.getInstrumentType().getDisplayName());
+        result.put("sector", getSectorDisplayName(instrument));
         result.put("quantity", holding.getQuantity());
         result.put("avg_buy_price", holding.getAvgBuyPrice());
         result.put("currency", instrument.getCurrency());
@@ -296,4 +296,11 @@ public class HoldingService {
 
         return result;
     }
+    private String getSectorDisplayName(Instrument instrument) {
+        if (instrument.getInstrumentType().isFund()) {
+            return "Fonder";
+        }
+        return instrument.getSector().getDisplayName();
+    }
+
 }
