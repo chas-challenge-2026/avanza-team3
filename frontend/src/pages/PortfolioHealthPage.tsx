@@ -11,11 +11,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
 import PopOver from "../components/Popover";
+import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
 
 function PortfolioHealthPage() {
   // const { rows } = usePortfolioAllocations();
   const { dashboard, loading } = useDashboard();
   const { holdings } = useHoldings();
+  const { riskData } = usePortfolioRisk();
 
   const statusColors = {
     good: "#16a34a",
@@ -35,9 +37,11 @@ function PortfolioHealthPage() {
     return changePercent >= 0 ? "good" : "danger";
   };
 
-  const riskPoint = 42;
+  const riskPoint = riskData?.current.riskScore;
 
   const riskLevel = () => {
+    if (riskPoint === undefined) return "warning";
+
     if (riskPoint < 30) {
       return "good";
     } else if (riskPoint <= 60) {
@@ -114,9 +118,13 @@ function PortfolioHealthPage() {
             </div>
             <div className={styles.row}>
               <div>
-                <p className={styles.value}>{riskPoint}/100</p>
+                <p className={styles.value}>
+                  {riskPoint !== undefined ? `${riskPoint}/100` : "–"}
+                </p>
                 <p className={styles.label + " " + styles[riskLevel()]}>
-                  {riskLevelText[riskLevel()]}
+                  {riskPoint !== undefined
+                    ? riskLevelText[riskLevel()]
+                    : "Ingen data"}
                 </p>
               </div>
               <Gauge
