@@ -4,6 +4,26 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import type { Notification, LiveAlert } from "../types/notification";
 
+type LiveAlertCardProps = {
+  alert: LiveAlert;
+  onDismiss: () => void;
+};
+
+const LiveAlertCard = ({ alert, onDismiss }: LiveAlertCardProps) => {
+  return (
+    <div className={`${styles.card} ${styles["border-left"]}`}>
+      <span className={styles.iconWrapper}>
+        <FontAwesomeIcon icon={faBell} />
+      </span>
+      <p className={styles.message}>{alert.message}</p>
+      <span className={styles.time}>{alert.created_at}</span>
+      <span onClick={onDismiss}>
+        <FontAwesomeIcon icon={faTrashAlt} />
+      </span>
+    </div>
+  );
+};
+
 export default function NotificationPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [liveAlerts, setLiveAlerts] = useState<LiveAlert[]>([]);
@@ -69,16 +89,11 @@ export default function NotificationPage() {
         <p className={styles.empty}>Inga live-varningar</p>
       )}
       {liveAlerts.map((a, index) => (
-        <div key={index} className={`${styles.card} ${styles["border-left"]}`}>
-          <span className={styles.iconWrapper}>
-            <FontAwesomeIcon icon={faBell} />
-          </span>
-          <p className={styles.message}>{a.message}</p>
-          <span className={styles.time}>{a.created_at}</span>
-          <span onClick={() => dismissLiveAlert(index)}>
-            <FontAwesomeIcon icon={faTrashAlt} />
-          </span>
-        </div>
+        <LiveAlertCard
+          key={index}
+          alert={a}
+          onDismiss={() => dismissLiveAlert(index)}
+        />
       ))}
 
       <h2 className={styles.sectionTitle}>Äldre notifikationer</h2>
