@@ -29,6 +29,23 @@ class MarketDataServiceTest {
         assertEquals(new BigDecimal("10.45"), service.getFxRate("USD", "SEK"));
     }
 
+    @Test
+    void convertShouldUseDirectFxRate() {
+        MarketDataService service = new MarketDataService(List.of(new StubMarketDataProvider(
+                BigDecimal.ZERO,
+                Optional.of(new BigDecimal("10.00"))
+        )));
+
+        assertEquals(new BigDecimal("250.0000"), service.convert(new BigDecimal("25.00"), "USD", "SEK"));
+    }
+
+    @Test
+    void convertShouldUseInverseFxRateWhenDirectRateIsMissing() {
+        MarketDataService service = new MarketDataService(List.of(new InverseOnlyMarketDataProvider()));
+
+        assertEquals(new BigDecimal("10.0000000000"), service.convert(new BigDecimal("100.00"), "SEK", "USD"));
+    }
+
     private static class EmptyMarketDataProvider implements MarketDataProvider {
 
         @Override
@@ -55,6 +72,23 @@ class MarketDataServiceTest {
         @Override
         public Optional<BigDecimal> findFxRate(String fromCurrency, String toCurrency) {
             return fxRate;
+        }
+    }
+
+    private static class InverseOnlyMarketDataProvider implements MarketDataProvider {
+
+        @Override
+        public Optional<BigDecimal> findPrice(String ticker) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<BigDecimal> findFxRate(String fromCurrency, String toCurrency) {
+            if ("USD".equals(fromCurrency) && "SEK".equals(toCurrency)) {
+                return Optional.of(new BigDecimal("10.00"));
+            }
+
+            return Optional.empty();
         }
     }
 }

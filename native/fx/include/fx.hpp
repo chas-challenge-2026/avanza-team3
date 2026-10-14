@@ -1,5 +1,15 @@
 #pragma once
 
+#if defined(_WIN32)
+#if defined(FX_BUILDING_LIBRARY)
+#define FX_API __declspec(dllexport)
+#else
+#define FX_API __declspec(dllimport)
+#endif
+#else
+#define FX_API
+#endif
+
 enum
 {
     FX_OK = 0,
@@ -26,4 +36,4 @@ enum
  * @return FX_Error code.
  * List of error codes are found in fx/README.md
  */
-int FxConvert(double amount, const char *from, const char *to, double *outResult);
+FX_API int FxConvert(double amount, const char *from, const char *to, double *outResult);
