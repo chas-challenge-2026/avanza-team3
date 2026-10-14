@@ -68,7 +68,7 @@ const NotificationCard = ({
                     <span className={styles.valueLabel}>Avvikelse</span>
                     <strong className={styles.valueNumber}>
                       {difference > 0 ? "+" : ""}
-                      {difference.toFixed(1)} pp
+                      {difference.toFixed(1)} %
                     </strong>
                   </div>
                 </div>
