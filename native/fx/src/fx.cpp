@@ -5,16 +5,24 @@
 #include <algorithm>
 #include <cctype>
 #include <chrono>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
+#include <ctime>
+#include <iomanip>
+#include <iostream>
 #include <mutex>
+#include <sstream>
 #include <stdexcept>
+#include <string>
 #include <unordered_map>
 
 namespace
 {
 constexpr size_t CURRENCY_CODE_LENGTH = 3;
-constexpr std::chrono::seconds CACHE_EXPIRATION_S{600}; // 10 minutes
-constexpr std::chrono::hours CACHE_MAXIMUM_AGE_H{168};  // 7 days
+constexpr std::chrono::seconds CACHE_EXPIRATION_S{600};            // 10 minutes
+constexpr std::chrono::hours CACHE_MAXIMUM_AGE_H{168};             // 7 days
 constexpr const char *API_URL = "https://api.frankfurter.dev/v2/"; // E.g https://api.frankfurter.dev/v2/rates
 
 std::mutex cacheMutex;
@@ -74,6 +82,30 @@ int Fetch(const std::string &path, std::string &buf)
 {
     HttpClient client;
     return client.Get(API_URL + path, buf) == CURLE_OK ? FX_OK : FX_ERROR_REQUEST_FAILED;
+}
+
+std::string DateDaysAgo(int days)
+{
+    std::time_t now = std::time(nullptr);
+    std::tm date = *std::localtime(&now);
+
+    date.tm_mday -= days;
+    std::mktime(&date);
+
+    std::ostringstream out;
+    out << std::put_time(&date, "%Y-%m-%d");
+    return out.str();
+}
+
+std::time_t DateToTime(const char *date)
+{
+    std::tm tm = {};
+    std::sscanf(date, "%d-%d-%d", &tm.tm_year, &tm.tm_mon, &tm.tm_mday);
+    tm.tm_year -= 1900;
+    tm.tm_mon -= 1;
+    tm.tm_hour = 12;
+    tm.tm_isdst = -1;
+    return std::mktime(&tm);
 }
 } // namespace
 
@@ -140,13 +172,77 @@ int FxConvert(const double amount, const char *from, const char *to, double *out
         // Finally, do the actual conversion
         *outResult = amount * toIt->second.GetRate() / fromIt->second.GetRate();
 
-        // Debug print
-        // printf("from: %f\nto: %f\nresult: %f\n", fromIt->second.GetRate(), toIt->second.GetRate(), *outResult);
-
         return FX_OK;
     }
     catch (...)
     {
         return FX_ERROR_INTERNAL;
     }
+}
+
+int FxHistory(const char *currency, const int length, double *outResult)
+{
+    if (!currency || !outResult)
+        return FX_ERROR_NULL;
+
+    if (length <= 0 || strlen(currency) != CURRENCY_CODE_LENGTH)
+        return FX_ERROR_UNKNOWN_CURRENCY;
+
+    for (int i = 0; i < 3; i++)
+    {
+        if (!isalpha(static_cast<unsigned char>(currency[i])))
+            return FX_ERROR_UNKNOWN_CURRENCY;
+    }
+
+    try
+    {
+        std::string fromDate = DateDaysAgo(length - 1);
+
+        std::string buf;
+        int err = Fetch("rates?from=" + fromDate + "&quotes=" + std::string(currency), buf);
+        if (err != FX_OK)
+            return err;
+
+        // 0.0 means "no data for this day yet"
+        std::fill(outResult, outResult + length, 0.0);
+
+        std::time_t start = DateToTime(fromDate.c_str());
+        size_t pos = 0;
+
+        while ((pos = buf.find("\"date\":\"", pos)) != std::string::npos)
+        {
+            pos += 8;
+            int day = static_cast<int>(std::lround(difftime(DateToTime(buf.c_str() + pos), start) / 86400.0));
+
+            pos = buf.find("\"rate\":", pos);
+            if (pos == std::string::npos)
+                break;
+            pos += 7;
+
+            if (day >= 0 && day < length)
+                outResult[day] = std::strtod(buf.c_str() + pos, nullptr);
+        }
+    }
+    catch (...)
+    {
+        return FX_ERROR_INTERNAL;
+    }
+
+    int first = 0;
+    while (first < length && outResult[first] == 0.0)
+        first++;
+
+    if (first == length)
+        return FX_ERROR_NO_DATA;
+
+    for (int i = 0; i < first; i++)
+        outResult[i] = outResult[first];
+
+    for (int i = first + 1; i < length; i++)
+    {
+        if (outResult[i] == 0.0)
+            outResult[i] = outResult[i - 1];
+    }
+
+    return FX_OK;
 }
