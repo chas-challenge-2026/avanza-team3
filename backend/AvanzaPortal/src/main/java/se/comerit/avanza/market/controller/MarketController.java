@@ -10,10 +10,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import se.comerit.avanza.market.dto.FxConversionResponse;
 import se.comerit.avanza.market.dto.FxRateResponse;
 import se.comerit.avanza.market.dto.PriceResponse;
 import se.comerit.avanza.market.service.MarketDataService;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @RestController
 @RequestMapping("/api/market")
@@ -68,7 +73,38 @@ public class MarketController {
         return ResponseEntity.ok(new FxRateResponse(
                 from.toUpperCase(),
                 to.toUpperCase(),
-                marketDataService.getFxRate(from, to)
+                marketDataService.getEffectiveFxRate(from, to)
+        ));
+    }
+
+    @Operation(
+            summary = "Convert currency amount",
+            description = "Converts an amount from one currency to another using the configured market-data providers."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Amount converted successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required")
+    })
+    @GetMapping("/fx/convert")
+    public ResponseEntity<FxConversionResponse> convert(
+            @Parameter(description = "Amount to convert", example = "100.00")
+            @RequestParam BigDecimal amount,
+
+            @Parameter(description = "Source currency code", example = "USD")
+            @RequestParam String from,
+
+            @Parameter(description = "Target currency code", example = "SEK")
+            @RequestParam String to) {
+
+        BigDecimal convertedAmount = marketDataService.convert(amount, from, to)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        return ResponseEntity.ok(new FxConversionResponse(
+                amount,
+                from.toUpperCase(),
+                to.toUpperCase(),
+                marketDataService.getEffectiveFxRate(from, to),
+                convertedAmount
         ));
     }
 }
