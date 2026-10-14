@@ -152,7 +152,7 @@ public class HoldingController {
 
     @Operation(
             summary = "Create holding",
-            description = "Creates a new holding in an account belonging to the authenticated user."
+            description = "Creates a new holding and resolves instrument metadata from the backend instrument catalog by ticker."
     )
     @ApiResponses({
             @ApiResponse(
@@ -169,7 +169,7 @@ public class HoldingController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Account or instrument not found for the authenticated user"
+                    description = "Account or instrument not found"
             )
     })
 
@@ -189,7 +189,7 @@ public class HoldingController {
         holdingService.addHolding(
                 userId,
                 request.accountId(),
-                request.instrumentId(),
+                request.ticker(),
                 request.quantity(),
                 request.avgBuyPrice()
         );

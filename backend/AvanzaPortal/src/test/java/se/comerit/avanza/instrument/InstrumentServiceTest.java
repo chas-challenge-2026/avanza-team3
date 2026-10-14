@@ -120,6 +120,45 @@ class InstrumentServiceTest {
     }
 
     @Test
+    void getByTickerShouldNormalizeAndReturnInstrument() {
+        Instrument apple = instrument(
+                1,
+                "AAPL",
+                "Apple Inc.",
+                InstrumentType.STOCK,
+                Sector.TECHNOLOGY,
+                "USD"
+        );
+
+        when(instrumentRepository.findByTickerIgnoreCase("AAPL")).thenReturn(Optional.of(apple));
+
+        Instrument result = instrumentService.getByTicker(" aapl ");
+
+        assertSame(apple, result);
+        verify(instrumentRepository).findByTickerIgnoreCase("AAPL");
+    }
+
+    @Test
+    void getByTickerShouldThrowWhenInstrumentDoesNotExist() {
+        when(instrumentRepository.findByTickerIgnoreCase("MISSING")).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> instrumentService.getByTicker("missing")
+        );
+
+        assertEquals("Instrument with ticker MISSING not found", exception.getMessage());
+    }
+
+    @Test
+    void enumsShouldExposeFrontendLabelsWithoutChangingPersistedEnumNames() {
+        assertEquals("Aktie", InstrumentType.STOCK.getDisplayName());
+        assertEquals("Fond", InstrumentType.FUND.getDisplayName());
+        assertEquals("Teknik", Sector.TECHNOLOGY.getDisplayName());
+        assertEquals("Övrigt", Sector.UNKNOWN.getDisplayName());
+    }
+
+    @Test
     void getInstrumentByIdShouldReturnMappedResponse() {
         Instrument apple = instrument(
                 1,
