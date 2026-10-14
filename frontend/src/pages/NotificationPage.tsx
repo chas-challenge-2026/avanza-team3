@@ -2,15 +2,18 @@ import { useState, useEffect } from "react";
 import styles from "./NotificationPage.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-import type { Notification, LiveAlert } from "../types/notification";
+import type { Notification } from "../types/notification";
+import type { AllocationRow } from "../types/dashboard";
+import useDashboard from "../hooks/useDasboard";
 
 type LiveAlertCardProps = {
-  alert: LiveAlert;
+  row: AllocationRow;
   onDismiss: () => void;
 };
 
-const LiveAlertCard = ({ alert, onDismiss }: LiveAlertCardProps) => {
+const LiveAlertCard = ({ row, onDismiss }: LiveAlertCardProps) => {
   const [open, setOpen] = useState(false);
+  const difference = row.actual - row.target;
 
   return (
     <div
@@ -20,8 +23,26 @@ const LiveAlertCard = ({ alert, onDismiss }: LiveAlertCardProps) => {
       <span className={styles.iconWrapper}>
         <FontAwesomeIcon icon={faBell} />
       </span>
-      <p className={styles.message}>{alert.message}</p>
-      <span className={styles.time}>{alert.created_at}</span>
+
+      <div className={styles.message}>
+        <strong>
+          {row.accountType} –{" "}
+          {difference > 0 ? "Över målallokering" : "Under målallokering"}
+        </strong>
+        <p>Din fördelning avviker från ditt angivna mål.</p>
+
+        {open && (
+          <div>
+            <span>Nuvarande: {row.actual.toFixed(1)} %</span>{" "}
+            <span>Mål: {row.target.toFixed(1)} %</span>{" "}
+            <span>
+              Avvikelse: {difference > 0 ? "+" : ""}
+              {difference.toFixed(1)} %
+            </span>
+          </div>
+        )}
+      </div>
+
       <span
         onClick={(e) => {
           e.stopPropagation();
@@ -36,15 +57,15 @@ const LiveAlertCard = ({ alert, onDismiss }: LiveAlertCardProps) => {
 
 export default function NotificationPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [liveAlerts, setLiveAlerts] = useState<LiveAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const token = localStorage.getItem("token");
+  const { dashboard } = useDashboard();
+  const driftRows = (dashboard?.allocationRows ?? []).filter(
+    (row) => row.overThreshold,
+  );
 
-  function dismissLiveAlert(index: number) {
-    setLiveAlerts((prev) => prev.filter((_, i) => i !== index));
-  }
+  const token = localStorage.getItem("token");
 
   function dismissNotification(id: number) {
     setNotifications((prev) =>
@@ -55,24 +76,16 @@ export default function NotificationPage() {
   useEffect(() => {
     async function getAlerts() {
       try {
-        const [alertsRes, liveAlertsRes] = await Promise.all([
-          fetch("/api/alerts", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch("/api/alerts/live", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
+        const alertsRes = await fetch("/api/alerts", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-        if (!alertsRes.ok || !liveAlertsRes.ok) {
+        if (!alertsRes.ok) {
           throw new Error("Kunde inte hämta notifikationer");
         }
 
         const alertsData = await alertsRes.json();
-        const liveAlertsData = await liveAlertsRes.json();
-
         setNotifications(alertsData.content);
-        setLiveAlerts(liveAlertsData);
       } catch {
         setError("Kunde inte hämta notifikationer");
       } finally {
@@ -85,7 +98,7 @@ export default function NotificationPage() {
 
   if (loading) return <p>Laddar notifikationer...</p>;
   if (error) return <p>{error}</p>;
-  console.log("Notifications:", notifications);
+
   return (
     <div className={styles.container}>
       <div className={styles.titleRow}>
@@ -94,16 +107,13 @@ export default function NotificationPage() {
           <h1 className={styles.title}>Notifikationer</h1>
         </div>
       </div>
+
       <h2 className={styles.sectionTitle}>Live-varningar</h2>
-      {liveAlerts.length === 0 && (
+      {driftRows.length === 0 && (
         <p className={styles.empty}>Inga live-varningar</p>
       )}
-      {liveAlerts.map((a, index) => (
-        <LiveAlertCard
-          key={index}
-          alert={a}
-          onDismiss={() => dismissLiveAlert(index)}
-        />
+      {driftRows.map((row) => (
+        <LiveAlertCard key={row.accountType} row={row} onDismiss={() => {}} />
       ))}
 
       <h2 className={styles.sectionTitle}>Äldre notifikationer</h2>
