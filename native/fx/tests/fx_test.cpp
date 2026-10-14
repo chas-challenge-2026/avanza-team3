@@ -4,9 +4,9 @@
 TEST(FxConvert, HandlesValidInput)
 {
     double res;
-    EXPECT_EQ(FxConvert(100.0, "eur", "eur", &res), FX_OK);
-    EXPECT_EQ(FxConvert(2234.5432, "usd", "sek", &res), FX_OK);
-    EXPECT_EQ(FxConvert(3.23232434, "SEK", "usd", &res), FX_OK);
+    EXPECT_EQ(FxConvert(100.0, "eur", "eur", &res),         FX_OK);
+    EXPECT_EQ(FxConvert(2234.5432, "usd", "sek", &res),     FX_OK);
+    EXPECT_EQ(FxConvert(3.23232434, "SEK", "usd", &res),    FX_OK);
     EXPECT_EQ(FxConvert(75437329213.0, "SEK", "NOK", &res), FX_OK);
 }
 
@@ -26,29 +26,54 @@ TEST(FxConvert, HandlesSameCurrencies)
 TEST(FxConvert, HandlesInvalidCurrency)
 {
     double res;
-    EXPECT_EQ(FxConvert(2.0, "xxx", "eur", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(3.0, "usd", "xxx", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(1.0, "xxx", "xxx", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(2.0, "åäö", "eur", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(2.0, "xxx", "åäö", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(2.0, "åäö", "åäö", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(2.0, "---", "---", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(4.2, "u", "xxx", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(2.0, ".", ";;;", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(2.0, " ", "EUR", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(2.0, "usd", "   ", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(2.0, "usd", "\\n", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(2.0, "usd", "sekk", &res), FX_ERROR_UNKNOWN_CURRENCY);
-    EXPECT_EQ(FxConvert(2.0, "usdd", "eur", &res), FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(2.0, "xxx", "eur", &res),   FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(3.0, "usd", "xxx", &res),   FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(1.0, "xxx", "xxx", &res),   FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(2.0, "åäö", "eur", &res),   FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(2.0, "xxx", "åäö", &res),   FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(2.0, "åäö", "åäö", &res),   FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(2.0, "---", "---", &res),   FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(4.2, "u", "xxx", &res),     FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(2.0, ".", ";;;", &res),     FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(2.0, " ", "EUR", &res),     FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(2.0, "usd", "   ", &res),   FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(2.0, "usd", "\\n", &res),   FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(2.0, "usd", "sekk", &res),  FX_ERROR_UNKNOWN_CURRENCY);
+    EXPECT_EQ(FxConvert(2.0, "usdd", "eur", &res),  FX_ERROR_UNKNOWN_CURRENCY);
     EXPECT_EQ(FxConvert(2.0, "usdd", "eurr", &res), FX_ERROR_UNKNOWN_CURRENCY);
 }
 
 TEST(FxConvert, HandlesNullPtr)
 {
     double res;
-    EXPECT_EQ(FxConvert(1.0, "usd", "eur", nullptr), FX_ERROR_NULL);
-    EXPECT_EQ(FxConvert(1.0, "usd", nullptr, &res), FX_ERROR_NULL);
-    EXPECT_EQ(FxConvert(1.0, nullptr, "eur", &res), FX_ERROR_NULL);
-    EXPECT_EQ(FxConvert(1.0, nullptr, nullptr, &res), FX_ERROR_NULL);
+    EXPECT_EQ(FxConvert(1.0, "usd", "eur", nullptr),     FX_ERROR_NULL);
+    EXPECT_EQ(FxConvert(1.0, "usd", nullptr, &res),              FX_ERROR_NULL);
+    EXPECT_EQ(FxConvert(1.0, nullptr, "eur", &res),              FX_ERROR_NULL);
+    EXPECT_EQ(FxConvert(1.0, nullptr, nullptr, &res),            FX_ERROR_NULL);
     EXPECT_EQ(FxConvert(1.0, nullptr, nullptr, nullptr), FX_ERROR_NULL);
+}
+
+TEST(FxHistory, HandlesValidInput)
+{
+    double arr[500];
+    EXPECT_EQ(FxHistory("sek", 500, arr), FX_OK);
+    EXPECT_EQ(FxHistory("usd", 500, arr), FX_OK);
+    EXPECT_EQ(FxHistory("eur", 500, arr), FX_OK);
+
+}
+
+TEST(FxHistory, HandlesInvalidCurrency)
+{
+    double arr[500];
+    EXPECT_NE(FxHistory("zzz", 500, arr),   FX_OK);
+    EXPECT_NE(FxHistory("   ", 500, arr),   FX_OK);
+    EXPECT_NE(FxHistory("XXX", 500, arr),   FX_OK);
+    EXPECT_NE(FxHistory("åäö", 500, arr),   FX_OK);
+    EXPECT_NE(FxHistory("seek", 500, arr),  FX_OK);
+    EXPECT_NE(FxHistory("us", 500, arr),    FX_OK);
+    EXPECT_NE(FxHistory("e", 500, arr),     FX_OK);
+    EXPECT_NE(FxHistory("", 500, arr),      FX_OK);
+    EXPECT_NE(FxHistory(" ", 500, arr),     FX_OK);
+    EXPECT_NE(FxHistory("\n", 500, arr),    FX_OK);
+
 }
