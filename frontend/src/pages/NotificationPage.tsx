@@ -12,14 +12,10 @@ type LiveAlertCardProps = {
 };
 
 const LiveAlertCard = ({ row, onDismiss }: LiveAlertCardProps) => {
-  const [open, setOpen] = useState(false);
   const difference = row.actual - row.target;
 
   return (
-    <div
-      className={`${styles.card} ${styles["border-left"]}`}
-      onClick={() => setOpen(!open)}
-    >
+    <div className={`${styles.card} ${styles["border-left"]}`}>
       <span className={styles.iconWrapper}>
         <FontAwesomeIcon icon={faBell} />
       </span>
@@ -31,25 +27,18 @@ const LiveAlertCard = ({ row, onDismiss }: LiveAlertCardProps) => {
         </strong>
         <p>Din fördelning avviker från ditt angivna mål.</p>
 
-        {open && (
-          <div>
-            <span>Nuvarande: {row.actual.toFixed(1)} %</span>{" "}
-            <span>Mål: {row.target.toFixed(1)} %</span>{" "}
-            <span>
-              Avvikelse: {difference > 0 ? "+" : ""}
-              {difference.toFixed(1)} %
-            </span>
-          </div>
-        )}
+        <div>
+          <span>Nuvarande: {row.actual.toFixed(1)} %</span>{" "}
+          <span>Mål: {row.target.toFixed(1)} %</span>{" "}
+          <span>
+            Avvikelse: {difference > 0 ? "+" : ""}
+            {difference.toFixed(1)} %
+          </span>
+        </div>
       </div>
 
-      <span
-        onClick={(e) => {
-          e.stopPropagation();
-          onDismiss();
-        }}
-      >
-        <FontAwesomeIcon icon={faTrashAlt} />
+      <span onClick={onDismiss}>
+        <FontAwesomeIcon icon={faTrashAlt} className={styles.trashcan} />
       </span>
     </div>
   );
@@ -59,10 +48,10 @@ export default function NotificationPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [dismissedRows, setDismissedRows] = useState<string[]>([]);
   const { dashboard } = useDashboard();
   const driftRows = (dashboard?.allocationRows ?? []).filter(
-    (row) => row.overThreshold,
+    (row) => row.overThreshold && !dismissedRows.includes(row.accountType),
   );
 
   const token = localStorage.getItem("token");
@@ -113,7 +102,13 @@ export default function NotificationPage() {
         <p className={styles.empty}>Inga live-varningar</p>
       )}
       {driftRows.map((row) => (
-        <LiveAlertCard key={row.accountType} row={row} onDismiss={() => {}} />
+        <LiveAlertCard
+          key={row.accountType}
+          row={row}
+          onDismiss={() =>
+            setDismissedRows([...dismissedRows, row.accountType])
+          }
+        />
       ))}
 
       <h2 className={styles.sectionTitle}>Äldre notifikationer</h2>
@@ -136,7 +131,10 @@ export default function NotificationPage() {
                 minute: "2-digit",
               })}{" "}
             </span>
-            <span onClick={() => dismissNotification(n.id)}>
+            <span
+              onClick={() => dismissNotification(n.id)}
+              className={styles.trashcan}
+            >
               <FontAwesomeIcon icon={faTrashAlt} />
             </span>
           </div>
