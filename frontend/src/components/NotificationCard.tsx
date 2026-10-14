@@ -1,4 +1,5 @@
 import styles from "./NotificationCard.module.css";
+import { useState } from "react";
 import AppCard from "./AppCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
@@ -11,43 +12,48 @@ type NotificationCardProps = {
 };
 
 const DriftCard = ({ row }: { row: AllocationRow }) => {
+  const [open, setOpen] = useState(false);
+
   const difference = row.actual - row.target;
 
   return (
-    <div className={`${styles.card} ${styles.warning}`}>
+    <div
+      className={`${styles.card} ${styles.warning}`}
+      onClick={() => setOpen(!open)}
+    >
       <FontAwesomeIcon icon={faTriangleExclamation} className={styles.icon} />
 
       <div className={styles.textWrapper}>
-        <strong>
+        <h3 className={styles.cardTitle}>
           {row.accountType} –{" "}
           {difference > 0 ? "Över målallokering" : "Under målallokering"}
-        </strong>
+        </h3>
 
-        <p>Din fördelning avviker från ditt angivna mål.</p>
+        <p className={styles.cardInfo}>
+          Din fördelning avviker från ditt angivna mål.
+        </p>
 
-        <div className={styles.values}>
-          <div className={styles.valueItem}>
-            <span className={styles.valueLabel}>Nuvarande</span>
-            <strong className={styles.valueNumber}>
-              {row.actual.toFixed(1)} %
-            </strong>
+        {open && (
+          <div className={styles.values}>
+            <div className={styles.valueItem}>
+              <span className={styles.valueLabel}>Nuvarande</span>
+              <p className={styles.valueNumber}>{row.actual.toFixed(1)} %</p>
+            </div>
+
+            <div className={styles.valueItem}>
+              <span className={styles.valueLabel}>Mål</span>
+              <p className={styles.valueNumber}>{row.target.toFixed(1)} %</p>
+            </div>
+
+            <div className={styles.valueItem}>
+              <span className={styles.valueLabel}>Avvikelse</span>
+              <p className={styles.valueNumber}>
+                {difference > 0 ? "+" : ""}
+                {difference.toFixed(1)} %
+              </p>
+            </div>
           </div>
-
-          <div className={styles.valueItem}>
-            <span className={styles.valueLabel}>Mål</span>
-            <strong className={styles.valueNumber}>
-              {row.target.toFixed(1)} %
-            </strong>
-          </div>
-
-          <div className={styles.valueItem}>
-            <span className={styles.valueLabel}>Avvikelse</span>
-            <strong className={styles.valueNumber}>
-              {difference > 0 ? "+" : ""}
-              {difference.toFixed(1)} %
-            </strong>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -1,10 +1,22 @@
 .title {
-  font-weight: 700;
+  font-weight: 500;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--muted-foreground);
   margin-bottom: 0.75rem;
+}
+
+.cardTitle {
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+
+.cardInfo {
+  font-size: 0.9rem;
 }
 
 .list {
@@ -19,6 +31,12 @@
   gap: 10px;
   padding: 1rem;
   border-radius: 10px;
+  border: 2px solid transparent;
+}
+
+.card:hover {
+  border: 2px solid var(--text-warning);
+  cursor: pointer;
 }
 
 .success {
@@ -56,18 +74,11 @@
   gap: 2px;
 }
 
-.notificationTitle {
-  font-size: var(--font-sm);
-  font-weight: 700;
-  color: var(--foreground);
-  margin: 0;
-}
-
-.notification {
+/* .notification {
   font-size: 0.8125rem;
   color: var(--foreground);
   margin: 0;
-}
+} */
 
 .time {
   font-size: 0.75rem;
@@ -79,7 +90,9 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  margin-top: 14px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .valueItem {
@@ -90,13 +103,14 @@
 
 .valueLabel {
   font-size: 0.75rem;
-  opacity: 0.7;
+  font-weight: 600;
+  text-transform: uppercase;
+  opacity: 0.9;
 }
 
 .valueNumber {
-  font-size: 1.25rem;
-  font-weight: 700;
-  white-space: nowrap;
+  font-size: 0.95rem;
+  font-weight: 400;
 }
 
 @media (max-width: 480px) {
