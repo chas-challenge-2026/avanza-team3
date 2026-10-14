@@ -7,6 +7,7 @@
 }
 
 h2 {
+  align-self: flex-start;
   margin-bottom: 0.5rem;
   font-weight: 700;
   font-size: 0.75rem;
@@ -30,11 +31,4 @@ h2 {
 
 .arrowIcon:hover {
   transform: translateX(4px);
-}
-
-.headerWrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 100%;
 }

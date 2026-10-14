@@ -4,6 +4,7 @@ project(fx C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_library(fx SHARED
         src/currency.cpp
@@ -25,11 +26,16 @@ add_subdirectory(../libs/curl-8.22.0 ${CMAKE_BINARY_DIR}/curl-build)
 
 target_link_libraries(fx PRIVATE CURL::libcurl)
 target_include_directories(fx PUBLIC include)
+target_compile_definitions(fx PRIVATE FX_BUILDING_LIBRARY)
+if (MINGW)
+    target_link_options(fx PRIVATE -static -static-libgcc -static-libstdc++)
+    # The bundled MinGW pthread archive uses the Windows UCRT setjmp intrinsic.
+    target_link_libraries(fx PRIVATE -Wl,--start-group stdc++ pthread ucrt -Wl,--end-group)
+endif ()
 
-if(WIN32)
+if (WIN32)
     set_target_properties(fx PROPERTIES PREFIX "")
-endif()
-
+endif ()
 if (UNIX)
     target_link_libraries(fx PRIVATE m)
 endif ()
