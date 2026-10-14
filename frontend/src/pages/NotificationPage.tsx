@@ -22,7 +22,12 @@ const LiveAlertCard = ({ alert, onDismiss }: LiveAlertCardProps) => {
       </span>
       <p className={styles.message}>{alert.message}</p>
       <span className={styles.time}>{alert.created_at}</span>
-      <span onClick={onDismiss}>
+      <span
+        onClick={(e) => {
+          e.stopPropagation();
+          onDismiss();
+        }}
+      >
         <FontAwesomeIcon icon={faTrashAlt} />
       </span>
     </div>
