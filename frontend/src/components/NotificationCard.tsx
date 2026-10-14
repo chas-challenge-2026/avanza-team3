@@ -10,6 +10,49 @@ type NotificationCardProps = {
   allocationRows: AllocationRow[];
 };
 
+const DriftCard = ({ row }: { row: AllocationRow }) => {
+  const difference = row.actual - row.target;
+
+  return (
+    <div className={`${styles.card} ${styles.warning}`}>
+      <FontAwesomeIcon icon={faTriangleExclamation} className={styles.icon} />
+
+      <div className={styles.textWrapper}>
+        <strong>
+          {row.accountType} –{" "}
+          {difference > 0 ? "Över målallokering" : "Under målallokering"}
+        </strong>
+
+        <p>Din fördelning avviker från ditt angivna mål.</p>
+
+        <div className={styles.values}>
+          <div className={styles.valueItem}>
+            <span className={styles.valueLabel}>Nuvarande</span>
+            <strong className={styles.valueNumber}>
+              {row.actual.toFixed(1)} %
+            </strong>
+          </div>
+
+          <div className={styles.valueItem}>
+            <span className={styles.valueLabel}>Mål</span>
+            <strong className={styles.valueNumber}>
+              {row.target.toFixed(1)} %
+            </strong>
+          </div>
+
+          <div className={styles.valueItem}>
+            <span className={styles.valueLabel}>Avvikelse</span>
+            <strong className={styles.valueNumber}>
+              {difference > 0 ? "+" : ""}
+              {difference.toFixed(1)} %
+            </strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const NotificationCard = ({
   alerts,
   allocationRows,
@@ -26,7 +69,10 @@ const NotificationCard = ({
       <p className={styles.title}>Notifikationer</p>
 
       <div className={styles.list}>
-        {driftRows.map((row) => {
+        {driftRows.map((row) => (
+          <DriftCard key={row.accountType} row={row} />
+        ))}
+        {/* {driftRows.map((row) => {
           const difference = row.actual - row.target;
 
           return (
@@ -75,7 +121,7 @@ const NotificationCard = ({
               </div>
             </div>
           );
-        })}
+        })} */}
 
         {otherAlerts.map((alert, index) => (
           <div key={index} className={`${styles.card} ${styles.warning}`}>
