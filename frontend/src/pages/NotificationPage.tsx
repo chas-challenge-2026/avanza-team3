@@ -134,6 +134,7 @@ export default function NotificationPage() {
             <span className={styles.iconWrapper}>
               <FontAwesomeIcon icon={faBell} />
             </span>
+
             <p className={styles.message}>{n.message}</p>
             {/*     <span className={styles.time}>
               {new Date(n.createdAt).toLocaleDateString("sv-SE", {
