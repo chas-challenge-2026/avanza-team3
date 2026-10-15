@@ -73,9 +73,11 @@ class HoldingControllerTest {
         String body = """
                 {
                   "accountId": 11,
-                  "instrumentId": 101,
+                  "ticker": "ERIC-B",
+                  "instrumentName": "Client supplied name is ignored",
                   "quantity": 5,
-                  "avgBuyPrice": 71.50
+                  "avgBuyPrice": 71.50,
+                  "currency": "USD"
                 }
                 """;
 
@@ -86,7 +88,7 @@ class HoldingControllerTest {
                 .andExpect(status().isCreated());
 
         verify(holdingService).addHolding(
-                eq(7), eq(11), eq(101),
+                eq(7), eq(11), eq("ERIC-B"),
                 eq(new BigDecimal("5")),
                 eq(new BigDecimal("71.50"))
         );
@@ -97,6 +99,7 @@ class HoldingControllerTest {
         String body = """
                 {
                   "accountId": 11,
+                  "ticker": "",
                   "quantity": 0,
                   "avgBuyPrice": 71.50
                 }
@@ -116,7 +119,7 @@ class HoldingControllerTest {
         String body = """
                 {
                   "accountId": 0,
-                  "instrumentId": -1,
+                  "ticker": "ERIC-B",
                   "quantity": 1,
                   "avgBuyPrice": 71.50
                 }
@@ -153,8 +156,8 @@ class HoldingControllerTest {
                 .andExpect(jsonPath("$.instrumentId").value(101))
                 .andExpect(jsonPath("$.ticker").value("ERIC-B"))
                 .andExpect(jsonPath("$.instrumentName").value("Ericsson B"))
-                .andExpect(jsonPath("$.instrumentType").value("STOCK"))
-                .andExpect(jsonPath("$.sector").value("UNKNOWN"))
+                .andExpect(jsonPath("$.instrumentType").value("Aktie"))
+                .andExpect(jsonPath("$.sector").value("Teknik"))
                 .andExpect(jsonPath("$.quantity").value(10))
                 .andExpect(jsonPath("$.avgBuyPrice").value(70.00))
                 .andExpect(jsonPath("$.currency").value("SEK"))
@@ -262,8 +265,8 @@ class HoldingControllerTest {
                 101,
                 "ERIC-B",
                 "Ericsson B",
-                InstrumentType.STOCK,
-                Sector.UNKNOWN,
+                "Aktie",
+                "Teknik",
                 quantity,
                 avgBuyPrice,
                 "SEK",

@@ -39,5 +39,16 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--muted-foreground);
-  margin: 20px 0 8px;
+  margin: 0 0 8px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
