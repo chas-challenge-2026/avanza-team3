@@ -135,14 +135,14 @@ export default function NotificationPage() {
               <FontAwesomeIcon icon={faBell} />
             </span>
             <p className={styles.message}>{n.message}</p>
-            <span className={styles.time}>
+            {/*     <span className={styles.time}>
               {new Date(n.createdAt).toLocaleDateString("sv-SE", {
                 day: "2-digit",
                 month: "2-digit",
                 hour: "2-digit",
                 minute: "2-digit",
               })}{" "}
-            </span>
+            </span> */}
             <span
               onClick={() => dismissNotification(n.id)}
               className={styles.trashcan}
