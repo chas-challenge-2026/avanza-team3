@@ -21,7 +21,7 @@ const LiveAlertCard = ({ row, onDismiss }: LiveAlertCardProps) => {
       </span>
 
       <div className={styles.message}>
-        <strong>
+        <strong className={styles.cardTitle}>
           {row.accountType} –{" "}
           {difference > 0 ? "Över målallokering" : "Under målallokering"}
         </strong>
@@ -60,6 +60,20 @@ export default function NotificationPage() {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, dismissed: true } : n)),
     );
+  }
+
+  function dismissLiveRow(row: AllocationRow) {
+    setDismissedRows([...dismissedRows, row.accountType]);
+    setNotifications((prev) => [
+      {
+        id: Date.now(),
+        alertType: "DRIFT",
+        message: `${row.accountType}-allokering: ${row.actual.toFixed(1)} % mot mål ${row.target.toFixed(1)} %`,
+        dismissed: false,
+        createdAt: new Date().toISOString(),
+      },
+      ...prev,
+    ]);
   }
 
   useEffect(() => {
@@ -105,9 +119,7 @@ export default function NotificationPage() {
         <LiveAlertCard
           key={row.accountType}
           row={row}
-          onDismiss={() =>
-            setDismissedRows([...dismissedRows, row.accountType])
-          }
+          onDismiss={() => dismissLiveRow(row)}
         />
       ))}
 
