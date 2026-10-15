@@ -21,17 +21,23 @@ const LiveAlertCard = ({ row, onDismiss }: LiveAlertCardProps) => {
       </span>
 
       <div className={styles.message}>
-        <strong className={styles.cardTitle}>
+        <p className={styles.cardTitle}>
           {row.accountType} –{" "}
           {difference > 0 ? "Över målallokering" : "Under målallokering"}
-        </strong>
+        </p>
         <p>Din fördelning avviker från ditt angivna mål.</p>
 
         <div>
-          <span>Nuvarande: {row.actual.toFixed(1)} %</span>{" "}
-          <span>Mål: {row.target.toFixed(1)} %</span>{" "}
           <span>
-            Avvikelse: {difference > 0 ? "+" : ""}
+            <span className={styles.bold}>Nuvarande:</span>{" "}
+            {row.actual.toFixed(1)} %
+          </span>{" "}
+          <span>
+            <span className={styles.bold}>Mål: </span> {row.target.toFixed(1)} %
+          </span>{" "}
+          <span>
+            <span className={styles.bold}>Avvikelse:</span>{" "}
+            {difference > 0 ? "+" : ""}
             {difference.toFixed(1)} %
           </span>
         </div>
@@ -135,7 +141,7 @@ export default function NotificationPage() {
               <FontAwesomeIcon icon={faBell} />
             </span>
 
-            <p className={styles.message}>{n.message}</p>
+            <p className={`${styles.message} ${styles.bold}`}>{n.message}</p>
             {/*     <span className={styles.time}>
               {new Date(n.createdAt).toLocaleDateString("sv-SE", {
                 day: "2-digit",

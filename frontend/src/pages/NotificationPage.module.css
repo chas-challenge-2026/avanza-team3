@@ -12,10 +12,8 @@
 .title {
   font-size: 1.7rem;
   font-weight: 700;
-  color: var(--foreground);
   margin: 0;
   line-height: 1.15;
-  letter-spacing: -0.5px;
 }
 
 .sectionTitle {
@@ -58,8 +56,16 @@
   flex: 1;
   min-width: 0;
   font-size: 0.875rem;
-  color: var(--foreground);
   margin: 0;
+}
+
+.cardTitle {
+  font-weight: 700;
+}
+
+.cardTitle,
+.message p {
+  margin-bottom: 0.4rem;
 }
 
 .time {
@@ -84,4 +90,18 @@
 .icon {
   color: var(--primary);
   font-size: 25px;
+}
+
+.trashcan {
+  cursor: pointer;
+  color: var(--text-gray);
+}
+
+.trashcan:hover {
+  color: var(--text-primary);
+}
+
+.bold {
+  font-weight: 500;
+  color: var(--text-gray);
 }
