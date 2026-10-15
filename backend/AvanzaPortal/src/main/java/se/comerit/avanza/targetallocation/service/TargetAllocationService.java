@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.comerit.avanza.exception.ResourceConflictException;
 import se.comerit.avanza.exception.ResourceNotFoundException;
+import se.comerit.avanza.targetallocation.dto.TargetAllocationPatchRequest;
 import se.comerit.avanza.targetallocation.dto.TargetAllocationRequest;
 import se.comerit.avanza.targetallocation.dto.TargetAllocationResponse;
 import se.comerit.avanza.targetallocation.model.TargetAllocation;
@@ -72,6 +73,35 @@ public class TargetAllocationService {
         );
 
         return toTargetAllocationResponse(targetAllocationRepository.save(targetAllocation));
+    }
+
+    @PreAuthorize("#userId == authentication.details")
+    @Transactional
+    public TargetAllocationResponse updateTargetAllocation(
+            Integer targetAllocationId,
+            Integer userId,
+            TargetAllocationPatchRequest request) {
+
+        TargetAllocation targetAllocation = findOwnedTargetAllocation(targetAllocationId, userId);
+
+        if (request.accountType() != null) {
+            String accountType = normalizeAccountType(request.accountType());
+            ensureAccountTypeIsAvailable(userId, accountType, targetAllocationId);
+            targetAllocation.setAccountType(accountType);
+        }
+
+        if (request.targetPercentage() != null) {
+            targetAllocation.setTargetPct(request.targetPercentage());
+        }
+
+        return toTargetAllocationResponse(targetAllocationRepository.save(targetAllocation));
+    }
+
+    @PreAuthorize("#userId == authentication.details")
+    @Transactional
+    public void deleteTargetAllocation(Integer targetAllocationId, Integer userId) {
+        TargetAllocation targetAllocation = findOwnedTargetAllocation(targetAllocationId, userId);
+        targetAllocationRepository.delete(targetAllocation);
     }
 
     @PreAuthorize("#userId == authentication.details")

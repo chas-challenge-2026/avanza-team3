@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import se.comerit.avanza.targetallocation.dto.TargetAllocationPatchRequest;
 import se.comerit.avanza.targetallocation.dto.TargetAllocationRequest;
 import se.comerit.avanza.targetallocation.dto.TargetAllocationResponse;
 import se.comerit.avanza.targetallocation.service.TargetAllocationService;
@@ -115,5 +116,51 @@ public class TargetAllocationController {
                 targetAllocationService.createTargetAllocation(userId, request);
 
         return ResponseEntity.status(201).body(response);
+    }
+
+    @Operation(
+            summary = "Update target allocation",
+            description = "Partially updates a target allocation belonging to the authenticated user."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Target allocation updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid target allocation data"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "404", description = "Target allocation not found"),
+            @ApiResponse(responseCode = "409", description = "Target allocation already exists for the account type")
+    })
+    @PatchMapping("/{targetAllocationId}")
+    public ResponseEntity<TargetAllocationResponse> updateTargetAllocation(
+            @PathVariable("targetAllocationId") @Positive Integer targetAllocationId,
+            @Valid @NotNull @RequestBody TargetAllocationPatchRequest request,
+            @Parameter(hidden = true) Authentication authentication) {
+
+        Integer userId = (Integer) authentication.getDetails();
+        return ResponseEntity.ok(
+                targetAllocationService.updateTargetAllocation(
+                        targetAllocationId,
+                        userId,
+                        request
+                )
+        );
+    }
+
+    @Operation(
+            summary = "Delete target allocation",
+            description = "Deletes a target allocation belonging to the authenticated user."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Target allocation deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "404", description = "Target allocation not found")
+    })
+    @DeleteMapping("/{targetAllocationId}")
+    public ResponseEntity<Void> deleteTargetAllocation(
+            @PathVariable("targetAllocationId") @Positive Integer targetAllocationId,
+            @Parameter(hidden = true) Authentication authentication) {
+
+        Integer userId = (Integer) authentication.getDetails();
+        targetAllocationService.deleteTargetAllocation(targetAllocationId, userId);
+        return ResponseEntity.noContent().build();
     }
 }
