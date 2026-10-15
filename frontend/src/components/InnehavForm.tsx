@@ -253,7 +253,7 @@ const InnehavsForm = () => {
                 name="avgBuyPrice"
                 type="number"
                 placeholder="150.00"
-                label="Snittpris"
+                label={`Snittpris (${selectedInstrument?.currency ?? "valuta"})`}
                 value={formData.avgBuyPrice}
                 onChange={handleChange}
                 error={Boolean(errors.avgBuyPrice)}

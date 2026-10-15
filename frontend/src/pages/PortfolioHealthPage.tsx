@@ -12,6 +12,8 @@ import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
 import PopOver from "../components/Popover";
 import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
+import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
+import { useEffect } from "react";
 
 function PortfolioHealthPage() {
   // const { rows } = usePortfolioAllocations();
@@ -30,6 +32,26 @@ function PortfolioHealthPage() {
   //   KF: "#1976d2",
   //   Depa: "#8b69a7",
   // };
+  useEffect(() => {
+    if (!dashboard) return;
+
+    const holdings = dashboard.holdings.content;
+
+    console.table(
+      holdings.map((holding) => ({
+        ticker: holding.ticker,
+        valueSek: holding.valueSek,
+        currency: holding.currency,
+      })),
+    );
+
+    console.log(
+      "Total SEK:",
+      holdings.reduce((sum, holding) => sum + holding.valueSek, 0),
+    );
+
+    console.log("Spread:", calculateHoldingSpread(holdings));
+  }, [dashboard]);
 
   const changePercent = 5;
 
@@ -57,7 +79,9 @@ function PortfolioHealthPage() {
     danger: "Hög Risk",
   };
 
-  const diversification = 72;
+  const diversification = dashboard
+    ? calculateHoldingSpread(dashboard.holdings.content)
+    : 0;
 
   const diversificationLevel = () => {
     if (diversification >= 70) {
@@ -172,11 +196,12 @@ function PortfolioHealthPage() {
         <AppCard>
           <div className={styles.kpiCard}>
             <div className={styles.header}>
-              <p className={styles.label}>Diversifieringsgrad</p>
+              <p className={styles.label}>Innehavsspridning</p>
               <PopOver
-                title="Vad betyder Diversifieringsgrad?"
-                content="Diversifieringsgrad visar hur spridd en portfölj är.
-              Bra spridning: investeringar i många bolag och branscher."
+                title="Vad betyder Innehavsspridning?"
+                content="Innehavsspridning visar hur jämnt portföljens värde är fördelat mellan olika innehav.
+                  Ett högre värde innebär att kapitalet är mer utspritt, 
+                 men säger inte något om hur innehavens risker samvarierar."
               />
             </div>
             <div className={styles.row}>
