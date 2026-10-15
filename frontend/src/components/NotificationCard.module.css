@@ -113,6 +113,24 @@
   font-weight: 400;
 }
 
+.viewMore {
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.viewMore:hover {
+  text-decoration: underline;
+}
+
+.viewMore svg {
+  transition: transform 0.2s ease;
+}
+
+.viewMore:hover svg {
+  transform: translateX(4px);
+}
+
 @media (max-width: 480px) {
   .values {
     grid-template-columns: repeat(2, minmax(0, 1fr));

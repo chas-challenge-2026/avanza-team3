@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import type { LiveAlert } from "../types/notification";
 import type { AllocationRow } from "../types/dashboard";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
 
 type NotificationCardProps = {
   alerts: LiveAlert[];
@@ -52,6 +54,9 @@ const DriftCard = ({ row }: { row: AllocationRow }) => {
                 {difference.toFixed(1)} %
               </p>
             </div>
+            <Link to="/notiser" className={styles.viewMore}>
+              Se alla notifikationer <FontAwesomeIcon icon={faArrowRight} />
+            </Link>
           </div>
         )}
       </div>
