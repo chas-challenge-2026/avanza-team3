@@ -15,7 +15,7 @@ const LiveAlertCard = ({ row, onDismiss }: LiveAlertCardProps) => {
   const difference = row.actual - row.target;
 
   return (
-    <div className={`${styles.card} ${styles["border-left"]}`}>
+    <div className={styles.card}>
       <span className={`${styles.iconWrapper} ${styles.warning}`}>
         <FontAwesomeIcon icon={faBell} />
       </span>
