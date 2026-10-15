@@ -16,7 +16,7 @@ const LiveAlertCard = ({ row, onDismiss }: LiveAlertCardProps) => {
 
   return (
     <div className={`${styles.card} ${styles["border-left"]}`}>
-      <span className={styles.iconWrapper}>
+      <span className={`${styles.iconWrapper} ${styles.warning}`}>
         <FontAwesomeIcon icon={faBell} />
       </span>
 
@@ -137,7 +137,7 @@ export default function NotificationPage() {
         .filter((n) => !n.dismissed)
         .map((n) => (
           <div key={n.id} className={styles.card}>
-            <span className={styles.iconWrapper}>
+            <span className={`${styles.iconWrapper} ${styles.green}`}>
               <FontAwesomeIcon icon={faBell} />
             </span>
 

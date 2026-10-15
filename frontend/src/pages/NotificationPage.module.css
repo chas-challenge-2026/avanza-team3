@@ -36,20 +36,24 @@
   margin: 0 0 5px;
 }
 
-.border-left {
-  border-left: 4px solid var(--primary);
-}
-
 .iconWrapper {
   width: 34px;
   height: 34px;
   flex-shrink: 0;
   border-radius: 50%;
-  background-color: var(--bg-light-green);
-  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.warning {
+  background-color: var(--bg-light-warning);
+  color: var(--text-warning);
+}
+
+.green {
+  color: var(--text-gray);
+  background-color: #f0f1f2;
 }
 
 .message {
