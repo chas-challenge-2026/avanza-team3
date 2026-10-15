@@ -13,18 +13,24 @@ import CurrencyExposure from "../components/CurrencyExposure";
 import PopOver from "../components/Popover";
 import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
 import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useInstruments } from "../hooks/useInstruments";
 
 function PortfolioHealthPage() {
   // const { rows } = usePortfolioAllocations();
   const { dashboard, loading } = useDashboard();
   const { holdings } = useHoldings();
   const { riskData } = usePortfolioRisk();
+  const {
+    instrument: instruments,
+    loading: instrumentsLoading,
+    error: instrumentsError
+  } = useInstruments();
 
   const statusColors = {
     good: "#16a34a",
     warning: "#d97706",
-    danger: "#dc2626",
+    danger: "#dc2626"
   };
 
   // const accountColors: Record<string, string> = {
@@ -41,13 +47,13 @@ function PortfolioHealthPage() {
       holdings.map((holding) => ({
         ticker: holding.ticker,
         valueSek: holding.valueSek,
-        currency: holding.currency,
-      })),
+        currency: holding.currency
+      }))
     );
 
     console.log(
       "Total SEK:",
-      holdings.reduce((sum, holding) => sum + holding.valueSek, 0),
+      holdings.reduce((sum, holding) => sum + holding.valueSek, 0)
     );
 
     console.log("Spread:", calculateHoldingSpread(holdings));
@@ -76,7 +82,7 @@ function PortfolioHealthPage() {
   const riskLevelText = {
     good: "Låg Risk",
     warning: "Måttlig Risk",
-    danger: "Hög Risk",
+    danger: "Hög Risk"
   };
 
   const diversification = dashboard
@@ -96,26 +102,37 @@ function PortfolioHealthPage() {
   const diversificationText = {
     good: "God spridning",
     warning: "Måttlig spridning",
-    danger: "Låg spridning",
+    danger: "Låg spridning"
   };
 
-  // const allocationData = rows.map((row) => ({
-  //   label: row.accountType,
-  //   value: row.actual,
-  //   color: accountColors[row.accountType],
-  // }));
+  const typeTotals = new Map<string, number>();
 
-  // const allocations =
-  //   dashboard?.allocationRows.map((row, index) => ({
-  //     id: `${row.accountType}-${index}`,
-  //     label: row.accountType,
-  //     value: row.target
-  //   })) ?? [];
+  for (const holding of dashboard?.holdings.content ?? []) {
+    const instrument = instruments.find(
+      (item) => item.ticker.toUpperCase() === holding.ticker.toUpperCase()
+    );
+
+    const label =
+      instrument?.instrumentType === "STOCK"
+        ? "Aktier"
+        : instrument?.instrumentType === "FUND" ||
+            instrument?.instrumentType === "ETF"
+          ? "Fonder"
+          : "Övrigt";
+
+    typeTotals.set(label, (typeTotals.get(label) ?? 0) + holding.valueSek);
+  }
+
+  const instrumentTypeData = Array.from(typeTotals, ([label, value]) => ({
+    label,
+    value
+  }));
+  console.log(instrumentTypeData);
 
   const mockAllocations = [
     { id: "stocks", label: "Aktier", value: 50, target: 60 },
     { id: "funds", label: "Fonder", value: 30, target: 50 },
-    { id: "bonds", label: "Ränteplaceringar", value: 20, target: 10 },
+    { id: "bonds", label: "Ränteplaceringar", value: 20, target: 10 }
   ];
 
   return (
@@ -154,7 +171,7 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": { fill: statusColors[riskLevel()] },
-                  "& .MuiGauge-valueText": { display: "none" },
+                  "& .MuiGauge-valueText": { display: "none" }
                 }}
                 width={90}
                 height={90}
@@ -172,7 +189,7 @@ function PortfolioHealthPage() {
             </div>
             <p className={styles.value}>
               {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-                maximumFractionDigits: 0,
+                maximumFractionDigits: 0
               })}{" "}
               SEK
             </p>
@@ -218,9 +235,9 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": {
-                    fill: statusColors[diversificationLevel()],
+                    fill: statusColors[diversificationLevel()]
                   },
-                  "& .MuiGauge-valueText": { display: "none" },
+                  "& .MuiGauge-valueText": { display: "none" }
                 }}
                 width={90}
                 height={60}
@@ -251,10 +268,10 @@ function PortfolioHealthPage() {
             help={{
               title: "Vad betyder instrumenttyp?",
               content:
-                "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie, fond eller obligation.",
+                "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie, fond eller obligation."
             }}
             title="Aktuell fördelning per instrumenttyp"
-            data={mockAllocations}
+            data={instrumentTypeData}
           />
         </AppCard>
       </div>
@@ -275,7 +292,7 @@ function PortfolioHealthPage() {
             "account_name",
             "marketValue",
             "pnl",
-            "pnlPct",
+            "pnlPct"
           ]}
         />
       </div>
