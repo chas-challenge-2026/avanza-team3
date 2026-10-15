@@ -31,7 +31,7 @@ const InnehavsLista = ({
       field: "marketValue",
       headerName: "Marknadsvärde",
       render: (row: Holding) =>
-        `${row.marketValue.toLocaleString("sv-SE")} SEK`,
+        `${row.marketValue.toLocaleString("sv-SE")} ${row.currency}`,
     },
     account_name: { field: "account_name", headerName: "Konto" },
     ticker: { field: "ticker", headerName: "Ticker" },
@@ -41,7 +41,7 @@ const InnehavsLista = ({
       field: "avgBuyPrice",
       headerName: "Köppris",
       render: (row: Holding) =>
-        `${row.avgBuyPrice.toLocaleString("sv-SE")} SEK`,
+        `${row.avgBuyPrice.toLocaleString("sv-SE")} ${row.currency}`,
     },
     currentPrice: { field: "currentPrice", headerName: "Aktuellt pris" },
     currency: { field: "currency", headerName: "Valuta" },
@@ -53,7 +53,8 @@ const InnehavsLista = ({
     pnl: {
       field: "pnl",
       headerName: "Vinst/Förlust",
-      render: (row: Holding) => `${row.pnl.toLocaleString("sv-SE")} SEK`,
+      render: (row: Holding) =>
+        `${row.pnl.toLocaleString("sv-SE")} ${row.currency}`,
     },
     pnlPct: {
       field: "pnlPct",

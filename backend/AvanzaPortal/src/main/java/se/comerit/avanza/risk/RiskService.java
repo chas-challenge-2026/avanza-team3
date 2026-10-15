@@ -1,7 +1,7 @@
 package se.comerit.avanza.risk;
 
-import com.sun.jna.Native;
 import org.springframework.stereotype.Service;
+import se.comerit.avanza.nativebridge.NativeLibraryLoader;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -47,6 +47,6 @@ public class RiskService {
     }
 
     private static class RiskLibraryHolder {
-        private static final RiskLibrary INSTANCE = Native.load("risk", RiskLibrary.class);
+        private static final RiskLibrary INSTANCE = NativeLibraryLoader.load("risk", RiskLibrary.class);
     }
 }

@@ -1,6 +1,16 @@
 #ifndef RISK_H
 #define RISK_H
 
+#if defined(_WIN32)
+#if defined(RISK_BUILDING_LIBRARY)
+#define RISK_API __declspec(dllexport)
+#else
+#define RISK_API __declspec(dllimport)
+#endif
+#else
+#define RISK_API
+#endif
+
 #define MIN_NUMBER_OF_ELEMENTS 3
 
 enum
@@ -34,6 +44,6 @@ extern "C"
  * 
  * @return Error code
  */
-int risk_compute(const double *values, int length, double risk_free_rate, int periods_per_year, RiskResult *out);
+RISK_API int risk_compute(const double *values, int length, double risk_free_rate, int periods_per_year, RiskResult *out);
 
 #endif // RISK_H

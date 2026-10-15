@@ -28,6 +28,7 @@ public class DashboardService {
 
     private static final BigDecimal DRIFT_THRESHOLD = new BigDecimal("0.05");
     private static final List<String> ACCOUNT_TYPES = List.of("ISK", "KF", "Depa", "Pension");
+    private static final String BASE_CURRENCY = "SEK";
 
     private final AccountService accountService;
     private final HoldingService holdingService;
@@ -62,12 +63,12 @@ public class DashboardService {
         Map<Integer, String> accountTypeById = createAccountTypeById(accounts);
         Map<Integer, BigDecimal> accountTotals = new HashMap<>();
         Map<String, BigDecimal> accountTypeTotals = createAccountTypeTotals();
-        BigDecimal usdToSek = marketDataService.getFxRate("USD", "SEK");
+        BigDecimal usdToSek = marketDataService.getFxRate("USD", BASE_CURRENCY);
 
         BigDecimal totalPortfolioValue = BigDecimal.ZERO;
 
         for (Map<String, Object> holding : holdingsForTotals) {
-            HoldingSummaryResponse enriched = enrichHolding(holding, usdToSek);
+            HoldingSummaryResponse enriched = enrichHolding(holding);
             BigDecimal valueSek = enriched.valueSek();
 
             Integer accountId = (Integer) holding.get("account_id");
@@ -86,7 +87,7 @@ public class DashboardService {
 
         return new DashboardView(
                 createAccountSummary(accounts, accountTotals),
-                createHoldingPage(holdingsPage, usdToSek),
+                createHoldingPage(holdingsPage),
                 allocationResult.rows(),
                 roundToDouble(totalPortfolioValue),
                 getRecentAlerts(userId),
@@ -95,9 +96,9 @@ public class DashboardService {
         );
     }
 
-    private HoldingPageResponse createHoldingPage(Page<Map<String, Object>> holdingsPage, BigDecimal usdToSek) {
+    private HoldingPageResponse createHoldingPage(Page<Map<String, Object>> holdingsPage) {
         List<HoldingSummaryResponse> content = holdingsPage.getContent().stream()
-                .map(holding -> enrichHolding(holding, usdToSek))
+                .map(this::enrichHolding)
                 .toList();
 
         return new HoldingPageResponse(
@@ -127,15 +128,15 @@ public class DashboardService {
         return accountTypeTotals;
     }
 
-    private HoldingSummaryResponse enrichHolding(Map<String, Object> holding, BigDecimal usdToSek) {
+    private HoldingSummaryResponse enrichHolding(Map<String, Object> holding) {
         String ticker = (String) holding.get("ticker");
         String currency = (String) holding.get("currency");
         BigDecimal quantity = toBigDecimal(holding.get("quantity"));
         BigDecimal avgBuy = toBigDecimal(holding.get("avg_buy_price"));
         BigDecimal currentPrice = marketDataService.getPrice(ticker);
 
-        BigDecimal valueSek = quantity.multiply(currentPrice).multiply(currencyMultiplier(currency, usdToSek));
-        BigDecimal costBasis = quantity.multiply(avgBuy).multiply(currencyMultiplier(currency, usdToSek));
+        BigDecimal valueSek = marketDataService.convert(quantity.multiply(currentPrice), currency, BASE_CURRENCY);
+        BigDecimal costBasis = marketDataService.convert(quantity.multiply(avgBuy), currency, BASE_CURRENCY);
         BigDecimal unrealizedReturn = valueSek.subtract(costBasis);
         BigDecimal unrealizedReturnPct = costBasis.compareTo(BigDecimal.ZERO) > 0
                 ? unrealizedReturn.divide(costBasis, 6, RoundingMode.HALF_UP).multiply(new BigDecimal("100"))
@@ -159,12 +160,8 @@ public class DashboardService {
                 round(unrealizedReturn),
                 round(unrealizedReturnPct),
                 round(sharpe),
-                "USD".equals(currency) ? "USD->SEK" : "SEK"
+                BASE_CURRENCY.equals(currency) ? BASE_CURRENCY : currency + "->" + BASE_CURRENCY
         );
-    }
-
-    private BigDecimal currencyMultiplier(String currency, BigDecimal usdToSek) {
-        return "USD".equals(currency) ? usdToSek : BigDecimal.ONE;
     }
 
     private AllocationResult createAllocationRows(List<Map<String, Object>> targets,

@@ -14,14 +14,12 @@ export type Holding = {
   pnlPct: number;
 };
 
-export interface HoldingRequest {
+export type HoldingRequest = {
   accountId: number;
   ticker: string;
-  instrumentName: string;
   quantity: number;
   avgBuyPrice: number;
-  currency: string;
-}
+};
 
 export type HoldingApiResponse = {
   id: number;

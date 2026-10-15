@@ -19,6 +19,9 @@ public class FallbackMarketDataProvider implements MarketDataProvider {
     );
     private static final Map<String, BigDecimal> FX_FALLBACKS = Map.of(
             "USD/SEK", new BigDecimal("10.45"),
+            "EUR/SEK", new BigDecimal("11.42"),
+            "GBP/SEK", new BigDecimal("13.08"),
+            "JPY/SEK", new BigDecimal("0.068"),
             "SEK/SEK", BigDecimal.ONE
     );
 
