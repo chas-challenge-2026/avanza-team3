@@ -23,9 +23,11 @@ import se.comerit.avanza.instrument.model.Instrument;
 import se.comerit.avanza.instrument.model.InstrumentType;
 import se.comerit.avanza.instrument.model.Sector;
 import se.comerit.avanza.instrument.service.InstrumentService;
-import se.comerit.avanza.market.service.MarketDataService;
+import se.comerit.avanza.portfolio.dto.ValuedHolding;
+import se.comerit.avanza.portfolio.service.PortfolioValuationService;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +47,7 @@ class HoldingServiceTest {
     private AccountService accountService;
 
     @Mock
-    private MarketDataService marketDataService;
+    private PortfolioValuationService portfolioValuationService;
 
     @Mock
     private InstrumentService instrumentService;
@@ -54,7 +56,7 @@ class HoldingServiceTest {
     private HoldingService holdingService;
 
     @Test
-    void getHoldingsByUserIdShouldCalculateMarketValueAndPnlWithBigDecimal() {
+    void getHoldingsByUserIdShouldUseSharedPortfolioValuation() {
         Holding holding = holdingWithAccount(
                 31, 11, 7, "ISK", "Main ISK",
                 101, "ERIC-B", "Ericsson B",
@@ -63,8 +65,7 @@ class HoldingServiceTest {
 
         when(holdingRepository.findByAccountUserIdOrderByAccountAccountTypeAscInstrumentTickerAsc(7))
                 .thenReturn(List.of(holding));
-        when(marketDataService.getPrice("ERIC-B"))
-                .thenReturn(new BigDecimal("74.20"));
+        mockValuation(new BigDecimal("74.20"), BigDecimal.ONE);
 
         List<Map<String, Object>> result = holdingService.getHoldingsByUserId(7);
 
@@ -84,7 +85,7 @@ class HoldingServiceTest {
         assertEquals("ISK", row.get("account_type"));
         assertEquals("Main ISK", row.get("account_name"));
 
-        verify(marketDataService).getPrice("ERIC-B");
+        verify(portfolioValuationService).value(holding);
     }
 
     @Test
@@ -97,8 +98,7 @@ class HoldingServiceTest {
 
         when(holdingRepository.findByAccountUserId(eq(7), any(Pageable.class)))
                 .thenAnswer(invocation -> new PageImpl<>(List.of(holding), invocation.getArgument(1), 1));
-        when(marketDataService.getPrice("ERIC-B"))
-                .thenReturn(new BigDecimal("74.20"));
+        mockValuation(new BigDecimal("74.20"), BigDecimal.ONE);
 
         Page<Map<String, Object>> result = holdingService.getHoldingsByUserId(7, 2, 15);
 
@@ -117,7 +117,7 @@ class HoldingServiceTest {
         assertEquals(new BigDecimal("148.40"), row.get("marketValue"));
         assertEquals(new BigDecimal("8.40"), row.get("pnl"));
         assertEquals(new BigDecimal("6.00"), row.get("pnlPct"));
-        verify(marketDataService).getPrice("ERIC-B");
+        verify(portfolioValuationService).value(holding);
     }
 
     @Test
@@ -134,9 +134,7 @@ class HoldingServiceTest {
                 eq(InstrumentType.STOCK),
                 any(Pageable.class)
         )).thenAnswer(invocation -> new PageImpl<>(List.of(holding), invocation.getArgument(3), 1));
-
-        when(marketDataService.getPrice("ERIC-B"))
-                .thenReturn(new BigDecimal("74.20"));
+        mockValuation(new BigDecimal("74.20"), BigDecimal.ONE);
 
         Page<Map<String, Object>> result = holdingService.getHoldingsByUserId(
                 7,
@@ -234,10 +232,8 @@ class HoldingServiceTest {
                 new BigDecimal("10"), new BigDecimal("70.00"), "SEK"
         );
 
-        when(holdingRepository.findByIdAndAccountUserId(31, 7))
-                .thenReturn(Optional.of(holding));
-        when(marketDataService.getPrice("ERIC-B"))
-                .thenReturn(new BigDecimal("74.20"));
+        when(holdingRepository.findByIdAndAccountUserId(31, 7)).thenReturn(Optional.of(holding));
+        mockValuation(new BigDecimal("74.20"), BigDecimal.ONE);
 
         HoldingResponse response = holdingService.getHoldingById(31, 7);
 
@@ -257,7 +253,7 @@ class HoldingServiceTest {
         assertEquals(new BigDecimal("6.00"), response.pnlPct());
 
         verify(holdingRepository).findByIdAndAccountUserId(31, 7);
-        verify(marketDataService).getPrice("ERIC-B");
+        verify(portfolioValuationService).value(holding);
     }
 
     @Test
@@ -278,7 +274,7 @@ class HoldingServiceTest {
         ReflectionTestUtils.setField(holding, "account", account);
 
         when(holdingRepository.findByIdAndAccountUserId(32, 7)).thenReturn(Optional.of(holding));
-        when(marketDataService.getPrice("GLOBAL-FUND")).thenReturn(new BigDecimal("110.00"));
+        mockValuation(new BigDecimal("110.00"), BigDecimal.ONE);
 
         HoldingResponse response = holdingService.getHoldingById(32, 7);
 
@@ -287,16 +283,15 @@ class HoldingServiceTest {
     }
 
     @Test
-    void getHoldingByIdShouldRejectHoldingNotOwnedByUserWithoutRequestingMarketPrice() {
-        when(holdingRepository.findByIdAndAccountUserId(31, 7))
-                .thenReturn(Optional.empty());
+    void getHoldingByIdShouldRejectHoldingNotOwnedByUserWithoutRequestingValuation() {
+        when(holdingRepository.findByIdAndAccountUserId(31, 7)).thenReturn(Optional.empty());
 
         assertThrows(
                 ResourceNotFoundException.class,
                 () -> holdingService.getHoldingById(31, 7)
         );
 
-        verifyNoInteractions(marketDataService);
+        verifyNoInteractions(portfolioValuationService);
     }
 
     @Test
@@ -307,12 +302,9 @@ class HoldingServiceTest {
                 new BigDecimal("10"), new BigDecimal("70.00"), "SEK"
         );
 
-        when(holdingRepository.findByIdAndAccountUserId(31, 7))
-                .thenReturn(Optional.of(holding));
-        when(holdingRepository.save(any(Holding.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-        when(marketDataService.getPrice("ERIC-B"))
-                .thenReturn(new BigDecimal("74.20"));
+        when(holdingRepository.findByIdAndAccountUserId(31, 7)).thenReturn(Optional.of(holding));
+        when(holdingRepository.save(any(Holding.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        mockValuation(new BigDecimal("74.20"), BigDecimal.ONE);
 
         HoldingPatchRequest request = new HoldingPatchRequest(
                 new BigDecimal("15"),
@@ -331,13 +323,12 @@ class HoldingServiceTest {
         assertEquals(new BigDecimal("6.00"), response.pnlPct());
 
         verify(holdingRepository).save(holding);
-        verify(marketDataService).getPrice("ERIC-B");
+        verify(portfolioValuationService).value(holding);
     }
 
     @Test
-    void updateHoldingShouldRejectHoldingNotOwnedByUserWithoutSavingOrRequestingMarketPrice() {
-        when(holdingRepository.findByIdAndAccountUserId(31, 7))
-                .thenReturn(Optional.empty());
+    void updateHoldingShouldRejectHoldingNotOwnedByUserWithoutSavingOrRequestingValuation() {
+        when(holdingRepository.findByIdAndAccountUserId(31, 7)).thenReturn(Optional.empty());
 
         HoldingPatchRequest request = new HoldingPatchRequest(
                 new BigDecimal("15"), null
@@ -349,7 +340,7 @@ class HoldingServiceTest {
         );
 
         verify(holdingRepository, never()).save(any());
-        verifyNoInteractions(marketDataService);
+        verifyNoInteractions(portfolioValuationService);
     }
 
     @Test
@@ -367,6 +358,49 @@ class HoldingServiceTest {
 
         verifyNoInteractions(instrumentService);
         verify(holdingRepository, never()).save(any());
+    }
+
+    private void mockValuation(BigDecimal currentPrice, BigDecimal fxRateToSek) {
+        when(portfolioValuationService.value(any(Holding.class)))
+                .thenAnswer(invocation -> valuedHolding(invocation.getArgument(0), currentPrice, fxRateToSek));
+    }
+
+    private ValuedHolding valuedHolding(
+            Holding holding,
+            BigDecimal currentPrice,
+            BigDecimal fxRateToSek) {
+
+        Instrument instrument = holding.getInstrument();
+        BigDecimal quantity = holding.getQuantity() != null ? holding.getQuantity() : BigDecimal.ZERO;
+        BigDecimal avgBuyPrice = holding.getAvgBuyPrice() != null ? holding.getAvgBuyPrice() : BigDecimal.ZERO;
+        BigDecimal marketValueSek = quantity.multiply(currentPrice).multiply(fxRateToSek);
+        BigDecimal costBasisSek = quantity.multiply(avgBuyPrice).multiply(fxRateToSek);
+        BigDecimal pnlSek = marketValueSek.subtract(costBasisSek);
+        BigDecimal pnlPct = costBasisSek.compareTo(BigDecimal.ZERO) > 0
+                ? pnlSek.divide(costBasisSek, 8, RoundingMode.HALF_UP).multiply(new BigDecimal("100"))
+                : BigDecimal.ZERO;
+        Account account = holding.getAccount();
+
+        return new ValuedHolding(
+                holding.getId(),
+                holding.getAccountId(),
+                account != null ? account.getAccountType() : null,
+                account != null ? account.getAccountName() : null,
+                instrument.getId(),
+                instrument.getTicker(),
+                instrument.getName(),
+                instrument.getInstrumentType(),
+                instrument.getSector(),
+                instrument.getCurrency(),
+                quantity,
+                avgBuyPrice,
+                currentPrice.setScale(2, RoundingMode.HALF_UP),
+                fxRateToSek.setScale(8, RoundingMode.HALF_UP),
+                marketValueSek.setScale(2, RoundingMode.HALF_UP),
+                costBasisSek.setScale(2, RoundingMode.HALF_UP),
+                pnlSek.setScale(2, RoundingMode.HALF_UP),
+                pnlPct.setScale(2, RoundingMode.HALF_UP)
+        );
     }
 
     private Holding holdingWithAccount(
