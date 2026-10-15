@@ -1,16 +1,14 @@
 package se.comerit.avanza.holding.service;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import se.comerit.avanza.account.service.AccountService;
 import se.comerit.avanza.exception.ResourceNotFoundException;
 import se.comerit.avanza.holding.dto.HoldingPatchRequest;
@@ -19,11 +17,12 @@ import se.comerit.avanza.holding.model.Holding;
 import se.comerit.avanza.holding.repository.HoldingRepository;
 import se.comerit.avanza.instrument.model.Instrument;
 import se.comerit.avanza.instrument.model.InstrumentType;
+import se.comerit.avanza.instrument.model.Sector;
 import se.comerit.avanza.instrument.service.InstrumentService;
-import se.comerit.avanza.market.service.MarketDataService;
+import se.comerit.avanza.portfolio.dto.ValuedHolding;
+import se.comerit.avanza.portfolio.service.PortfolioValuationService;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,13 +32,17 @@ public class HoldingService {
 
     private final HoldingRepository holdingRepository;
     private final AccountService accountService;
-    private final MarketDataService marketDataService;
+    private final PortfolioValuationService portfolioValuationService;
     private final InstrumentService instrumentService;
 
-    public HoldingService(HoldingRepository holdingRepository, AccountService accountService, MarketDataService marketDataService, InstrumentService instrumentService) {
+    public HoldingService(
+            HoldingRepository holdingRepository,
+            AccountService accountService,
+            PortfolioValuationService portfolioValuationService,
+            InstrumentService instrumentService) {
         this.holdingRepository = holdingRepository;
         this.accountService = accountService;
-        this.marketDataService = marketDataService;
+        this.portfolioValuationService = portfolioValuationService;
         this.instrumentService = instrumentService;
     }
 
@@ -47,8 +50,8 @@ public class HoldingService {
     @Cacheable(value = "holdingsByUser", key = "#userId")
     @Transactional
     public List<Map<String, Object>> getHoldingsByUserId(Integer userId) {
-
-        List<Holding> holdings = holdingRepository.findByAccountUserIdOrderByAccountAccountTypeAscInstrumentTickerAsc(userId);
+        List<Holding> holdings = holdingRepository
+                .findByAccountUserIdOrderByAccountAccountTypeAscInstrumentTickerAsc(userId);
 
         return holdings.stream()
                 .map(this::toHoldingMap)
@@ -59,7 +62,6 @@ public class HoldingService {
     @Transactional
     @Cacheable(value = "holdingsByUser", key = "#userId + '-' + #page + '-' + #size")
     public Page<Map<String, Object>> getHoldingsByUserId(Integer userId, int page, int size) {
-
         Pageable pageable = PageRequest.of(
                 page,
                 size,
@@ -67,9 +69,7 @@ public class HoldingService {
                         Sort.Order.asc("account.accountType"),
                         Sort.Order.asc("instrument.ticker")));
 
-        Page<Holding> holdings =
-                holdingRepository.findByAccountUserId(userId, pageable);
-
+        Page<Holding> holdings = holdingRepository.findByAccountUserId(userId, pageable);
         return holdings.map(this::toHoldingMap);
     }
 
@@ -84,8 +84,7 @@ public class HoldingService {
             int page,
             int size,
             Integer accountId,
-            InstrumentType instrumentType
-    ) {
+            InstrumentType instrumentType) {
 
         Pageable pageable = PageRequest.of(
                 page,
@@ -94,13 +93,12 @@ public class HoldingService {
                         Sort.Order.asc("account.accountType"),
                         Sort.Order.asc("instrument.ticker")));
 
-        Page<Holding> holdings =
-                holdingRepository.findFilteredByUserId(
-                        userId,
-                        accountId,
-                        instrumentType,
-                        pageable
-                );
+        Page<Holding> holdings = holdingRepository.findFilteredByUserId(
+                userId,
+                accountId,
+                instrumentType,
+                pageable
+        );
 
         return holdings.map(this::toHoldingMap);
     }
@@ -114,8 +112,8 @@ public class HoldingService {
     public List<Map<String, Object>> getHoldingsSummary(
             Integer userId,
             Integer accountId,
-            InstrumentType instrumentType
-    ) {
+            InstrumentType instrumentType) {
+
         List<Holding> holdings = holdingRepository.findAllFilteredByUserId(
                 userId,
                 accountId,
@@ -137,7 +135,11 @@ public class HoldingService {
     @PreAuthorize("#userId == authentication.details")
     @Transactional
     @CacheEvict(value = "holdingsByUser", allEntries = true)
-    public HoldingResponse updateHolding(Integer holdingId, Integer userId, HoldingPatchRequest request) {
+    public HoldingResponse updateHolding(
+            Integer holdingId,
+            Integer userId,
+            HoldingPatchRequest request) {
+
         Holding holding = getOwnedHolding(holdingId, userId);
 
         if (request.quantity() != null) {
@@ -159,9 +161,13 @@ public class HoldingService {
     @PreAuthorize("#userId == authentication.details")
     @Transactional
     @CacheEvict(value = "holdingsByUser", allEntries = true)
-    public void addHolding(Integer userId, Integer accountId,
-                           String ticker,
-            BigDecimal quantity, BigDecimal avgBuyPrice) {
+    public void addHolding(
+            Integer userId,
+            Integer accountId,
+            String ticker,
+            BigDecimal quantity,
+            BigDecimal avgBuyPrice) {
+
         accountService.getAccountByIdAndUserId(accountId, userId);
         Instrument instrument = instrumentService.getByTicker(ticker);
 
@@ -178,35 +184,31 @@ public class HoldingService {
     @PreAuthorize("#userId == authentication.details")
     @Transactional
     @CacheEvict(value = "holdingsByUser", allEntries = true)
-    public void deleteHolding(Integer holdingId, Integer userId)
-    {
+    public void deleteHolding(Integer holdingId, Integer userId) {
         Holding holdingToDelete = holdingRepository
                 .findByIdAndAccountUserId(holdingId, userId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Holding not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Holding not found"));
         holdingRepository.delete(holdingToDelete);
     }
 
     private HoldingResponse toHoldingResponse(Holding holding) {
-
-        Instrument instrument = requireInstrument(holding);
-        HoldingValues values =
-                calculateHoldingValues(holding, instrument);
+        ValuedHolding valued = portfolioValuationService.value(holding);
 
         return new HoldingResponse(
-                holding.getId(),
-                holding.getAccountId(),
-                instrument.getId(),
-                instrument.getTicker(),
-                instrument.getName(),
-                instrument.getInstrumentType().getDisplayName(),
-                getSectorDisplayName(instrument),
-                holding.getQuantity(),
-                holding.getAvgBuyPrice(),
-                instrument.getCurrency(),
-                values.currentPrice(),
-                values.marketValue(),
-                values.pnl(),
-                values.pnlPct()
+                valued.holdingId(),
+                valued.accountId(),
+                valued.instrumentId(),
+                valued.ticker(),
+                valued.instrumentName(),
+                getInstrumentTypeDisplayName(valued),
+                getSectorDisplayName(valued),
+                valued.quantity(),
+                valued.avgBuyPrice(),
+                valued.currency(),
+                valued.currentPrice(),
+                valued.marketValueSek(),
+                valued.pnlSek(),
+                valued.pnlPct()
         );
     }
 
@@ -215,92 +217,42 @@ public class HoldingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Holding not found"));
     }
 
-    private Instrument requireInstrument(Holding holding) {
-        if (holding.getInstrument() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Holding " + holding.getId() + " is not linked to an instrument"
-            );
-        }
-        return holding.getInstrument();
-    }
-
-    private record HoldingValues(
-            BigDecimal currentPrice,
-            BigDecimal marketValue,
-            BigDecimal pnl,
-            BigDecimal pnlPct
-    ) {}
-
-    private HoldingValues calculateHoldingValues(Holding holding, Instrument instrument) {
-
-        BigDecimal currentPrice =
-                marketDataService.getPrice(instrument.getTicker());
-
-        BigDecimal quantity = holding.getQuantity() != null
-                ? holding.getQuantity()
-                : BigDecimal.ZERO;
-
-        BigDecimal avgBuyPrice = holding.getAvgBuyPrice() != null
-                ? holding.getAvgBuyPrice()
-                : BigDecimal.ZERO;
-
-        BigDecimal marketValue =
-                quantity.multiply(currentPrice);
-
-        BigDecimal costBasis =
-                quantity.multiply(avgBuyPrice);
-
-        BigDecimal pnl =
-                marketValue.subtract(costBasis);
-
-        BigDecimal pnlPct = costBasis.compareTo(BigDecimal.ZERO) > 0
-                ? pnl.divide(costBasis, 6, RoundingMode.HALF_UP)
-                .multiply(new BigDecimal("100"))
-                : BigDecimal.ZERO;
-
-        return new HoldingValues(
-                currentPrice.setScale(2, RoundingMode.HALF_UP),
-                marketValue.setScale(2, RoundingMode.HALF_UP),
-                pnl.setScale(2, RoundingMode.HALF_UP),
-                pnlPct.setScale(2, RoundingMode.HALF_UP)
-        );
-    }
-
     private Map<String, Object> toHoldingMap(Holding holding) {
+        ValuedHolding valued = portfolioValuationService.value(holding);
 
-        Instrument instrument = requireInstrument(holding);
-
-        HoldingValues values =
-                calculateHoldingValues(holding, instrument);
-
-        Map<String, Object> result =
-                new LinkedHashMap<>();
-
-        result.put("id", holding.getId());
-        result.put("account_id", holding.getAccountId());
-        result.put("instrument_id", instrument.getId());
-        result.put("ticker", instrument.getTicker());
-        result.put("instrument_name", instrument.getName());
-        result.put("instrument_type", instrument.getInstrumentType().getDisplayName());
-        result.put("sector", getSectorDisplayName(instrument));
-        result.put("quantity", holding.getQuantity());
-        result.put("avg_buy_price", holding.getAvgBuyPrice());
-        result.put("currency", instrument.getCurrency());
-        result.put("account_type", holding.getAccount().getAccountType());
-        result.put("account_name", holding.getAccount().getAccountName());
-        result.put("currentPrice", values.currentPrice());
-        result.put("marketValue", values.marketValue());
-        result.put("pnl", values.pnl());
-        result.put("pnlPct", values.pnlPct());
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("id", valued.holdingId());
+        result.put("account_id", valued.accountId());
+        result.put("instrument_id", valued.instrumentId());
+        result.put("ticker", valued.ticker());
+        result.put("instrument_name", valued.instrumentName());
+        result.put("instrument_type", getInstrumentTypeDisplayName(valued));
+        result.put("sector", getSectorDisplayName(valued));
+        result.put("quantity", valued.quantity());
+        result.put("avg_buy_price", valued.avgBuyPrice());
+        result.put("currency", valued.currency());
+        result.put("account_type", valued.accountType());
+        result.put("account_name", valued.accountName());
+        result.put("currentPrice", valued.currentPrice());
+        result.put("marketValue", valued.marketValueSek());
+        result.put("pnl", valued.pnlSek());
+        result.put("pnlPct", valued.pnlPct());
 
         return result;
     }
-    private String getSectorDisplayName(Instrument instrument) {
-        if (instrument.getInstrumentType().isFund()) {
-            return "Fonder";
-        }
-        return instrument.getSector().getDisplayName();
+
+    private String getInstrumentTypeDisplayName(ValuedHolding valued) {
+        InstrumentType instrumentType = valued.instrumentType();
+        return instrumentType != null ? instrumentType.getDisplayName() : "Övrigt";
     }
 
+    private String getSectorDisplayName(ValuedHolding valued) {
+        InstrumentType instrumentType = valued.instrumentType();
+        if (instrumentType != null && instrumentType.isFund()) {
+            return "Fonder";
+        }
+
+        Sector sector = valued.sector();
+        return sector != null ? sector.getDisplayName() : "Övrigt";
+    }
 }

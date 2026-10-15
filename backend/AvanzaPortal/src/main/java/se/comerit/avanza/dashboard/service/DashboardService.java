@@ -14,7 +14,11 @@ import se.comerit.avanza.dashboard.dto.HoldingSummaryResponse;
 import se.comerit.avanza.dashboard.dto.RecentAlertResponse;
 import se.comerit.avanza.holding.service.HoldingService;
 import se.comerit.avanza.market.service.MarketDataService;
-import se.comerit.avanza.targetallocation.service.TargetAllocationService;
+import se.comerit.avanza.portfolio.dto.PortfolioAllocationResult;
+import se.comerit.avanza.portfolio.dto.PortfolioAllocationRow;
+import se.comerit.avanza.portfolio.dto.ValuedHolding;
+import se.comerit.avanza.portfolio.service.PortfolioAllocationService;
+import se.comerit.avanza.portfolio.service.PortfolioValuationService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,26 +30,28 @@ import java.util.Map;
 @Service
 public class DashboardService {
 
-    private static final BigDecimal DRIFT_THRESHOLD = new BigDecimal("0.05");
-    private static final List<String> ACCOUNT_TYPES = List.of("ISK", "KF", "Depa", "Pension");
-    private static final String BASE_CURRENCY = "SEK";
+    private static final String BASE_CURRENCY = PortfolioValuationService.BASE_CURRENCY;
 
     private final AccountService accountService;
     private final HoldingService holdingService;
-    private final TargetAllocationService targetAllocationService;
     private final AlertService alertService;
     private final MarketDataService marketDataService;
+    private final PortfolioAllocationService portfolioAllocationService;
+    private final PortfolioValuationService portfolioValuationService;
 
-    public DashboardService(AccountService accountService,
-                            HoldingService holdingService,
-                            TargetAllocationService targetAllocationService,
-                            AlertService alertService,
-                            MarketDataService marketDataService) {
+    public DashboardService(
+            AccountService accountService,
+            HoldingService holdingService,
+            AlertService alertService,
+            MarketDataService marketDataService,
+            PortfolioAllocationService portfolioAllocationService,
+            PortfolioValuationService portfolioValuationService) {
         this.accountService = accountService;
         this.holdingService = holdingService;
-        this.targetAllocationService = targetAllocationService;
         this.alertService = alertService;
         this.marketDataService = marketDataService;
+        this.portfolioAllocationService = portfolioAllocationService;
+        this.portfolioValuationService = portfolioValuationService;
     }
 
     @Transactional(readOnly = true)
@@ -56,39 +62,29 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardView getDashboardForUser(Integer userId, int page, int size) {
         List<Map<String, Object>> accounts = accountService.getAccountMapsByUserId(userId);
-        List<Map<String, Object>> holdingsForTotals = holdingService.getHoldingsByUserId(userId);
         Page<Map<String, Object>> holdingsPage = holdingService.getHoldingsByUserId(userId, page, size);
-        List<Map<String, Object>> targets = targetAllocationService.getTargetMapsByUserId(userId);
+        List<ValuedHolding> valuedHoldings =
+                portfolioValuationService.getValuedHoldingsByUserId(userId);
 
-        Map<Integer, String> accountTypeById = createAccountTypeById(accounts);
         Map<Integer, BigDecimal> accountTotals = new HashMap<>();
-        Map<String, BigDecimal> accountTypeTotals = createAccountTypeTotals();
-        BigDecimal usdToSek = marketDataService.getFxRate("USD", BASE_CURRENCY);
-
-        BigDecimal totalPortfolioValue = BigDecimal.ZERO;
-
-        for (Map<String, Object> holding : holdingsForTotals) {
-            HoldingSummaryResponse enriched = enrichHolding(holding);
-            BigDecimal valueSek = enriched.valueSek();
-
-            Integer accountId = (Integer) holding.get("account_id");
-            String accountType = accountTypeById.getOrDefault(accountId, "Depa");
-
-            accountTotals.merge(accountId, valueSek, BigDecimal::add);
-            accountTypeTotals.merge(accountType, valueSek, BigDecimal::add);
-            totalPortfolioValue = totalPortfolioValue.add(valueSek);
+        for (ValuedHolding holding : valuedHoldings) {
+            accountTotals.merge(
+                    holding.accountId(),
+                    holding.marketValueSek(),
+                    BigDecimal::add
+            );
         }
 
-        AllocationResult allocationResult = createAllocationRows(
-                targets,
-                accountTypeTotals,
-                totalPortfolioValue
-        );
+        PortfolioAllocationResult allocationResult =
+                portfolioAllocationService.getAccountTypeAllocation(userId, valuedHoldings);
+
+        BigDecimal totalPortfolioValue = allocationResult.totalPortfolioValueSek();
+        BigDecimal usdToSek = marketDataService.getEffectiveFxRate("USD", BASE_CURRENCY);
 
         return new DashboardView(
                 createAccountSummary(accounts, accountTotals),
                 createHoldingPage(holdingsPage),
-                allocationResult.rows(),
+                toDashboardAllocationRows(allocationResult.rows()),
                 roundToDouble(totalPortfolioValue),
                 getRecentAlerts(userId),
                 allocationResult.anyDrift(),
@@ -112,35 +108,18 @@ public class DashboardService {
         );
     }
 
-    private Map<Integer, String> createAccountTypeById(List<Map<String, Object>> accounts) {
-        Map<Integer, String> accountTypeById = new HashMap<>();
-        for (Map<String, Object> account : accounts) {
-            accountTypeById.put((Integer) account.get("id"), (String) account.get("account_type"));
-        }
-        return accountTypeById;
-    }
-
-    private Map<String, BigDecimal> createAccountTypeTotals() {
-        Map<String, BigDecimal> accountTypeTotals = new HashMap<>();
-        for (String accountType : ACCOUNT_TYPES) {
-            accountTypeTotals.put(accountType, BigDecimal.ZERO);
-        }
-        return accountTypeTotals;
-    }
-
     private HoldingSummaryResponse enrichHolding(Map<String, Object> holding) {
-        String ticker = (String) holding.get("ticker");
         String currency = (String) holding.get("currency");
         BigDecimal quantity = toBigDecimal(holding.get("quantity"));
         BigDecimal avgBuy = toBigDecimal(holding.get("avg_buy_price"));
-        BigDecimal currentPrice = marketDataService.getPrice(ticker);
+        BigDecimal currentPrice = toBigDecimal(holding.get("currentPrice"));
+        BigDecimal valueSek = toBigDecimal(holding.get("marketValue"));
+        BigDecimal unrealizedReturn = toBigDecimal(holding.get("pnl"));
+        BigDecimal unrealizedReturnPct = toBigDecimal(holding.get("pnlPct"));
 
-        BigDecimal valueSek = marketDataService.convert(quantity.multiply(currentPrice), currency, BASE_CURRENCY);
-        BigDecimal costBasis = marketDataService.convert(quantity.multiply(avgBuy), currency, BASE_CURRENCY);
-        BigDecimal unrealizedReturn = valueSek.subtract(costBasis);
-        BigDecimal unrealizedReturnPct = costBasis.compareTo(BigDecimal.ZERO) > 0
-                ? unrealizedReturn.divide(costBasis, 6, RoundingMode.HALF_UP).multiply(new BigDecimal("100"))
-                : BigDecimal.ZERO;
+        // Legacy dashboard field kept for API compatibility in this integration.
+        // Portfolio-level Sharpe belongs to PortfolioRiskService/C and will be
+        // replaced by the dashboard/risk owner together with real historical data.
         BigDecimal sharpe = unrealizedReturnPct.divide(new BigDecimal("100"), 6, RoundingMode.HALF_UP)
                 .subtract(new BigDecimal("0.02"))
                 .divide(new BigDecimal("0.15"), 6, RoundingMode.HALF_UP);
@@ -148,7 +127,7 @@ public class DashboardService {
         return new HoldingSummaryResponse(
                 (Integer) holding.get("id"),
                 (Integer) holding.get("account_id"),
-                ticker,
+                (String) holding.get("ticker"),
                 (String) holding.get("instrument_name"),
                 quantity,
                 avgBuy,
@@ -164,45 +143,23 @@ public class DashboardService {
         );
     }
 
-    private AllocationResult createAllocationRows(List<Map<String, Object>> targets,
-                                                  Map<String, BigDecimal> accountTypeTotals,
-                                                  BigDecimal totalPortfolioValue) {
-        Map<String, BigDecimal> targetMap = new HashMap<>();
-        for (Map<String, Object> target : targets) {
-            targetMap.put((String) target.get("account_type"), toBigDecimal(target.get("target_pct")));
-        }
-
-        boolean anyDrift = false;
-        List<AllocationRowResponse> allocationRows = new ArrayList<>();
-
-        for (String accountType : ACCOUNT_TYPES) {
-            BigDecimal actual = totalPortfolioValue.compareTo(BigDecimal.ZERO) > 0
-                    ? accountTypeTotals.getOrDefault(accountType, BigDecimal.ZERO)
-                    .divide(totalPortfolioValue, 6, RoundingMode.HALF_UP)
-                    .multiply(new BigDecimal("100"))
-                    : BigDecimal.ZERO;
-            BigDecimal target = targetMap.getOrDefault(accountType, BigDecimal.ZERO);
-            BigDecimal drift = actual.subtract(target).abs().divide(new BigDecimal("100"), 6, RoundingMode.HALF_UP);
-            boolean overThreshold = drift.compareTo(DRIFT_THRESHOLD) > 0;
-
-            allocationRows.add(new AllocationRowResponse(
-                    accountType,
-                    round(actual),
-                    target,
-                    round(drift.multiply(new BigDecimal("100"))),
-                    overThreshold
-            ));
-
-            if (overThreshold) {
-                anyDrift = true;
-            }
-        }
-
-        return new AllocationResult(allocationRows, anyDrift);
+    private List<AllocationRowResponse> toDashboardAllocationRows(
+            List<PortfolioAllocationRow> rows) {
+        return rows.stream()
+                .map(row -> new AllocationRowResponse(
+                        row.accountType(),
+                        row.actualPercentage(),
+                        row.targetPercentage(),
+                        row.driftPercentagePoints(),
+                        row.overThreshold()
+                ))
+                .toList();
     }
 
-    private List<AccountSummaryResponse> createAccountSummary(List<Map<String, Object>> accounts,
-                                                              Map<Integer, BigDecimal> accountTotals) {
+    private List<AccountSummaryResponse> createAccountSummary(
+            List<Map<String, Object>> accounts,
+            Map<Integer, BigDecimal> accountTotals) {
+
         List<AccountSummaryResponse> accountSummary = new ArrayList<>();
 
         for (Map<String, Object> account : accounts) {
@@ -258,8 +215,5 @@ public class DashboardService {
 
     private double roundToDouble(BigDecimal value) {
         return round(value).doubleValue();
-    }
-
-    private record AllocationResult(List<AllocationRowResponse> rows, boolean anyDrift) {
     }
 }
