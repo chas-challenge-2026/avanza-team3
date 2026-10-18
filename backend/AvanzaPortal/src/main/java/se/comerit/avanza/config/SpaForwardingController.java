@@ -14,7 +14,7 @@ public class SpaForwardingController {
     })
 
     public String forwardToClient() {
-        return "forward:/";
+        return "forward:/index.html";
     }
 
 }
