@@ -15,7 +15,8 @@ import se.comerit.avanza.instrument.model.Instrument;
 import se.comerit.avanza.instrument.model.InstrumentType;
 import se.comerit.avanza.instrument.model.Sector;
 import se.comerit.avanza.instrument.service.InstrumentService;
-import se.comerit.avanza.market.service.MarketDataService;
+import se.comerit.avanza.portfolio.dto.ValuedHolding;
+import se.comerit.avanza.portfolio.service.PortfolioValuationService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -35,7 +36,7 @@ class HoldingSummaryServiceTest {
     private AccountService accountService;
 
     @Mock
-    private MarketDataService marketDataService;
+    private PortfolioValuationService portfolioValuationService;
 
     @Mock
     private InstrumentService instrumentService;
@@ -68,8 +69,28 @@ class HoldingSummaryServiceTest {
 
         when(holdingRepository.findAllFilteredByUserId(7, 11, InstrumentType.STOCK))
                 .thenReturn(List.of(holding));
-        when(marketDataService.getPrice("ERIC-B"))
-                .thenReturn(new BigDecimal("74.20"));
+        when(portfolioValuationService.value(holding)).thenReturn(
+                new ValuedHolding(
+                        31,
+                        11,
+                        "ISK",
+                        "Main ISK",
+                        101,
+                        "ERIC-B",
+                        "Ericsson B",
+                        InstrumentType.STOCK,
+                        Sector.UNKNOWN,
+                        "SEK",
+                        new BigDecimal("10"),
+                        new BigDecimal("70.00"),
+                        new BigDecimal("74.20"),
+                        new BigDecimal("1.00000000"),
+                        new BigDecimal("742.00"),
+                        new BigDecimal("700.00"),
+                        new BigDecimal("42.00"),
+                        new BigDecimal("6.00")
+                )
+        );
 
         List<Map<String, Object>> result = holdingService.getHoldingsSummary(
                 7,
@@ -83,6 +104,6 @@ class HoldingSummaryServiceTest {
         assertEquals(new BigDecimal("42.00"), result.getFirst().get("pnl"));
 
         verify(holdingRepository).findAllFilteredByUserId(7, 11, InstrumentType.STOCK);
-        verify(marketDataService).getPrice("ERIC-B");
+        verify(portfolioValuationService).value(holding);
     }
 }

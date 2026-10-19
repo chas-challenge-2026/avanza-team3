@@ -18,4 +18,5 @@ public interface TargetAllocationRepository extends JpaRepository<TargetAllocati
 
     Optional<TargetAllocation> findByIdAndUserId(Integer id, Integer userId);
 
+    Optional<TargetAllocation> findByUserIdAndAccountTypeIgnoreCase(Integer userId, String accountType);
 }

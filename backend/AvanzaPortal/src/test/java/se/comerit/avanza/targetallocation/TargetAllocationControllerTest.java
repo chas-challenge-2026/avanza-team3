@@ -8,17 +8,25 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.comerit.avanza.targetallocation.controller.TargetAllocationController;
+import se.comerit.avanza.targetallocation.dto.*;
 import se.comerit.avanza.targetallocation.service.TargetAllocationService;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,6 +82,61 @@ class TargetAllocationControllerTest {
                 .andExpect(status().isOk());
 
         verify(targetAllocationService).getTargetAllocationsByUserId(7, 1, 20);
+    }
+
+    @Test
+    void getTargetAllocationShouldUseAuthenticatedUser() throws Exception {
+        when(targetAllocationService.getTargetAllocationResponse(21, 7))
+                .thenReturn(response());
+
+        mockMvc.perform(get("/api/target-allocations/21")
+                        .principal(authenticationForUser(7)))
+                .andExpect(status().isOk());
+
+        verify(targetAllocationService).getTargetAllocationResponse(21, 7);
+    }
+
+    @Test
+    void createTargetAllocationShouldUseAuthenticatedUser() throws Exception {
+        when(targetAllocationService.createTargetAllocation(eq(7), any(TargetAllocationRequest.class)))
+                .thenReturn(response());
+
+        mockMvc.perform(post("/api/target-allocations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"accountType\":\"ISK\",\"targetPercentage\":60.00}")
+                        .principal(authenticationForUser(7)))
+                .andExpect(status().isCreated());
+
+        verify(targetAllocationService).createTargetAllocation(eq(7), any(TargetAllocationRequest.class));
+    }
+
+    @Test
+    void updateTargetAllocationShouldUseAuthenticatedUser() throws Exception {
+        when(targetAllocationService.updateTargetAllocation(
+                eq(21), eq(7), any(TargetAllocationPatchRequest.class)))
+                .thenReturn(response());
+
+        mockMvc.perform(patch("/api/target-allocations/21")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"targetPercentage\":55.00}")
+                        .principal(authenticationForUser(7)))
+                .andExpect(status().isOk());
+
+        verify(targetAllocationService).updateTargetAllocation(
+                eq(21), eq(7), any(TargetAllocationPatchRequest.class));
+    }
+
+    @Test
+    void deleteTargetAllocationShouldUseAuthenticatedUser() throws Exception {
+        mockMvc.perform(delete("/api/target-allocations/21")
+                        .principal(authenticationForUser(7)))
+                .andExpect(status().isNoContent());
+
+        verify(targetAllocationService).deleteTargetAllocation(21, 7);
+    }
+
+    private TargetAllocationResponse response() {
+        return new TargetAllocationResponse(21, "ISK", new BigDecimal("60.00"));
     }
 
     private UsernamePasswordAuthenticationToken authenticationForUser(Integer userId) {

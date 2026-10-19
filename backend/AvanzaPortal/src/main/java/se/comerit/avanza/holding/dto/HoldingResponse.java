@@ -40,10 +40,10 @@ public record HoldingResponse(
         @Schema(description = "Current market price per unit.", example = "198.25")
         BigDecimal currentPrice,
 
-        @Schema(description = "Current market value. Existing valuation logic is kept unchanged in this patch.", example = "18950.75")
+        @Schema(description = "Current market value converted to SEK by the shared portfolio valuation service.", example = "18950.75")
         BigDecimal marketValueSek,
 
-        @Schema(description = "Profit or loss. Existing valuation logic is kept unchanged in this patch.", example = "2180.50")
+        @Schema(description = "Profit or loss converted to SEK by the shared portfolio valuation service.", example = "2180.50")
         BigDecimal pnlSek,
 
         @Schema(description = "Profit or loss expressed as a percentage.", example = "12.99")
