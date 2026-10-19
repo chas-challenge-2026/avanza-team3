@@ -86,7 +86,7 @@
   letter-spacing: -0.5px;
 }
 
-.popoverWrapper {
+.PopOversWrapper {
   display: flex;
   flex-direction: row-reverse;
 }

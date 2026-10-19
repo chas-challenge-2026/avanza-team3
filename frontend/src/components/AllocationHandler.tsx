@@ -2,7 +2,7 @@ import { Alert, Box, Grid, Input, Slider, Snackbar } from "@mui/material";
 import styles from "./AllocationHandler.module.css";
 import { useState, type ChangeEvent } from "react";
 import AppButton from "./AppButton";
-import PopOver from "./Popovers";
+import PopOvers from "./PopOvers";
 
 type AllocationItem = {
   id: string;
@@ -56,7 +56,7 @@ const AllocationHandler = ({
     <>
       <div className={styles.header}>
         <h2 className={styles.sectionTitle}>{title}</h2>
-        <PopOver title={helpTitle} content={helpText} />
+        <PopOvers title={helpTitle} content={helpText} />
       </div>
 
       <p className={styles.label}>

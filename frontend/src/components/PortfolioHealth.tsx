@@ -4,7 +4,7 @@ import styles from "./PortfolioHealth.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "./AppCard";
-import PopOver from "./Popovers";
+import PopOvers from "./PopOvers";
 
 type PortfolioHealthProps = {
   value: number;
@@ -34,7 +34,7 @@ const PortfolioHealth = ({ value, help }: PortfolioHealthProps) => {
       <div className={styles.container}>
         <div className={styles.headerWrapper}>
           <h2>Portföljhälsa</h2>
-          <PopOver title={help.title} content={help.content} />
+          <PopOvers title={help.title} content={help.content} />
         </div>
         <Gauge
           cornerRadius={"50%"}

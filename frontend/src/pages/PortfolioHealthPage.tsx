@@ -10,7 +10,7 @@ import AllocationHandler from "../components/AllocationHandler";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
-import PopOver from "../components/Popovers";
+import PopOvers from "../components/PopOvers";
 import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
 import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
 import { useEffect, useState } from "react";
@@ -152,7 +152,7 @@ function PortfolioHealthPage() {
           <div className={styles.kpiCard + " " + styles[riskLevel()]}>
             <div className={styles.header}>
               <p className={styles.label}>Riskpoäng</p>
-              <PopOver
+              <PopOvers
                 title="Vad betyder Riskpoäng?"
                 content="Riskpoäng sammanfattar hur mycket värdet på en investering kan svänga och hur stor risken är för förlust. Ju högre poäng, desto större svängningar kan du behöva tåla."
               />
@@ -214,7 +214,7 @@ function PortfolioHealthPage() {
           <div className={styles.kpiCard}>
             <div className={styles.header}>
               <p className={styles.label}>Innehavsspridning</p>
-              <PopOver
+              <PopOvers
                 title="Vad betyder Innehavsspridning?"
                 content="Innehavsspridning visar hur jämnt portföljens värde är fördelat mellan olika innehav.
                   Ett högre värde innebär att kapitalet är mer utspritt, 

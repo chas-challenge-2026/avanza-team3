@@ -1,7 +1,7 @@
 import { PieChart } from "@mui/x-charts";
 import { useMediaQuery, useTheme } from "@mui/material";
 import styles from "./DonutChart.module.css";
-import PopOver from "./Popovers";
+import PopOvers from "./PopOvers";
 
 type DonutChartItem = {
   label: string;
@@ -51,7 +51,7 @@ const DonutChart = ({ title, data, help }: DonutChartProps) => {
       <div className={styles.chartWrapper}>
         <div className={styles.headerWrapper}>
           <h2 className={styles.h2}>{title}</h2>
-          <PopOver title={help.title} content={help.content} />
+          <PopOvers title={help.title} content={help.content} />
         </div>
         <div className={styles.chartBox}>
           <PieChart
