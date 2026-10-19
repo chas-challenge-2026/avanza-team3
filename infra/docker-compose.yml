@@ -34,6 +34,7 @@ services:
     expose:
       - "8082"
     environment:
+      - SPRING_PROFILES_ACTIVE= prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/avanza
       - SPRING_DATASOURCE_USERNAME=avanza
       - SPRING_DATASOURCE_PASSWORD=avanza123
