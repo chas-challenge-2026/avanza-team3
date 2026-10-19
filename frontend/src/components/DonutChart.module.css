@@ -1,13 +1,15 @@
 .chartWrapper {
   display: flex;
   flex-direction: column;
-  text-align: center;
-  align-items: center;
+  justify-content: flex-start;
+
   width: 100%;
 }
 
 .headerWrapper {
-  margin: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .chartBox {
@@ -15,8 +17,9 @@
   height: 260px;
 }
 
-h2 {
-  margin-bottom: 0rem;
+.h2 {
+  align-self: center;
+  margin-bottom: 0;
   font-weight: 700;
   font-size: 0.75rem;
   text-transform: uppercase;
