@@ -3,10 +3,7 @@ package se.comerit.avanza.risk;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import se.comerit.avanza.holding.model.Holding;
-import se.comerit.avanza.holding.repository.HoldingRepository;
-import se.comerit.avanza.instrument.model.Instrument;
-import se.comerit.avanza.market.service.MarketDataService;
+import se.comerit.avanza.portfolio.service.PortfolioValuationService;
 import se.comerit.avanza.risk.dto.PortfolioRiskResponse;
 import se.comerit.avanza.risk.dto.RiskHistoryPointResponse;
 import se.comerit.avanza.risk.dto.RiskMetricResponse;
@@ -20,38 +17,34 @@ import java.util.List;
 @Service
 public class PortfolioRiskService {
 
-    private static final String BASE_CURRENCY = "SEK";
+    private static final String BASE_CURRENCY = PortfolioValuationService.BASE_CURRENCY;
     private static final String HISTORY_SOURCE = "MOCKED";
     private static final double RISK_FREE_RATE = 0.02;
     private static final int PERIODS_PER_YEAR = 252;
 
-    private final HoldingRepository holdingRepository;
-    private final MarketDataService marketDataService;
+    private final PortfolioValuationService portfolioValuationService;
     private final RiskService riskService;
     private final Clock clock;
 
     @Autowired
     public PortfolioRiskService(
-            HoldingRepository holdingRepository,
-            MarketDataService marketDataService,
+            PortfolioValuationService portfolioValuationService,
             RiskService riskService) {
-        this(holdingRepository, marketDataService, riskService, Clock.systemDefaultZone());
+        this(portfolioValuationService, riskService, Clock.systemDefaultZone());
     }
 
     PortfolioRiskService(
-            HoldingRepository holdingRepository,
-            MarketDataService marketDataService,
+            PortfolioValuationService portfolioValuationService,
             RiskService riskService,
             Clock clock) {
-        this.holdingRepository = holdingRepository;
-        this.marketDataService = marketDataService;
+        this.portfolioValuationService = portfolioValuationService;
         this.riskService = riskService;
         this.clock = clock;
     }
 
     @Transactional(readOnly = true)
     public PortfolioRiskResponse getPortfolioRisk(Integer userId) {
-        BigDecimal currentValue = currentPortfolioValueSek(userId);
+        BigDecimal currentValue = portfolioValuationService.getPortfolioValueSek(userId);
         List<BigDecimal> historyValues = createMockHistoryValues(currentValue);
         double[] values = historyValues.stream()
                 .mapToDouble(BigDecimal::doubleValue)
@@ -71,33 +64,11 @@ public class PortfolioRiskService {
         );
     }
 
-    private BigDecimal currentPortfolioValueSek(Integer userId) {
-        return holdingRepository.findByAccountUserIdOrderByAccountAccountTypeAscInstrumentTickerAsc(userId).stream()
-                .map(this::holdingValueSek)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(2, RoundingMode.HALF_UP);
-    }
-
-    private BigDecimal holdingValueSek(Holding holding) {
-        Instrument instrument = holding.getInstrument();
-        if (instrument == null) {
-            return BigDecimal.ZERO;
-        }
-
-        BigDecimal quantity = holding.getQuantity() != null
-                ? holding.getQuantity()
-                : BigDecimal.ZERO;
-        BigDecimal price = marketDataService.getPrice(instrument.getTicker());
-        BigDecimal localValue = quantity.multiply(price);
-
-        return marketDataService.convert(localValue, instrument.getCurrency(), BASE_CURRENCY);
-    }
-
     private List<BigDecimal> createMockHistoryValues(BigDecimal currentValue) {
         return List.of(
                 currentValue.multiply(new BigDecimal("0.985")).setScale(2, RoundingMode.HALF_UP),
                 currentValue.multiply(new BigDecimal("1.006")).setScale(2, RoundingMode.HALF_UP),
-                currentValue
+                currentValue.setScale(2, RoundingMode.HALF_UP)
         );
     }
 
@@ -146,7 +117,9 @@ public class PortfolioRiskService {
     }
 
     private int riskScore(RiskMetrics metrics) {
-        double rawScore = metrics.volatility() * 220.0 + metrics.maxDrawdown() * 180.0 - metrics.sharpeRatio() * 8.0;
+        double rawScore = metrics.volatility() * 220.0
+                + metrics.maxDrawdown() * 180.0
+                - metrics.sharpeRatio() * 8.0;
         return Math.max(0, Math.min(100, (int) Math.round(rawScore)));
     }
 

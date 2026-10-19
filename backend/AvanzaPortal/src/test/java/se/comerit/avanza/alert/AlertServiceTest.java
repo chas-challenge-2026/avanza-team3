@@ -10,18 +10,17 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
-import se.comerit.avanza.account.service.AccountService;
 import se.comerit.avanza.alert.dto.AlertResponse;
 import se.comerit.avanza.alert.model.Alert;
 import se.comerit.avanza.alert.repository.AlertRepository;
 import se.comerit.avanza.alert.service.AlertService;
 import se.comerit.avanza.exception.ResourceNotFoundException;
-import se.comerit.avanza.holding.service.HoldingService;
-import se.comerit.avanza.targetallocation.service.TargetAllocationService;
+import se.comerit.avanza.portfolio.dto.PortfolioAllocationResult;
+import se.comerit.avanza.portfolio.dto.PortfolioAllocationRow;
+import se.comerit.avanza.portfolio.service.PortfolioAllocationService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,55 +35,10 @@ class AlertServiceTest {
     private AlertRepository alertRepository;
 
     @Mock
-    private HoldingService holdingService;
-
-    @Mock
-    private AccountService accountService;
-
-    @Mock
-    private TargetAllocationService targetAllocationService;
+    private PortfolioAllocationService portfolioAllocationService;
 
     @InjectMocks
     private AlertService alertService;
-
-    @Test
-    void getAccountsByUserIdShouldHandOverToAccountService() {
-        List<Map<String, Object>> accounts = List.of(accountMap(11, "ISK"));
-        when(accountService.getAccountMapsByUserId(7)).thenReturn(accounts);
-
-        List<Map<String, Object>> result = alertService.getAccountsByUserId(7);
-
-        assertSame(accounts, result);
-        verify(accountService).getAccountMapsByUserId(7);
-    }
-
-    @Test
-    void getHoldingsForAlertByUserIdShouldHandOverToHoldingService() {
-        List<Map<String, Object>> holdings = List.of(
-                holdingMap(11, "ERIC-B", "SEK", new BigDecimal("10"))
-        );
-        when(holdingService.getHoldingsByUserId(7)).thenReturn(holdings);
-
-        List<Map<String, Object>> result = alertService.getHoldingsForAlertByUserId(7);
-
-        assertSame(holdings, result);
-        verify(holdingService).getHoldingsByUserId(7);
-    }
-
-
-
-    @Test
-    void getTargetByUserIdShouldHandOverToTargetAllocationService() {
-        List<Map<String, Object>> targets = List.of(
-                targetMap("ISK", new BigDecimal("60.00"))
-        );
-        when(targetAllocationService.getTargetMapsByUserId(7)).thenReturn(targets);
-
-        List<Map<String, Object>> result = alertService.getTargetByUserId(7);
-
-        assertSame(targets, result);
-        verify(targetAllocationService).getTargetMapsByUserId(7);
-    }
 
     @Test
     void getAlertsByUserIdPagedShouldReturnMappedPage() {
@@ -166,32 +120,56 @@ class AlertServiceTest {
     }
 
     @Test
-    void getLiveAlertsShouldCreateDriftAlertWhenAllocationExceedsThreshold() {
-        when(accountService.getAccountMapsByUserId(7)).thenReturn(List.of(accountMap(11, "ISK")));
-        when(holdingService.getHoldingsByUserId(7)).thenReturn(List.of(
-                holdingMap(11, "ERIC-B", "SEK", new BigDecimal("10"))
-        ));
-        when(targetAllocationService.getTargetMapsByUserId(7)).thenReturn(List.of(
-                targetMap("ISK", new BigDecimal("50.00"))
-        ));
+    void getLiveAlertsShouldUseSharedAllocationResult() {
+        when(portfolioAllocationService.getAccountTypeAllocation(7)).thenReturn(
+                new PortfolioAllocationResult(
+                        List.of(
+                                row("ISK", "62.00", "50.00", "12.00", true),
+                                row("KF", "38.00", "50.00", "12.00", true),
+                                row("Pension", "0.00", "0.00", "0.00", false)
+                        ),
+                        new BigDecimal("100000.00"),
+                        true
+                )
+        );
+
+        List<Map<String, Object>> result = alertService.getLiveAlertsByUserId(7);
+
+        assertEquals(2, result.size());
+        assertEquals("LIVE_DRIFT", result.getFirst().get("alert_type"));
+        assertTrue(result.getFirst().get("message").toString().contains("ISK-allokering"));
+        assertTrue(result.getFirst().get("message").toString().contains("12,0")
+                || result.getFirst().get("message").toString().contains("12.0"));
+        assertEquals(false, result.getFirst().get("dismissed"));
+
+        verify(portfolioAllocationService).getAccountTypeAllocation(7);
+    }
+
+    @Test
+    void getLiveAlertsShouldSupportPensionWithoutSeparateAlertLogic() {
+        when(portfolioAllocationService.getAccountTypeAllocation(7)).thenReturn(
+                new PortfolioAllocationResult(
+                        List.of(row("Pension", "20.00", "10.00", "10.00", true)),
+                        new BigDecimal("50000.00"),
+                        true
+                )
+        );
 
         List<Map<String, Object>> result = alertService.getLiveAlertsByUserId(7);
 
         assertEquals(1, result.size());
-        assertEquals("LIVE_DRIFT", result.getFirst().get("alert_type"));
-        assertTrue(result.getFirst().get("message").toString().contains("ISK-allokering"));
-        assertEquals(false, result.getFirst().get("dismissed"));
+        assertTrue(result.getFirst().get("message").toString().contains("Pension-allokering"));
     }
 
     @Test
-    void getLiveAlertsShouldReturnEmptyWhenAllocationMatchesTarget() {
-        when(accountService.getAccountMapsByUserId(7)).thenReturn(List.of(accountMap(11, "ISK")));
-        when(holdingService.getHoldingsByUserId(7)).thenReturn(List.of(
-                holdingMap(11, "ERIC-B", "SEK", new BigDecimal("10"))
-        ));
-        when(targetAllocationService.getTargetMapsByUserId(7)).thenReturn(List.of(
-                targetMap("ISK", new BigDecimal("100.00"))
-        ));
+    void getLiveAlertsShouldReturnEmptyWhenSharedAllocationHasNoDrift() {
+        when(portfolioAllocationService.getAccountTypeAllocation(7)).thenReturn(
+                new PortfolioAllocationResult(
+                        List.of(row("ISK", "100.00", "100.00", "0.00", false)),
+                        new BigDecimal("1000.00"),
+                        false
+                )
+        );
 
         List<Map<String, Object>> result = alertService.getLiveAlertsByUserId(7);
 
@@ -199,35 +177,24 @@ class AlertServiceTest {
     }
 
     @Test
-    void getDriftThresholdPercentShouldReturnSeven() {
-        assertEquals(7, alertService.getDriftThresholdPercent());
+    void getDriftThresholdPercentShouldUsePortfolioAllocationThreshold() {
+        when(portfolioAllocationService.getDriftThresholdPercent()).thenReturn(5);
+
+        assertEquals(5, alertService.getDriftThresholdPercent());
     }
 
-    private Map<String, Object> accountMap(Integer id, String accountType) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("id", id);
-        map.put("account_type", accountType);
-        return map;
-    }
-
-    private Map<String, Object> holdingMap(
-            Integer accountId,
-            String ticker,
-            String currency,
-            BigDecimal quantity) {
-
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("account_id", accountId);
-        map.put("ticker", ticker);
-        map.put("currency", currency);
-        map.put("quantity", quantity);
-        return map;
-    }
-
-    private Map<String, Object> targetMap(String accountType, BigDecimal targetPct) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("account_type", accountType);
-        map.put("target_pct", targetPct);
-        return map;
+    private PortfolioAllocationRow row(
+            String accountType,
+            String actual,
+            String target,
+            String drift,
+            boolean overThreshold) {
+        return new PortfolioAllocationRow(
+                accountType,
+                new BigDecimal(actual),
+                new BigDecimal(target),
+                new BigDecimal(drift),
+                overThreshold
+        );
     }
 }

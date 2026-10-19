@@ -6,7 +6,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import se.comerit.avanza.exception.ResourceConflictException;
 import se.comerit.avanza.exception.ResourceNotFoundException;
+import se.comerit.avanza.targetallocation.dto.TargetAllocationPatchRequest;
+import se.comerit.avanza.targetallocation.dto.TargetAllocationRequest;
 import se.comerit.avanza.targetallocation.dto.TargetAllocationResponse;
 import se.comerit.avanza.targetallocation.model.TargetAllocation;
 import se.comerit.avanza.targetallocation.repository.TargetAllocationRepository;
@@ -48,8 +51,57 @@ public class TargetAllocationService {
     @PreAuthorize("#userId == authentication.details")
     @Transactional(readOnly = true)
     public TargetAllocation getTargetAllocationByIdForUser(Integer targetAllocationId, Integer userId) {
-        return targetAllocationRepository.findByIdAndUserId(targetAllocationId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Target allocation not found"));
+        return findOwnedTargetAllocation(targetAllocationId, userId);
+    }
+
+    @PreAuthorize("#userId == authentication.details")
+    @Transactional(readOnly = true)
+    public TargetAllocationResponse getTargetAllocationResponse(Integer targetAllocationId, Integer userId) {
+        return toTargetAllocationResponse(findOwnedTargetAllocation(targetAllocationId, userId));
+    }
+
+    @PreAuthorize("#userId == authentication.details")
+    @Transactional
+    public TargetAllocationResponse createTargetAllocation(Integer userId, TargetAllocationRequest request) {
+        String accountType = normalizeAccountType(request.accountType());
+        ensureAccountTypeIsAvailable(userId, accountType, null);
+
+        TargetAllocation targetAllocation = new TargetAllocation(
+                userId,
+                accountType,
+                request.targetPercentage()
+        );
+
+        return toTargetAllocationResponse(targetAllocationRepository.save(targetAllocation));
+    }
+
+    @PreAuthorize("#userId == authentication.details")
+    @Transactional
+    public TargetAllocationResponse updateTargetAllocation(
+            Integer targetAllocationId,
+            Integer userId,
+            TargetAllocationPatchRequest request) {
+
+        TargetAllocation targetAllocation = findOwnedTargetAllocation(targetAllocationId, userId);
+
+        if (request.accountType() != null) {
+            String accountType = normalizeAccountType(request.accountType());
+            ensureAccountTypeIsAvailable(userId, accountType, targetAllocationId);
+            targetAllocation.setAccountType(accountType);
+        }
+
+        if (request.targetPercentage() != null) {
+            targetAllocation.setTargetPct(request.targetPercentage());
+        }
+
+        return toTargetAllocationResponse(targetAllocationRepository.save(targetAllocation));
+    }
+
+    @PreAuthorize("#userId == authentication.details")
+    @Transactional
+    public void deleteTargetAllocation(Integer targetAllocationId, Integer userId) {
+        TargetAllocation targetAllocation = findOwnedTargetAllocation(targetAllocationId, userId);
+        targetAllocationRepository.delete(targetAllocation);
     }
 
     @PreAuthorize("#userId == authentication.details")
@@ -67,6 +119,31 @@ public class TargetAllocationService {
         }
 
         return result;
+    }
+
+    private TargetAllocation findOwnedTargetAllocation(Integer targetAllocationId, Integer userId) {
+        return targetAllocationRepository.findByIdAndUserId(targetAllocationId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Target allocation not found"));
+    }
+
+    private void ensureAccountTypeIsAvailable(
+            Integer userId,
+            String accountType,
+            Integer currentTargetAllocationId) {
+
+        targetAllocationRepository
+                .findByUserIdAndAccountTypeIgnoreCase(userId, accountType)
+                .filter(existing -> currentTargetAllocationId == null
+                        || !existing.getId().equals(currentTargetAllocationId))
+                .ifPresent(existing -> {
+                    throw new ResourceConflictException(
+                            "Target allocation already exists for account type " + accountType
+                    );
+                });
+    }
+
+    private String normalizeAccountType(String accountType) {
+        return accountType.trim();
     }
 
     private TargetAllocationResponse toTargetAllocationResponse(TargetAllocation targetAllocation) {

@@ -10,10 +10,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
+import se.comerit.avanza.targetallocation.dto.TargetAllocationPatchRequest;
+import se.comerit.avanza.targetallocation.dto.TargetAllocationRequest;
 import se.comerit.avanza.targetallocation.dto.TargetAllocationResponse;
 import se.comerit.avanza.targetallocation.model.TargetAllocation;
 import se.comerit.avanza.targetallocation.repository.TargetAllocationRepository;
-import se.comerit.avanza.exception.ResourceNotFoundException;
+import se.comerit.avanza.exception.*;
 import se.comerit.avanza.targetallocation.service.TargetAllocationService;
 
 import java.math.BigDecimal;
@@ -79,6 +81,107 @@ class TargetAllocationServiceTest {
         );
 
         assertEquals("Target allocation not found", exception.getMessage());
+    }
+
+    @Test
+    void getTargetAllocationResponseShouldMapOwnedAllocation() {
+        TargetAllocation target = targetAllocation(21, 7, "ISK", new BigDecimal("60.00"));
+        when(targetAllocationRepository.findByIdAndUserId(21, 7)).thenReturn(Optional.of(target));
+
+        TargetAllocationResponse response = targetAllocationService.getTargetAllocationResponse(21, 7);
+
+        assertEquals(21, response.id());
+        assertEquals("ISK", response.accountType());
+        assertEquals(new BigDecimal("60.00"), response.targetPercentage());
+    }
+
+    @Test
+    void createTargetAllocationShouldCreateForAuthenticatedUser() {
+        TargetAllocationRequest request =
+                new TargetAllocationRequest(" ISK ", new BigDecimal("60.00"));
+
+        when(targetAllocationRepository.findByUserIdAndAccountTypeIgnoreCase(7, "ISK"))
+                .thenReturn(Optional.empty());
+        when(targetAllocationRepository.save(any(TargetAllocation.class)))
+                .thenAnswer(invocation -> {
+                    TargetAllocation saved = invocation.getArgument(0);
+                    ReflectionTestUtils.setField(saved, "id", 21);
+                    return saved;
+                });
+
+        TargetAllocationResponse response =
+                targetAllocationService.createTargetAllocation(7, request);
+
+        ArgumentCaptor<TargetAllocation> captor = ArgumentCaptor.forClass(TargetAllocation.class);
+        verify(targetAllocationRepository).save(captor.capture());
+
+        TargetAllocation saved = captor.getValue();
+        assertEquals(7, saved.getUserId());
+        assertEquals("ISK", saved.getAccountType());
+        assertEquals(new BigDecimal("60.00"), saved.getTargetPct());
+        assertEquals(21, response.id());
+    }
+
+    @Test
+    void createTargetAllocationShouldRejectDuplicateAccountTypeForUser() {
+        TargetAllocation existing = targetAllocation(21, 7, "ISK", new BigDecimal("60.00"));
+        TargetAllocationRequest request =
+                new TargetAllocationRequest("isk", new BigDecimal("50.00"));
+
+        when(targetAllocationRepository.findByUserIdAndAccountTypeIgnoreCase(7, "isk"))
+                .thenReturn(Optional.of(existing));
+
+        assertThrows(
+                ResourceConflictException.class,
+                () -> targetAllocationService.createTargetAllocation(7, request)
+        );
+
+        verify(targetAllocationRepository, never()).save(any());
+    }
+
+    @Test
+    void updateTargetAllocationShouldUpdatePercentageWithoutChangingAccountType() {
+        TargetAllocation existing = targetAllocation(21, 7, "ISK", new BigDecimal("60.00"));
+        TargetAllocationPatchRequest request =
+                new TargetAllocationPatchRequest(null, new BigDecimal("55.00"));
+
+        when(targetAllocationRepository.findByIdAndUserId(21, 7)).thenReturn(Optional.of(existing));
+        when(targetAllocationRepository.save(existing)).thenReturn(existing);
+
+        TargetAllocationResponse response =
+                targetAllocationService.updateTargetAllocation(21, 7, request);
+
+        assertEquals("ISK", existing.getAccountType());
+        assertEquals(new BigDecimal("55.00"), existing.getTargetPct());
+        assertEquals(new BigDecimal("55.00"), response.targetPercentage());
+    }
+
+    @Test
+    void updateTargetAllocationShouldAllowRenamingToUnusedAccountType() {
+        TargetAllocation existing = targetAllocation(21, 7, "ISK", new BigDecimal("60.00"));
+        TargetAllocationPatchRequest request =
+                new TargetAllocationPatchRequest(" Pension ", null);
+
+        when(targetAllocationRepository.findByIdAndUserId(21, 7)).thenReturn(Optional.of(existing));
+        when(targetAllocationRepository.findByUserIdAndAccountTypeIgnoreCase(7, "Pension"))
+                .thenReturn(Optional.empty());
+        when(targetAllocationRepository.save(existing)).thenReturn(existing);
+
+        TargetAllocationResponse response =
+                targetAllocationService.updateTargetAllocation(21, 7, request);
+
+        assertEquals("Pension", existing.getAccountType());
+        assertEquals("Pension", response.accountType());
+    }
+
+    @Test
+    void deleteTargetAllocationShouldOnlyDeleteOwnedAllocation() {
+        TargetAllocation existing = targetAllocation(21, 7, "ISK", new BigDecimal("60.00"));
+        when(targetAllocationRepository.findByIdAndUserId(21, 7)).thenReturn(Optional.of(existing));
+
+        targetAllocationService.deleteTargetAllocation(21, 7);
+
+        verify(targetAllocationRepository).delete(existing);
     }
 
     @Test
