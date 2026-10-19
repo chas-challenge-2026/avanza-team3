@@ -11,6 +11,9 @@ import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import useDashboard from "../hooks/useDasboard";
 import useLiveAlerts from "../hooks/useLiveAlerts";
+import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
+import { calculatePortfolioHealth } from "../utils/calculatePortfolioHealth";
+import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
 
 function PortfolioPage() {
   const { rows } = usePortfolioAllocations();
@@ -18,6 +21,7 @@ function PortfolioPage() {
   const { dashboard } = useDashboard();
   const accounts = dashboard?.accounts ?? [];
   const { liveAlerts } = useLiveAlerts();
+  const { riskData } = usePortfolioRisk();
 
   const accountColors: Record<string, string> = {
     ISK: "#16a34a",
@@ -31,6 +35,17 @@ function PortfolioPage() {
     color: accountColors[row.accountType],
     target: row.target,
   }));
+
+  const riskScore = riskData?.current.riskScore;
+
+  const spread = dashboard
+    ? calculateHoldingSpread(dashboard.holdings.content)
+    : undefined;
+
+  const portfolioHealth =
+    riskScore !== undefined && spread !== undefined
+      ? calculatePortfolioHealth(riskScore, spread)
+      : undefined;
 
   return (
     <div className={styles.container}>
@@ -74,7 +89,7 @@ function PortfolioPage() {
           />
         </AppCard>
         <PortfolioHealth
-          value={80}
+          value={portfolioHealth}
           help={{
             title: "Vad betyder portföljhälsa?",
             content:
