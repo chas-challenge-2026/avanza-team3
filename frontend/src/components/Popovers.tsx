@@ -1,16 +1,16 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
-import { Box, IconButton, PopOvers, type SxProps } from "@mui/material";
+import { Box, IconButton, Popover, type SxProps } from "@mui/material";
 import React from "react";
-import styles from "./PopOvers.module.css";
+import styles from "./Popovers.module.css";
 
-type PopOversProps = {
+type PopoverProps = {
   content: string;
   title: string;
   sx?: SxProps;
 };
 
-const PopOvers = ({ content, title }: PopOversProps) => {
+const Popovers = ({ content, title }: PopoverProps) => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
   );
@@ -24,13 +24,13 @@ const PopOvers = ({ content, title }: PopOversProps) => {
   };
 
   const open = Boolean(anchorEl);
-  const id = open ? "simple-PopOvers" : undefined;
+  const id = open ? "simple-popover" : undefined;
   return (
     <>
       <IconButton sx={{ p: 0 }} aria-describedby={id} onClick={handleClick}>
         <FontAwesomeIcon className={styles.icon} icon={faCircleQuestion} />
       </IconButton>
-      <PopOvers
+      <Popover
         id={id}
         open={open}
         anchorEl={anchorEl}
@@ -45,8 +45,8 @@ const PopOvers = ({ content, title }: PopOversProps) => {
 
           <p className={styles.label}>{content}</p>
         </Box>
-      </PopOvers>
+      </Popover>
     </>
   );
 };
-export default PopOvers;
+export default Popovers;

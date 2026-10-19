@@ -1,7 +1,7 @@
 import { PieChart } from "@mui/x-charts";
 import { useMediaQuery, useTheme } from "@mui/material";
 import styles from "./DonutChart.module.css";
-import PopOvers from "./PopOvers";
+import PopOvers from "./Popovers";
 
 type DonutChartItem = {
   label: string;

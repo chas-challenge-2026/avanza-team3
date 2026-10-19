@@ -2,7 +2,7 @@ import { Alert, Box, Grid, Input, Slider, Snackbar } from "@mui/material";
 import styles from "./AllocationHandler.module.css";
 import { useState, type ChangeEvent } from "react";
 import AppButton from "./AppButton";
-import PopOvers from "./PopOvers";
+import PopOvers from "./Popovers";
 
 type AllocationItem = {
   id: string;
