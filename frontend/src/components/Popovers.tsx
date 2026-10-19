@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import { Box, IconButton, Popover, type SxProps } from "@mui/material";
 import React from "react";
-import styles from "./Popover.module.css";
+import styles from "./Popovers.module.css";
 
 type PopoverProps = {
   content: string;

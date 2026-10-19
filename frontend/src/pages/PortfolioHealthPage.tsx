@@ -10,7 +10,7 @@ import AllocationHandler from "../components/AllocationHandler";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
-import PopOver from "../components/Popover";
+import PopOver from "../components/Popovers";
 import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
 import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
 import { useEffect, useState } from "react";

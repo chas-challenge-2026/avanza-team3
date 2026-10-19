@@ -4,7 +4,7 @@ import styles from "./PortfolioHealth.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "./AppCard";
-import PopOver from "./Popover";
+import PopOver from "./Popovers";
 
 type PortfolioHealthProps = {
   value: number;
