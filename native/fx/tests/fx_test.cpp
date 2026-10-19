@@ -52,3 +52,18 @@ TEST(FxConvert, HandlesNullPtr)
     EXPECT_EQ(FxConvert(1.0, nullptr, nullptr, &res), FX_ERROR_NULL);
     EXPECT_EQ(FxConvert(1.0, nullptr, nullptr, nullptr), FX_ERROR_NULL);
 }
+
+#include <iostream>
+
+TEST(FxConvert, PrintsActualUsdSekRate)
+{
+    double rate = 0.0;
+
+    int status = FxConvert(1.0, "USD", "SEK", &rate);
+
+    std::cout << "\nFX STATUS: " << status
+              << "\nUSD/SEK: " << rate
+              << std::endl;
+
+    EXPECT_EQ(status, FX_OK);
+}
