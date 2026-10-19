@@ -27,6 +27,7 @@
 .header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 6px;
   color: var(--muted-foreground);
   font-size: 0.8125rem;
@@ -83,4 +84,9 @@
   margin: 0;
   line-height: 1.15;
   letter-spacing: -0.5px;
+}
+
+.popoverWrapper {
+  display: flex;
+  flex-direction: row-reverse;
 }
