@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "./AppCard";
 import PopOver from "./Popover";
+import { useState } from "react";
 
 type PortfolioHealthProps = {
   value: number;
@@ -16,7 +17,13 @@ type PortfolioHealthProps = {
   };
 };
 
-const PortfolioHealth = ({ value, help }: PortfolioHealthProps) => {
+const PortfolioHealth = ({
+  value,
+  help,
+  riskScore,
+  spread,
+}: PortfolioHealthProps) => {
+  const [expanded, setExpanded] = useState(false);
   const valueStatus = () => {
     if (value < 40) {
       return "Låg";
@@ -38,6 +45,7 @@ const PortfolioHealth = ({ value, help }: PortfolioHealthProps) => {
           <h2>Portföljhälsa</h2>
           <PopOver title={help.title} content={help.content} />
         </div>
+
         <Gauge
           cornerRadius={"50%"}
           width={300}
@@ -58,7 +66,7 @@ const PortfolioHealth = ({ value, help }: PortfolioHealthProps) => {
             },
           }}
         >
-          <text x="50%" y="62%" textAnchor="middle">
+          <text x="50%" y="64%" textAnchor="middle">
             <tspan
               x="50%"
               className={styles.gaugeStatus}
@@ -91,10 +99,41 @@ const PortfolioHealth = ({ value, help }: PortfolioHealthProps) => {
             </linearGradient>
           </defs>
         </Gauge>
-        <NavLink to="/portfoljhalsa">
-          Läs mer{" "}
-          <FontAwesomeIcon className={styles.arrowIcon} icon={faArrowRight} />
-        </NavLink>
+
+        {expanded && (
+          <div className={styles.details}>
+            <div className={styles.metrics}>
+              <div>
+                <p>Riskpoäng</p>
+                <strong>{riskScore}/100</strong>
+              </div>
+
+              <div>
+                <p>Innehavsspridning</p>
+                <strong>{spread}/100</strong>
+              </div>
+            </div>
+
+            <p className={styles.explanation}>
+              Portföljhälsan baseras till 50 % på risknivå och 50 % på
+              innehavsspridning. Lägre risk och högre spridning ger högre poäng.
+            </p>
+            <NavLink to="/portfoljhalsa" className={styles.readMore}>
+              Läs mer
+              <FontAwesomeIcon icon={faArrowRight} />
+            </NavLink>
+          </div>
+        )}
+        {!expanded && (
+          <button
+            type="button"
+            className={styles.expandButton}
+            onClick={() => setExpanded(true)}
+            aria-expanded={false}
+          >
+            Visa detaljer
+          </button>
+        )}
       </div>
     </AppCard>
   );
