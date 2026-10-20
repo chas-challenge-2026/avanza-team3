@@ -34,18 +34,11 @@ function PortfolioPage() {
     getHoldingsSummary().then(setSummaryHoldings).catch(console.error);
   }, []);
 
-  const accountColors: Record<string, string> = {
-    ISK: "#16a34a",
-    KF: "#1976d2",
-    Depa: "#8b69a7",
-  };
-
-  const allocationData = rows.map((row) => ({
-    label: row.accountType,
-    value: row.actual,
-    color: accountColors[row.accountType],
-    target: row.target,
-  }));
+  const mockAllocations = [
+    { id: "stocks", label: "Aktier", value: 100 },
+    // { id: "funds", label: "Fonder", value: 30 },
+    // { id: "bonds", label: "Ränteplaceringar", value: 20 }
+  ];
 
   const riskScore = riskData?.current.riskScore;
 
@@ -95,13 +88,13 @@ function PortfolioPage() {
       <div className={styles.row2}>
         <AppCard>
           <DonutChart
-            title="Fördelning per kontotyp"
-            data={allocationData}
             help={{
-              title: "Vad betyder kontotyp?",
+              title: "Vad betyder instrumenttyp?",
               content:
-                "Kontotyp visar hur ditt konto är upplagt. ISK, KF och depå är olika sätt att äga och hantera investeringar.",
+                "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie, fond eller obligation.",
             }}
+            title="Aktuell fördelning per instrumenttyp"
+            data={mockAllocations}
           />
         </AppCard>
         {portfolioHealth !== undefined &&

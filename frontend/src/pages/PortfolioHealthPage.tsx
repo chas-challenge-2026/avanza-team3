@@ -18,12 +18,19 @@ import {
   getHoldingsSummary,
   type HoldingSummary,
 } from "../services/holdingSummaryService";
+import { useTargetAllocations } from "../hooks/useTargetAllocation";
+import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 
 function PortfolioHealthPage() {
-  // const { rows } = usePortfolioAllocations();
+  const { rows } = usePortfolioAllocations();
   const { dashboard, loading } = useDashboard();
   const { holdings } = useHoldings();
   const { riskData } = usePortfolioRisk();
+  const {
+    targetAllocation,
+    editTargetAllocation,
+    loading: targetAllocationLoading,
+  } = useTargetAllocations();
   const [summaryHoldings, setSummaryHoldings] = useState<HoldingSummary[]>([]);
 
   useEffect(() => {
@@ -50,6 +57,26 @@ function PortfolioHealthPage() {
   //   KF: "#1976d2",
   //   Depa: "#8b69a7",
   // };
+  useEffect(() => {
+    if (!dashboard) return;
+
+    const holdings = dashboard.holdings.content;
+
+    console.table(
+      holdings.map((holding) => ({
+        ticker: holding.ticker,
+        valueSek: holding.valueSek,
+        currency: holding.currency,
+      })),
+    );
+
+    console.log(
+      "Total SEK:",
+      holdings.reduce((sum, holding) => sum + holding.valueSek, 0),
+    );
+
+    console.log("Spread:", calculateHoldingSpread(holdings));
+  }, [dashboard]);
 
   const changePercent = 5;
 
@@ -106,18 +133,30 @@ function PortfolioHealthPage() {
   //   color: accountColors[row.accountType],
   // }));
 
-  // const allocations =
-  //   dashboard?.allocationRows.map((row, index) => ({
-  //     id: `${row.accountType}-${index}`,
-  //     label: row.accountType,
-  //     value: row.target
-  //   })) ?? [];
+  const allocations = targetAllocation.map((target) => ({
+    id: String(target.id),
+    label: target.accountType,
+    value: target.targetPercentage,
+  }));
 
-  const mockAllocations = [
-    { id: "stocks", label: "Aktier", value: 50, target: 60 },
-    { id: "funds", label: "Fonder", value: 30, target: 50 },
-    { id: "bonds", label: "Ränteplaceringar", value: 20, target: 10 },
-  ];
+  const accountColors: Record<string, string> = {
+    ISK: "#16a34a",
+    KF: "#1976d2",
+    Depa: "#8b69a7",
+  };
+
+  const allocationData = rows.map((row) => {
+    const currentTarget = targetAllocation.find(
+      (target) => target.accountType === row.accountType,
+    );
+
+    return {
+      label: row.accountType,
+      value: row.actual,
+      color: accountColors[row.accountType],
+      target: currentTarget?.targetPercentage ?? row.target,
+    };
+  });
 
   const stockCount =
     summaryHoldings?.filter((holding) => holding.instrument_type === "Aktie")
@@ -246,25 +285,31 @@ function PortfolioHealthPage() {
       </div>
       <div className={styles.container}>
         <AppCard>
-          {!loading && dashboard && (
+          {!loading && !targetAllocationLoading && dashboard && (
             <AllocationHandler
-              allocations={mockAllocations}
-              title="Målalloekering över instrumenttyp"
-              onSave={(values) => {
-                console.log(values);
+              allocations={allocations}
+              title="Målalloekering över kontotyp"
+              onSave={async (values) => {
+                await Promise.all(
+                  targetAllocation.map((target) =>
+                    editTargetAllocation(target.id, {
+                      targetPercentage: values[String(target.id)],
+                    }),
+                  ),
+                );
               }}
             />
           )}
         </AppCard>
         <AppCard>
           <DonutChart
+            title="Fördelning per kontotyp"
+            data={allocationData}
             help={{
-              title: "Vad betyder instrumenttyp?",
+              title: "Vad betyder kontotyp?",
               content:
-                "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie, fond eller obligation.",
+                "Kontotyp visar hur ditt konto är upplagt. ISK, KF och depå är olika sätt att äga och hantera investeringar.",
             }}
-            title="Aktuell fördelning per instrumenttyp"
-            data={mockAllocations}
           />
         </AppCard>
       </div>
@@ -281,6 +326,7 @@ function PortfolioHealthPage() {
             "instrumentName",
             "quantity",
             "avgBuyPrice",
+            "valueSek",
             "account_type",
             "account_name",
             "marketValue",

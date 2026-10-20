@@ -27,11 +27,13 @@ const DonutChart = ({ title, data, help }: DonutChartProps) => {
     const deviationText =
       item.target === undefined
         ? ""
-        : item.value === item.target
-          ? "\nIngen avvikelse"
-          : `\nAvviker ${
-              item.value - item.target > 0 ? "+" : ""
-            }${(item.value - item.target).toFixed(0)}% från mål`;
+        : `\nMål: ${item.target}%${
+            item.value === item.target
+              ? " ingen avvikelse"
+              : ` \n avviker ${
+                  item.value - item.target > 0 ? "+" : ""
+                }${(item.value - item.target).toFixed(0)}%`
+          }`;
 
     return {
       label: `${item.label} ${percentage}%${deviationText}`,

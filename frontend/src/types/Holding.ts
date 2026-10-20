@@ -12,6 +12,7 @@ export type Holding = {
   account_name: string;
   pnl: number;
   pnlPct: number;
+  valueSek?: number;
 };
 
 export type HoldingRequest = {

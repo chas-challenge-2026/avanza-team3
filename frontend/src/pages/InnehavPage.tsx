@@ -28,7 +28,8 @@ function InnehavPage() {
           "instrumentName",
           "quantity",
           "avgBuyPrice",
-          "account_type"
+          "valueSek",
+          "account_type",
         ]}
         onDelete={removeHolding}
         // width="1200px"
