@@ -90,7 +90,7 @@ const InnehavsLista = ({
   const tableColumns = selectedColumns.map((column) => columnConfig[column]);
 
   return (
-    <>
+    <div>
       <DataTable
         rows={holdings}
         columns={tableColumns}
@@ -102,7 +102,7 @@ const InnehavsLista = ({
       <p className={styles.currency}>
         Växelkurs: 1 USD = {usdToSek.toLocaleString("sv-SE")} SEK
       </p>
-    </>
+    </div>
   );
 };
 
