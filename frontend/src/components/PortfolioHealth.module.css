@@ -38,3 +38,13 @@ h2 {
   align-items: flex-start;
   width: 100%;
 }
+.gaugeStatus {
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.gaugeScore {
+  font-size: 16px;
+  font-weight: 600;
+  fill: var(--text-secondary);
+}

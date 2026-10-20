@@ -119,6 +119,14 @@ function PortfolioHealthPage() {
     { id: "bonds", label: "Ränteplaceringar", value: 20, target: 10 },
   ];
 
+  const stockCount =
+    summaryHoldings?.filter((holding) => holding.instrument_type === "Aktie")
+      .length ?? 0;
+
+  const fundCount =
+    summaryHoldings?.filter((holding) => holding.instrument_type === "Fond")
+      .length ?? 0;
+
   return (
     <>
       <div className={styles.container}>
@@ -189,8 +197,10 @@ function PortfolioHealthPage() {
             <div className={styles.header}>
               <p className={styles.label}>Antal innehav</p>
             </div>
-            <p className={styles.value}>
-              {dashboard?.holdings.totalElements} st
+            <p className={styles.value}>{summaryHoldings?.length ?? "–"} st</p>
+
+            <p className={styles.label}>
+              {stockCount} aktier · {fundCount} fonder
             </p>
           </div>
         </AppCard>
@@ -201,13 +211,12 @@ function PortfolioHealthPage() {
               <PopOver
                 title="Vad betyder Innehavsspridning?"
                 content="Innehavsspridning visar hur jämnt portföljens värde är fördelat mellan olika innehav.
-                  Ett högre värde innebär att kapitalet är mer utspritt, 
-                 men säger inte något om hur innehavens risker samvarierar."
+                  Ett högre värde innebär att kapitalet är mer utspritt."
               />
             </div>
             <div className={styles.row}>
               <div>
-                <p className={styles.value}>{diversification}%</p>
+                <p className={styles.value}>{diversification}/100</p>
                 <p
                   className={
                     styles.label + " " + styles[diversificationLevel()]

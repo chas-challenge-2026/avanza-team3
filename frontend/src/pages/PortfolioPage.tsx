@@ -14,6 +14,9 @@ import useLiveAlerts from "../hooks/useLiveAlerts";
 import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
 import { calculatePortfolioHealth } from "../utils/calculatePortfolioHealth";
 import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
+import { useState, useEffect } from "react";
+import { getHoldingsSummary } from "../services/holdingSummaryService";
+import type { HoldingSummary } from "../services/holdingSummaryService";
 
 function PortfolioPage() {
   const { rows } = usePortfolioAllocations();
@@ -22,6 +25,14 @@ function PortfolioPage() {
   const accounts = dashboard?.accounts ?? [];
   const { liveAlerts } = useLiveAlerts();
   const { riskData } = usePortfolioRisk();
+
+  const [summaryHoldings, setSummaryHoldings] = useState<
+    HoldingSummary[] | null
+  >(null);
+
+  useEffect(() => {
+    getHoldingsSummary().then(setSummaryHoldings).catch(console.error);
+  }, []);
 
   const accountColors: Record<string, string> = {
     ISK: "#16a34a",
@@ -38,8 +49,13 @@ function PortfolioPage() {
 
   const riskScore = riskData?.current.riskScore;
 
-  const spread = dashboard
-    ? calculateHoldingSpread(dashboard.holdings.content)
+  const spread = summaryHoldings
+    ? calculateHoldingSpread(
+        summaryHoldings.map((holding) => ({
+          ticker: holding.ticker,
+          valueSek: holding.marketValue,
+        })),
+      )
     : undefined;
 
   const portfolioHealth =
@@ -88,16 +104,20 @@ function PortfolioPage() {
             }}
           />
         </AppCard>
-        {portfolioHealth !== undefined && (
-          <PortfolioHealth
-            value={portfolioHealth}
-            help={{
-              title: "Vad betyder portföljhälsa?",
-              content:
-                "Portföljhälsa ger en överblick över hur väl din portfölj är balanserad, till exempel utifrån risk, diversifiering och fördelning mellan innehav.",
-            }}
-          />
-        )}
+        {portfolioHealth !== undefined &&
+          riskScore !== undefined &&
+          spread !== undefined && (
+            <PortfolioHealth
+              value={portfolioHealth}
+              help={{
+                title: "Vad betyder portföljhälsa?",
+                content:
+                  "Portföljhälsa ger en överblick över hur väl din portfölj är balanserad, till exempel utifrån risk, diversifiering och fördelning mellan innehav.",
+              }}
+              riskScore={riskScore}
+              spread={spread}
+            />
+          )}
       </div>
 
       <div className={styles.row3}>

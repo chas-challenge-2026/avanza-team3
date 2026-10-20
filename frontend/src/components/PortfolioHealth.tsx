@@ -8,6 +8,8 @@ import PopOver from "./Popover";
 
 type PortfolioHealthProps = {
   value: number;
+  riskScore: number;
+  spread: number;
   help: {
     title: string;
     content: string;
@@ -17,16 +19,16 @@ type PortfolioHealthProps = {
 const PortfolioHealth = ({ value, help }: PortfolioHealthProps) => {
   const valueStatus = () => {
     if (value < 40) {
-      return "Dålig";
+      return "Låg";
     } else if (value > 39 && value < 70) {
-      return "Okej";
+      return "Måttlig";
     } else return "God";
   };
 
   const statusColors = {
     God: "var(--text-green)",
-    Okej: "var(--text-warning)",
-    Dålig: "var(--text-error)"
+    Måttlig: "var(--text-warning)",
+    Låg: "var(--text-error)",
   };
 
   return (
@@ -41,21 +43,33 @@ const PortfolioHealth = ({ value, help }: PortfolioHealthProps) => {
           width={300}
           height={200}
           value={value}
-          text={valueStatus()}
+          text={""}
           startAngle={-90}
           endAngle={90}
           sx={{
             [`& .${gaugeClasses.valueArc}`]: {
-              fill: "url(#gaugeGradient)"
+              fill: "url(#gaugeGradient)",
             },
             [`& .${gaugeClasses.valueText} text`]: {
               fontSize: 25,
               fontWeight: 500,
               fill: statusColors[valueStatus()],
-              transform: "translateY(-40px)"
-            }
+              transform: "translateY(-40px)",
+            },
           }}
         >
+          <text x="50%" y="62%" textAnchor="middle">
+            <tspan
+              x="50%"
+              className={styles.gaugeStatus}
+              style={{ fill: statusColors[valueStatus()] }}
+            >
+              {valueStatus()}
+            </tspan>
+            <tspan x="50%" dy="28" className={styles.gaugeScore}>
+              {value}/100
+            </tspan>
+          </text>
           <defs>
             <linearGradient
               id="gaugeGradient"
