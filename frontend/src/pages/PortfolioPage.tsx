@@ -88,14 +88,16 @@ function PortfolioPage() {
             }}
           />
         </AppCard>
-        <PortfolioHealth
-          value={portfolioHealth}
-          help={{
-            title: "Vad betyder portföljhälsa?",
-            content:
-              "Portföljhälsa ger en överblick över hur väl din portfölj är balanserad, till exempel utifrån risk, diversifiering och fördelning mellan innehav.",
-          }}
-        />
+        {portfolioHealth !== undefined && (
+          <PortfolioHealth
+            value={portfolioHealth}
+            help={{
+              title: "Vad betyder portföljhälsa?",
+              content:
+                "Portföljhälsa ger en överblick över hur väl din portfölj är balanserad, till exempel utifrån risk, diversifiering och fördelning mellan innehav.",
+            }}
+          />
+        )}
       </div>
 
       <div className={styles.row3}>

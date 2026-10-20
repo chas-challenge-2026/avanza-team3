@@ -13,13 +13,31 @@ import CurrencyExposure from "../components/CurrencyExposure";
 import PopOver from "../components/Popover";
 import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
 import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import {
+  getHoldingsSummary,
+  type HoldingSummary,
+} from "../services/holdingSummaryService";
 
 function PortfolioHealthPage() {
   // const { rows } = usePortfolioAllocations();
   const { dashboard, loading } = useDashboard();
   const { holdings } = useHoldings();
   const { riskData } = usePortfolioRisk();
+  const [summaryHoldings, setSummaryHoldings] = useState<HoldingSummary[]>([]);
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const data = await getHoldingsSummary();
+        setSummaryHoldings(data);
+      } catch (error) {
+        console.error("Kunde inte hämta holding summary:", error);
+      }
+    };
+
+    fetchSummary();
+  }, []);
 
   const statusColors = {
     good: "#16a34a",
@@ -32,26 +50,6 @@ function PortfolioHealthPage() {
   //   KF: "#1976d2",
   //   Depa: "#8b69a7",
   // };
-  useEffect(() => {
-    if (!dashboard) return;
-
-    const holdings = dashboard.holdings.content;
-
-    console.table(
-      holdings.map((holding) => ({
-        ticker: holding.ticker,
-        valueSek: holding.valueSek,
-        currency: holding.currency,
-      })),
-    );
-
-    console.log(
-      "Total SEK:",
-      holdings.reduce((sum, holding) => sum + holding.valueSek, 0),
-    );
-
-    console.log("Spread:", calculateHoldingSpread(holdings));
-  }, [dashboard]);
 
   const changePercent = 5;
 
@@ -79,9 +77,12 @@ function PortfolioHealthPage() {
     danger: "Hög Risk",
   };
 
-  const diversification = dashboard
-    ? calculateHoldingSpread(dashboard.holdings.content)
-    : 0;
+  const diversification = calculateHoldingSpread(
+    summaryHoldings.map((holding) => ({
+      ticker: holding.ticker,
+      valueSek: holding.marketValue,
+    })),
+  );
 
   const diversificationLevel = () => {
     if (diversification >= 70) {
