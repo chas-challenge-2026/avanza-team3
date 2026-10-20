@@ -296,6 +296,7 @@ function PortfolioHealthPage() {
             "instrumentName",
             "quantity",
             "avgBuyPrice",
+            "valueSek",
             "account_type",
             "account_name",
             "marketValue",
