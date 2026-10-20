@@ -13,7 +13,11 @@ import CurrencyExposure from "../components/CurrencyExposure";
 import PopOver from "../components/Popover";
 import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
 import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import {
+  getHoldingsSummary,
+  type HoldingSummary,
+} from "../services/holdingSummaryService";
 import { useTargetAllocations } from "../hooks/useTargetAllocation";
 import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 
@@ -25,13 +29,27 @@ function PortfolioHealthPage() {
   const {
     targetAllocation,
     editTargetAllocation,
-    loading: targetAllocationLoading
+    loading: targetAllocationLoading,
   } = useTargetAllocations();
+  const [summaryHoldings, setSummaryHoldings] = useState<HoldingSummary[]>([]);
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const data = await getHoldingsSummary();
+        setSummaryHoldings(data);
+      } catch (error) {
+        console.error("Kunde inte hämta holding summary:", error);
+      }
+    };
+
+    fetchSummary();
+  }, []);
 
   const statusColors = {
     good: "#16a34a",
     warning: "#d97706",
-    danger: "#dc2626"
+    danger: "#dc2626",
   };
 
   // const accountColors: Record<string, string> = {
@@ -48,13 +66,13 @@ function PortfolioHealthPage() {
       holdings.map((holding) => ({
         ticker: holding.ticker,
         valueSek: holding.valueSek,
-        currency: holding.currency
-      }))
+        currency: holding.currency,
+      })),
     );
 
     console.log(
       "Total SEK:",
-      holdings.reduce((sum, holding) => sum + holding.valueSek, 0)
+      holdings.reduce((sum, holding) => sum + holding.valueSek, 0),
     );
 
     console.log("Spread:", calculateHoldingSpread(holdings));
@@ -83,12 +101,15 @@ function PortfolioHealthPage() {
   const riskLevelText = {
     good: "Låg Risk",
     warning: "Måttlig Risk",
-    danger: "Hög Risk"
+    danger: "Hög Risk",
   };
 
-  const diversification = dashboard
-    ? calculateHoldingSpread(dashboard.holdings.content)
-    : 0;
+  const diversification = calculateHoldingSpread(
+    summaryHoldings.map((holding) => ({
+      ticker: holding.ticker,
+      valueSek: holding.marketValue,
+    })),
+  );
 
   const diversificationLevel = () => {
     if (diversification >= 70) {
@@ -103,7 +124,7 @@ function PortfolioHealthPage() {
   const diversificationText = {
     good: "God spridning",
     warning: "Måttlig spridning",
-    danger: "Låg spridning"
+    danger: "Låg spridning",
   };
 
   // const allocationData = rows.map((row) => ({
@@ -115,27 +136,35 @@ function PortfolioHealthPage() {
   const allocations = targetAllocation.map((target) => ({
     id: String(target.id),
     label: target.accountType,
-    value: target.targetPercentage
+    value: target.targetPercentage,
   }));
 
   const accountColors: Record<string, string> = {
     ISK: "#16a34a",
     KF: "#1976d2",
-    Depa: "#8b69a7"
+    Depa: "#8b69a7",
   };
 
   const allocationData = rows.map((row) => {
     const currentTarget = targetAllocation.find(
-      (target) => target.accountType === row.accountType
+      (target) => target.accountType === row.accountType,
     );
 
     return {
       label: row.accountType,
       value: row.actual,
       color: accountColors[row.accountType],
-      target: currentTarget?.targetPercentage ?? row.target
+      target: currentTarget?.targetPercentage ?? row.target,
     };
   });
+
+  const stockCount =
+    summaryHoldings?.filter((holding) => holding.instrument_type === "Aktie")
+      .length ?? 0;
+
+  const fundCount =
+    summaryHoldings?.filter((holding) => holding.instrument_type === "Fond")
+      .length ?? 0;
 
   return (
     <>
@@ -173,7 +202,7 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": { fill: statusColors[riskLevel()] },
-                  "& .MuiGauge-valueText": { display: "none" }
+                  "& .MuiGauge-valueText": { display: "none" },
                 }}
                 width={90}
                 height={90}
@@ -191,7 +220,7 @@ function PortfolioHealthPage() {
             </div>
             <p className={styles.value}>
               {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-                maximumFractionDigits: 0
+                maximumFractionDigits: 0,
               })}{" "}
               SEK
             </p>
@@ -207,8 +236,10 @@ function PortfolioHealthPage() {
             <div className={styles.header}>
               <p className={styles.label}>Antal innehav</p>
             </div>
-            <p className={styles.value}>
-              {dashboard?.holdings.totalElements} st
+            <p className={styles.value}>{summaryHoldings?.length ?? "–"} st</p>
+
+            <p className={styles.label}>
+              {stockCount} aktier · {fundCount} fonder
             </p>
           </div>
         </AppCard>
@@ -219,13 +250,12 @@ function PortfolioHealthPage() {
               <PopOver
                 title="Vad betyder Innehavsspridning?"
                 content="Innehavsspridning visar hur jämnt portföljens värde är fördelat mellan olika innehav.
-                  Ett högre värde innebär att kapitalet är mer utspritt, 
-                 men säger inte något om hur innehavens risker samvarierar."
+                  Ett högre värde innebär att kapitalet är mer utspritt."
               />
             </div>
             <div className={styles.row}>
               <div>
-                <p className={styles.value}>{diversification}%</p>
+                <p className={styles.value}>{diversification}/100</p>
                 <p
                   className={
                     styles.label + " " + styles[diversificationLevel()]
@@ -237,9 +267,9 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": {
-                    fill: statusColors[diversificationLevel()]
+                    fill: statusColors[diversificationLevel()],
                   },
-                  "& .MuiGauge-valueText": { display: "none" }
+                  "& .MuiGauge-valueText": { display: "none" },
                 }}
                 width={90}
                 height={60}
@@ -263,9 +293,9 @@ function PortfolioHealthPage() {
                 await Promise.all(
                   targetAllocation.map((target) =>
                     editTargetAllocation(target.id, {
-                      targetPercentage: values[String(target.id)]
-                    })
-                  )
+                      targetPercentage: values[String(target.id)],
+                    }),
+                  ),
                 );
               }}
             />
@@ -278,7 +308,7 @@ function PortfolioHealthPage() {
             help={{
               title: "Vad betyder kontotyp?",
               content:
-                "Kontotyp visar hur ditt konto är upplagt. ISK, KF och depå är olika sätt att äga och hantera investeringar."
+                "Kontotyp visar hur ditt konto är upplagt. ISK, KF och depå är olika sätt att äga och hantera investeringar.",
             }}
           />
         </AppCard>
@@ -301,7 +331,7 @@ function PortfolioHealthPage() {
             "account_name",
             "marketValue",
             "pnl",
-            "pnlPct"
+            "pnlPct",
           ]}
         />
       </div>
