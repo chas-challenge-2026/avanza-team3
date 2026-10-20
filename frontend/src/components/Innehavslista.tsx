@@ -1,6 +1,7 @@
 import DataTable from "./DataTable";
 import type { Holding } from "../types/Holding";
 import useDashboard from "../hooks/useDasboard";
+import styles from "./Innehavslista.module.css";
 
 type ColumnKey = keyof Holding;
 
@@ -89,14 +90,19 @@ const InnehavsLista = ({
   const tableColumns = selectedColumns.map((column) => columnConfig[column]);
 
   return (
-    <DataTable
-      rows={holdings}
-      columns={tableColumns}
-      title="Nuvarande innehav"
-      width={width}
-      showDelete={showDelete}
-      onDelete={onDelete}
-    />
+    <>
+      <DataTable
+        rows={holdings}
+        columns={tableColumns}
+        title="Nuvarande innehav"
+        width={width}
+        showDelete={showDelete}
+        onDelete={onDelete}
+      />
+      <p className={styles.currency}>
+        Växelkurs: 1 USD = {usdToSek.toLocaleString("sv-SE")} SEK
+      </p>
+    </>
   );
 };
 
