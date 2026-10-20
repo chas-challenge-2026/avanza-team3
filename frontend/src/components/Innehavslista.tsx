@@ -1,5 +1,7 @@
 import DataTable from "./DataTable";
 import type { Holding } from "../types/Holding";
+import useDashboard from "../hooks/useDasboard";
+
 type ColumnKey = keyof Holding;
 
 type InnehavsListaProps = {
@@ -9,6 +11,7 @@ type InnehavsListaProps = {
   showDelete?: boolean;
   onDelete?: (id: number) => Promise<void>;
 };
+
 const InnehavsLista = ({
   holdings,
   columns,
@@ -16,6 +19,9 @@ const InnehavsLista = ({
   showDelete,
   onDelete,
 }: InnehavsListaProps) => {
+  const { dashboard } = useDashboard();
+  const usdToSek = dashboard?.usdToSek ?? 1;
+
   const columnConfig: Record<
     ColumnKey,
     {
@@ -32,6 +38,14 @@ const InnehavsLista = ({
       headerName: "Marknadsvärde",
       render: (row: Holding) =>
         `${row.marketValue.toLocaleString("sv-SE")} ${row.currency}`,
+    },
+    valueSek: {
+      field: "valueSek",
+      headerName: "Värde (SEK)",
+      render: (row: Holding) =>
+        `${Math.round(
+          row.currency === "USD" ? row.marketValue * usdToSek : row.marketValue,
+        ).toLocaleString("sv-SE")} SEK`,
     },
     account_name: { field: "account_name", headerName: "Konto" },
     ticker: { field: "ticker", headerName: "Ticker" },
