@@ -32,7 +32,7 @@ const DonutChart = ({ title, data, help }: DonutChartProps) => {
               ? " ingen avvikelse"
               : ` \n avviker ${
                   item.value - item.target > 0 ? "+" : ""
-                }${(item.value - item.target).toFixed(0)}%`
+                }${(item.value - item.target).toFixed(0)}% från mål`
           }`;
 
     return {
