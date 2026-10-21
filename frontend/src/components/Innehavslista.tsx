@@ -23,22 +23,6 @@ const InnehavsLista = ({
   const { dashboard } = useDashboard();
   const usdToSek = dashboard?.usdToSek ?? 1;
 
-  console.table(
-    holdings.map((h) => ({
-      ticker: h.ticker,
-      currency: h.currency,
-      marketValue: h.marketValue,
-      valueSek: h.valueSek,
-      usdToSek,
-    })),
-  );
-  console.log("USD-kurs:", dashboard?.usdToSek);
-  console.log("Totalt portföljvärde:", dashboard?.totalPortfolioValue);
-  console.log(
-    "AAPL:",
-    dashboard?.holdings.content.find((h) => h.ticker === "AAPL"),
-  );
-
   const columnConfig: Record<
     ColumnKey,
     {
