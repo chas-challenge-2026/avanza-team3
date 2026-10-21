@@ -1,6 +1,6 @@
 import type {
   TargetAllocation,
-  TargetAllocationPatchRequest
+  TargetAllocationPatchRequest,
 } from "../types/targetAllocation";
 
 export const getTargetAllocations = async (): Promise<TargetAllocation[]> => {
@@ -13,12 +13,12 @@ export const getTargetAllocations = async (): Promise<TargetAllocation[]> => {
   const response = await fetch("/api/target-allocations", {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (!response.ok) {
-    throw new Error(`Kunde inte hämta målalloekering ${response.status}`);
+    throw new Error(`Kunde inte hämta målallokering ${response.status}`);
   }
 
   const data = await response.json();
@@ -28,7 +28,7 @@ export const getTargetAllocations = async (): Promise<TargetAllocation[]> => {
 
 export const updateTargetAllocations = async (
   id: number,
-  changes: TargetAllocationPatchRequest
+  changes: TargetAllocationPatchRequest,
 ): Promise<TargetAllocation> => {
   const token = localStorage.getItem("token");
 
@@ -40,9 +40,9 @@ export const updateTargetAllocations = async (
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(changes)
+    body: JSON.stringify(changes),
   });
 
   if (!response.ok) {
