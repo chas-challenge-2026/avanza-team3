@@ -17,10 +17,11 @@ import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
 import { useState, useEffect } from "react";
 import { getHoldingsSummary } from "../services/holdingSummaryService";
 import type { HoldingSummary } from "../services/holdingSummaryService";
+import { useTargetAllocations } from "../hooks/useTargetAllocation";
 
 function PortfolioPage() {
   const { rows } = usePortfolioAllocations();
-
+  const { targetAllocation } = useTargetAllocations();
   const { dashboard } = useDashboard();
   const accounts = dashboard?.accounts ?? [];
   const { liveAlerts } = useLiveAlerts();
@@ -34,11 +35,26 @@ function PortfolioPage() {
     getHoldingsSummary().then(setSummaryHoldings).catch(console.error);
   }, []);
 
-  const mockAllocations = [
-    { id: "stocks", label: "Aktier", value: 100 },
-    // { id: "funds", label: "Fonder", value: 30 },
-    // { id: "bonds", label: "Ränteplaceringar", value: 20 }
-  ];
+  const accountColors: Record<string, string> = {
+    ISK: "#16a34a",
+    KF: "#1976d2",
+    Depa: "#8b69a7"
+  };
+
+  const allocationData = rows
+    .filter((row) => !row.accountType.toLowerCase().includes("pension"))
+    .map((row) => {
+      const currentTarget = targetAllocation.find(
+        (target) => target.accountType === row.accountType
+      );
+
+      return {
+        label: row.accountType,
+        value: row.actual,
+        color: accountColors[row.accountType],
+        target: currentTarget?.targetPercentage ?? row.target
+      };
+    });
 
   const riskScore = riskData?.current.riskScore;
 
@@ -46,8 +62,8 @@ function PortfolioPage() {
     ? calculateHoldingSpread(
         summaryHoldings.map((holding) => ({
           ticker: holding.ticker,
-          valueSek: holding.marketValue,
-        })),
+          valueSek: holding.marketValue
+        }))
       )
     : undefined;
 
@@ -78,23 +94,22 @@ function PortfolioPage() {
           </div>
           <p className={styles.value}>
             {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-              maximumFractionDigits: 0,
+              maximumFractionDigits: 0
             })}{" "}
             SEK
           </p>
         </div>
       </AppCard>
-
       <div className={styles.row2}>
         <AppCard>
           <DonutChart
+            title="Fördelning per kontotyp"
+            data={allocationData}
             help={{
-              title: "Vad betyder instrumenttyp?",
+              title: "Vad betyder kontotyp?",
               content:
-                "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie, fond eller obligation.",
+                "Kontotyp visar hur ditt konto är upplagt. ISK, KF och depå är olika sätt att äga och hantera investeringar."
             }}
-            title="Aktuell fördelning per instrumenttyp"
-            data={mockAllocations}
           />
         </AppCard>
         {portfolioHealth !== undefined &&
@@ -105,7 +120,7 @@ function PortfolioPage() {
               help={{
                 title: "Vad betyder portföljhälsa?",
                 content:
-                  "Portföljhälsa ger en överblick över hur väl din portfölj är balanserad, till exempel utifrån risk, diversifiering och fördelning mellan innehav.",
+                  "Portföljhälsa ger en överblick över hur väl din portfölj är balanserad, till exempel utifrån risk, diversifiering och fördelning mellan innehav."
               }}
               riskScore={riskScore}
               spread={spread}

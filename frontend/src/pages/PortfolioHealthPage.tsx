@@ -16,20 +16,20 @@ import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
 import { useState, useEffect } from "react";
 import {
   getHoldingsSummary,
-  type HoldingSummary,
+  type HoldingSummary
 } from "../services/holdingSummaryService";
 import { useTargetAllocations } from "../hooks/useTargetAllocation";
-import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
+// import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 
 function PortfolioHealthPage() {
-  const { rows } = usePortfolioAllocations();
+  // const { rows } = usePortfolioAllocations();
   const { dashboard, loading } = useDashboard();
   const { holdings } = useHoldings();
   const { riskData } = usePortfolioRisk();
   const {
     targetAllocation,
     editTargetAllocation,
-    loading: targetAllocationLoading,
+    loading: targetAllocationLoading
   } = useTargetAllocations();
   const [summaryHoldings, setSummaryHoldings] = useState<HoldingSummary[]>([]);
 
@@ -49,14 +49,9 @@ function PortfolioHealthPage() {
   const statusColors = {
     good: "#16a34a",
     warning: "#d97706",
-    danger: "#dc2626",
+    danger: "#dc2626"
   };
 
-  // const accountColors: Record<string, string> = {
-  //   ISK: "#16a34a",
-  //   KF: "#1976d2",
-  //   Depa: "#8b69a7",
-  // };
   useEffect(() => {
     if (!dashboard) return;
 
@@ -66,13 +61,13 @@ function PortfolioHealthPage() {
       holdings.map((holding) => ({
         ticker: holding.ticker,
         valueSek: holding.valueSek,
-        currency: holding.currency,
-      })),
+        currency: holding.currency
+      }))
     );
 
     console.log(
       "Total SEK:",
-      holdings.reduce((sum, holding) => sum + holding.valueSek, 0),
+      holdings.reduce((sum, holding) => sum + holding.valueSek, 0)
     );
 
     console.log("Spread:", calculateHoldingSpread(holdings));
@@ -101,14 +96,14 @@ function PortfolioHealthPage() {
   const riskLevelText = {
     good: "Låg Risk",
     warning: "Måttlig Risk",
-    danger: "Hög Risk",
+    danger: "Hög Risk"
   };
 
   const diversification = calculateHoldingSpread(
     summaryHoldings.map((holding) => ({
       ticker: holding.ticker,
-      valueSek: holding.marketValue,
-    })),
+      valueSek: holding.marketValue
+    }))
   );
 
   const diversificationLevel = () => {
@@ -124,7 +119,7 @@ function PortfolioHealthPage() {
   const diversificationText = {
     good: "God spridning",
     warning: "Måttlig spridning",
-    danger: "Låg spridning",
+    danger: "Låg spridning"
   };
 
   // const allocationData = rows.map((row) => ({
@@ -136,27 +131,14 @@ function PortfolioHealthPage() {
   const allocations = targetAllocation.map((target) => ({
     id: String(target.id),
     label: target.accountType,
-    value: target.targetPercentage,
+    value: target.targetPercentage
   }));
 
-  const accountColors: Record<string, string> = {
-    ISK: "#16a34a",
-    KF: "#1976d2",
-    Depa: "#8b69a7",
-  };
-
-  const allocationData = rows.map((row) => {
-    const currentTarget = targetAllocation.find(
-      (target) => target.accountType === row.accountType,
-    );
-
-    return {
-      label: row.accountType,
-      value: row.actual,
-      color: accountColors[row.accountType],
-      target: currentTarget?.targetPercentage ?? row.target,
-    };
-  });
+  const mockAllocations = [
+    { id: "stocks", label: "Aktier", value: 100 }
+    // { id: "funds", label: "Fonder", value: 30 },
+    // { id: "bonds", label: "Ränteplaceringar", value: 20 }
+  ];
 
   const stockCount =
     summaryHoldings?.filter((holding) => holding.instrument_type === "Aktie")
@@ -202,7 +184,7 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": { fill: statusColors[riskLevel()] },
-                  "& .MuiGauge-valueText": { display: "none" },
+                  "& .MuiGauge-valueText": { display: "none" }
                 }}
                 width={90}
                 height={90}
@@ -220,7 +202,7 @@ function PortfolioHealthPage() {
             </div>
             <p className={styles.value}>
               {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-                maximumFractionDigits: 0,
+                maximumFractionDigits: 0
               })}{" "}
               SEK
             </p>
@@ -267,9 +249,9 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": {
-                    fill: statusColors[diversificationLevel()],
+                    fill: statusColors[diversificationLevel()]
                   },
-                  "& .MuiGauge-valueText": { display: "none" },
+                  "& .MuiGauge-valueText": { display: "none" }
                 }}
                 width={90}
                 height={60}
@@ -293,9 +275,9 @@ function PortfolioHealthPage() {
                 await Promise.all(
                   targetAllocation.map((target) =>
                     editTargetAllocation(target.id, {
-                      targetPercentage: values[String(target.id)],
-                    }),
-                  ),
+                      targetPercentage: values[String(target.id)]
+                    })
+                  )
                 );
               }}
             />
@@ -303,13 +285,13 @@ function PortfolioHealthPage() {
         </AppCard>
         <AppCard>
           <DonutChart
-            title="Fördelning per kontotyp"
-            data={allocationData}
             help={{
-              title: "Vad betyder kontotyp?",
+              title: "Vad betyder instrumenttyp?",
               content:
-                "Kontotyp visar hur ditt konto är upplagt. ISK, KF och depå är olika sätt att äga och hantera investeringar.",
+                "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie, fond eller obligation."
             }}
+            title="Aktuell fördelning per instrumenttyp"
+            data={mockAllocations}
           />
         </AppCard>
       </div>
@@ -331,7 +313,7 @@ function PortfolioHealthPage() {
             "account_name",
             "marketValue",
             "pnl",
-            "pnlPct",
+            "pnlPct"
           ]}
         />
       </div>
