@@ -1,5 +1,6 @@
 #include "fx.hpp"
 #include <gtest/gtest.h>
+#include <iostream>
 
 TEST(FxConvert, HandlesValidInput)
 {
@@ -52,8 +53,6 @@ TEST(FxConvert, HandlesNullPtr)
     EXPECT_EQ(FxConvert(1.0, nullptr, nullptr, &res), FX_ERROR_NULL);
     EXPECT_EQ(FxConvert(1.0, nullptr, nullptr, nullptr), FX_ERROR_NULL);
 }
-
-#include <iostream>
 
 TEST(FxConvert, PrintsActualUsdSekRate)
 {
