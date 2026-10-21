@@ -38,15 +38,15 @@ const InnehavsLista = ({
       field: "marketValue",
       headerName: "Marknadsvärde",
       render: (row: Holding) =>
-        `${row.marketValue.toLocaleString("sv-SE")} ${row.currency}`,
+        `${row.marketValue.toLocaleString("sv-SE")} SEK`,
     },
     valueSek: {
       field: "valueSek",
       headerName: "Värde (SEK)",
       render: (row: Holding) =>
-        `${Math.round(
-          row.currency === "USD" ? row.marketValue * usdToSek : row.marketValue,
-        ).toLocaleString("sv-SE")} SEK`,
+        `${row.marketValue.toLocaleString("sv-SE", {
+          maximumFractionDigits: 0,
+        })} SEK`,
     },
     account_name: { field: "account_name", headerName: "Konto" },
     ticker: { field: "ticker", headerName: "Ticker" },
