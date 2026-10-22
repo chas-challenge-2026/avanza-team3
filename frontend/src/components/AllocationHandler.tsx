@@ -19,25 +19,25 @@ type AllocationHandlerProps = {
 const AllocationHandler = ({
   allocations,
   onSave,
-  title
+  title,
 }: AllocationHandlerProps) => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [values, setValues] = useState<Record<string, number>>(
-    Object.fromEntries(allocations.map(({ id, value }) => [id, value]))
+    Object.fromEntries(allocations.map(({ id, value }) => [id, value])),
   );
 
   const handleValueChange = (id: string, value: number) => {
     setValues((current) => ({
       ...current,
-      [id]: value
+      [id]: value,
     }));
   };
 
   const handleSaveGoal = () => {
     setSuccessMessage("");
     onSave?.(values);
-    setSuccessMessage("Din önskade målalloekering är uppdaterad!");
+    setSuccessMessage("Din önskade målallokering är uppdaterad!");
     setOpenSnackbar(true);
   };
 
@@ -47,9 +47,9 @@ const AllocationHandler = ({
 
   const totalAllocation = Object.values(values).reduce(
     (sum, value) => sum + value,
-    0
+    0,
   );
-  const helpTitle = "Vad betyder Målalloekering?";
+  const helpTitle = "Vad betyder Målallokering?";
   const helpText =
     "Det visar hur ditt sparande är tänkt att fördelas mellan aktier, fonder och obligationer. Målet hjälper dig att se om fördelningen stämmer med din sparplan.";
   return (
@@ -94,7 +94,7 @@ const AllocationHandler = ({
                   min: 0,
                   max: 100,
                   type: "number",
-                  "aria-label": `${allocation.label} procent`
+                  "aria-label": `${allocation.label} procent`,
                 }}
               />
               <p>%</p>
