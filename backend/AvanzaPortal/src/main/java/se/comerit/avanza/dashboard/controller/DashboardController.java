@@ -32,7 +32,10 @@ public class DashboardController {
 
     @Operation(
             summary = "Get portfolio dashboard",
-            description = "Returns account summaries, paginated holdings, allocation information, recent alerts and market data for the authenticated user."
+            description = "Returns account summaries, paginated holdings, " +
+                    "allocation by account type, allocation by instrument type " +
+                    "(stocks, funds including ETFs, and other instruments), " +
+                    "recent alerts and market data for the authenticated user."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Portfolio dashboard retrieved successfully"),

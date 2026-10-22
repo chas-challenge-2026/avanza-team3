@@ -83,6 +83,7 @@ class DashboardControllerTest {
                         false
                 ),
                 List.of(new AllocationRowResponse("ISK", new BigDecimal("100.00"), new BigDecimal("60.00"), new BigDecimal("40.00"), true)),
+                List.of(),
                 742.00,
                 List.of(new RecentAlertResponse(41, "DRIFT", "Rebalance", LocalDateTime.of(2026, 9, 1, 10, 0))),
                 true,
@@ -112,6 +113,7 @@ class DashboardControllerTest {
         DashboardView dashboard = new DashboardView(
                 List.of(),
                 new HoldingPageResponse(List.of(), 0, 20, 0, 0, true, true),
+                List.of(),
                 List.of(),
                 0.00,
                 List.of(),
