@@ -6,7 +6,11 @@ import AppCard from "./AppCard";
 import { getInstruments } from "../services/instrumentService";
 import type { Instrument } from "../types/Instrument";
 
-const InnehavsForm = () => {
+type Props = {
+  onAdd: (instrument: Instrument) => void;
+};
+
+const InnehavsForm = ({ onAdd }: Props) => {
   const [instruments, setInstruments] = useState<Instrument[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,7 +44,9 @@ const InnehavsForm = () => {
     setIsSubmitting(true);
 
     try {
-      console.log("Godkänt innehav:", selectedInstrument);
+      if (selectedInstrument) {
+        onAdd(selectedInstrument);
+      }
 
       setSelectedInstrument(null);
       setErrors({});
