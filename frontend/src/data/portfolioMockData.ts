@@ -69,52 +69,48 @@ const holdings: MockPortfolioHolding[] = [
     quantity: 12,
     currentPrice: 350,
     marketValueSek: 4200
-  },
+  }
 ];
 
 const accountTypes = ["ISK", "KF", "Depa"] as const;
 
 const instrumentTypes = [
-  { type: "Aktie", label: "Aktie" },
-  { type: "Fond", label: "Fond" }
+  { type: "Aktie", label: "Aktie", color: "#16a34a" },
+  { type: "Fond", label: "Fond", color: "#1976d2" }
 ] as const;
 
 const sumMarketValue = (items: MockPortfolioHolding[]) =>
   items.reduce((total, holding) => total + holding.marketValueSek, 0);
 
-const accountTypeInstrumentAllocations = accountTypes.map(
-  (accountType) => {
-    const accountHoldings = holdings.filter(
-      (holding) => holding.accountType === accountType
-    );
+const accountTypeInstrumentAllocations = accountTypes.map((accountType) => {
+  const accountHoldings = holdings.filter(
+    (holding) => holding.accountType === accountType
+  );
 
-    return {
-      accountType,
-      instrumentAllocations: instrumentTypes.map(
-        ({ type, label }) => {
-          const value = sumMarketValue(
-            accountHoldings.filter(
-              (holding) => holding.instrumentType === type
-            )
-          );
+  return {
+    accountType,
+    instrumentAllocations: instrumentTypes.map(({ type, label, color }) => {
+      const value = sumMarketValue(
+        accountHoldings.filter((holding) => holding.instrumentType === type)
+      );
 
-          return {
-            label,
-            value
-          };
-        }
-      )
-    };
-  }
-);
+      return {
+        label,
+        value,
+        color
+      };
+    })
+  };
+});
 
 export const mockPortfolioData = {
   holdings,
-  instrumentTypeAllocations: instrumentTypes.map(({ type, label }) => ({
+  instrumentTypeAllocations: instrumentTypes.map(({ type, label, color }) => ({
     label,
     value: sumMarketValue(
       holdings.filter((holding) => holding.instrumentType === type)
-    )
+    ),
+    color
   })),
   accountTypeInstrumentAllocations
 };
