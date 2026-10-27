@@ -17,23 +17,27 @@ const ApprovedHoldingsList = ({ approved, onRemove }: Props) => {
         <p className={styles.label}>
           Dessa instrument får användas vid rebalansering.
         </p>
-        <ul className={styles.list}>
-          {approved.map((i) => (
-            <li key={i.id} className={styles.row}>
-              <span>
-                <strong>{i.ticker}</strong> - {i.name}
-              </span>
-              <button
-                type="button"
-                className={styles.removeButton}
-                onClick={() => onRemove(i.id)}
-                aria-label={`Ta bort ${i.name}`}
-              >
-                <FontAwesomeIcon icon={faTrashAlt} />
-              </button>
-            </li>
-          ))}
-        </ul>
+        {approved.length === 0 ? (
+          <p className={styles.label}>Inga godkända innehav.</p>
+        ) : (
+          <ul className={styles.list}>
+            {approved.map((i) => (
+              <li key={i.id} className={styles.row}>
+                <span>
+                  <strong>{i.ticker}</strong> - {i.name}
+                </span>
+                <button
+                  type="button"
+                  className={styles.removeButton}
+                  onClick={() => onRemove(i.id)}
+                  aria-label={`Ta bort ${i.name}`}
+                >
+                  <FontAwesomeIcon icon={faTrashAlt} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </AppCard>
     </div>
   );
