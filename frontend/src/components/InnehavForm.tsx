@@ -1,47 +1,13 @@
-import {
-  Box,
-  Alert,
-  Snackbar,
-  MenuItem,
-  TextField,
-  Autocomplete,
-} from "@mui/material";
+import { Box, Alert, Snackbar, TextField, Autocomplete } from "@mui/material";
 import AppButton from "./AppButton";
 import styles from "./InnehavForm.module.css";
 import { useState, useEffect } from "react";
 import AppCard from "./AppCard";
-import { useHoldings } from "../hooks/useHoldings";
-import { useAccounts } from "../hooks/useAccounts";
 import { getInstruments } from "../services/instrumentService";
 import type { Instrument } from "../types/Instrument";
 
-type Currency = "SEK" | "USD" | "";
-
-type InnehavFormData = {
-  accountId: string;
-  ticker: string;
-  instrumentName: string;
-  quantity: string;
-  avgBuyPrice: string;
-  currency: Currency;
-};
-
-const initialFormDataValue: InnehavFormData = {
-  accountId: "",
-  ticker: "",
-  instrumentName: "",
-  quantity: "",
-  avgBuyPrice: "",
-  currency: "",
-};
-
 const InnehavsForm = () => {
-  const { addHolding } = useHoldings();
-  const { accounts } = useAccounts();
-
   const [instruments, setInstruments] = useState<Instrument[]>([]);
-  const [formData, setFormData] =
-    useState<InnehavFormData>(initialFormDataValue);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -74,16 +40,8 @@ const InnehavsForm = () => {
     setIsSubmitting(true);
 
     try {
-      const submittedData = {
-        accountId: Number(formData.accountId),
-        ticker: formData.ticker.trim().toUpperCase(),
-        quantity: Number(formData.quantity),
-        avgBuyPrice: Number(formData.avgBuyPrice),
-      };
-      console.log(submittedData);
-      await addHolding(submittedData);
+      console.log("Godkänt innehav:", selectedInstrument);
 
-      setFormData(initialFormDataValue);
       setSelectedInstrument(null);
       setErrors({});
       setSuccessMessage("Innehavet har lagts till");
@@ -97,33 +55,9 @@ const InnehavsForm = () => {
     }
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-
-    setFormData((previusData) => ({
-      ...previusData,
-      [name]: value,
-    }));
-    console.log(event.target.value);
-  };
-
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.accountId) {
-      newErrors.accountId = "Välj ett konto";
-    }
-    const quantity = Number(formData.quantity);
-
-    if (!formData.quantity || quantity <= 0) {
-      newErrors.quantity = "Antalet måste vara större än 0";
-    }
-
-    const avgBuyPrice = Number(formData.avgBuyPrice);
-
-    if (!formData.avgBuyPrice || avgBuyPrice < 0) {
-      newErrors.avgBuyPrice = "Snittpris måste vara 0 eller högre";
-    }
     if (!selectedInstrument) {
       newErrors.ticker = "Välj ett instrument";
     }
@@ -169,25 +103,6 @@ const InnehavsForm = () => {
           }}
         >
           <div className={styles.container}>
-            <TextField
-              fullWidth
-              select
-              size="small"
-              label="Konto"
-              name="accountId"
-              value={formData.accountId}
-              onChange={handleChange}
-              error={Boolean(errors.accountId)}
-              helperText={errors.accountId || undefined}
-              sx={textFieldSx}
-            >
-              {accounts.map((account) => (
-                <MenuItem key={account.id} value={String(account.id)}>
-                  {account.accountName}
-                </MenuItem>
-              ))}
-            </TextField>
-
             <Autocomplete
               options={instruments}
               value={selectedInstrument}
@@ -195,11 +110,6 @@ const InnehavsForm = () => {
               isOptionEqualToValue={(option, value) => option.id === value.id}
               onChange={(_, newValue) => {
                 setSelectedInstrument(newValue);
-
-                setFormData((prev) => ({
-                  ...prev,
-                  ticker: newValue?.ticker ?? "",
-                }));
               }}
               renderInput={(params) => (
                 <TextField
@@ -232,35 +142,6 @@ const InnehavsForm = () => {
                 </div>
               </div>
             )}
-            <div className={styles.quantityContainer}>
-              <TextField
-                fullWidth
-                size="small"
-                label="Antal"
-                name="quantity"
-                type="number"
-                placeholder="100"
-                value={formData.quantity}
-                onChange={handleChange}
-                error={Boolean(errors.quantity)}
-                helperText={errors.quantity || undefined}
-                sx={textFieldSx}
-              />
-
-              <TextField
-                fullWidth
-                size="small"
-                name="avgBuyPrice"
-                type="number"
-                placeholder="150.00"
-                label={`Snittpris (${selectedInstrument?.currency ?? "valuta"})`}
-                value={formData.avgBuyPrice}
-                onChange={handleChange}
-                error={Boolean(errors.avgBuyPrice)}
-                helperText={errors.avgBuyPrice || undefined}
-                sx={textFieldSx}
-              />
-            </div>
 
             <AppButton
               sx={{ maxWidth: "200px", padding: "8px" }}
