@@ -4,9 +4,14 @@ import styles from "./InnehavPage.module.css";
 import { useHoldings } from "../hooks/useHoldings";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPiggyBank } from "@fortawesome/free-solid-svg-icons";
+import AccountPicker from "../components/AccountPicker";
+import { useState } from "react";
 
 function InnehavPage() {
   const { holdings, loading, error, removeHolding } = useHoldings();
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
+    null,
+  );
 
   if (loading) return <p>Laddar...</p>;
   if (error) return <p>{error}</p>;
@@ -21,6 +26,10 @@ function InnehavPage() {
           </div>
         </div>
       </div>
+      <AccountPicker
+        selectedAccountId={selectedAccountId}
+        onSelect={setSelectedAccountId}
+      />
       <InnehavsLista
         holdings={holdings}
         columns={[
