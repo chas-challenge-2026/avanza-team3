@@ -21,5 +21,13 @@ export function useApprovedHoldings() {
     },
   ]);
 
-  return { approved };
+  const addApproved = (instrument: Instrument) => {
+    setApproved((prev) => [...prev, instrument]);
+  };
+
+  const removeApproved = (id: number) => {
+    setApproved((prev) => prev.filter((i) => i.id !== id));
+  };
+
+  return { approved, addApproved, removeApproved };
 }
