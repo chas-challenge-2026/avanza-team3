@@ -104,6 +104,32 @@ public class PortfolioAllocationService {
         );
     }
 
+    public List<se.comerit.avanza.portfolio.dto.InstrumentAllocationRow> calculateInstrumentTypeAllocation(
+            List<ValuedHolding> holdings) {
+        Map<String, BigDecimal> totals = new java.util.LinkedHashMap<>();
+        totals.put("Aktie", BigDecimal.ZERO);
+        totals.put("Fond", BigDecimal.ZERO);
+        totals.put("Övrigt", BigDecimal.ZERO);
+        BigDecimal portfolioTotal = BigDecimal.ZERO;
+        for (ValuedHolding holding : holdings) {
+            String category = holding.instrumentType() == null
+                    ? "Övrigt" : holding.instrumentType().getDisplayName();
+            BigDecimal marketValue = orZero(holding.marketValueSek());
+            totals.merge(category, marketValue, BigDecimal::add);
+            portfolioTotal = portfolioTotal.add(marketValue);
+        }
+        List<se.comerit.avanza.portfolio.dto.InstrumentAllocationRow> result = new ArrayList<>();
+        for (Map.Entry<String, BigDecimal> entry : totals.entrySet()) {
+            BigDecimal percent = portfolioTotal.compareTo(BigDecimal.ZERO) > 0
+                    ? entry.getValue().multiply(new BigDecimal("100"))
+                    .divide(portfolioTotal, 2, RoundingMode.HALF_UP)
+                    : BigDecimal.ZERO.setScale(2);
+            result.add(new se.comerit.avanza.portfolio.dto.InstrumentAllocationRow(
+                    entry.getKey(), round(entry.getValue()), percent));
+        }
+        return List.copyOf(result);
+    }
+
     public int getDriftThresholdPercent() {
         return DRIFT_THRESHOLD_PERCENTAGE_POINTS.intValue();
     }

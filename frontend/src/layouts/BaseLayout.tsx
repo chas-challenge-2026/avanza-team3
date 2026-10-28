@@ -1,6 +1,7 @@
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import styles from "./BaseLayout.module.css";
+import Footer from "../components/Footer";
 import { Outlet } from "react-router-dom";
 
 const BaseLayout = () => {
@@ -13,6 +14,7 @@ const BaseLayout = () => {
           <Outlet />
         </main>
       </div>
+      <Footer />
     </div>
   );
 };
