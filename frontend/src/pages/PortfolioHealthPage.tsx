@@ -13,13 +13,38 @@ import CurrencyExposure from "../components/CurrencyExposure";
 import PopOver from "../components/Popover";
 import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
 import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import {
+  getHoldingsSummary,
+  type HoldingSummary,
+} from "../services/holdingSummaryService";
+import { useTargetAllocations } from "../hooks/useTargetAllocation";
+// import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 
 function PortfolioHealthPage() {
   // const { rows } = usePortfolioAllocations();
   const { dashboard, loading } = useDashboard();
   const { holdings } = useHoldings();
   const { riskData } = usePortfolioRisk();
+  const {
+    targetAllocation,
+    editTargetAllocation,
+    loading: targetAllocationLoading,
+  } = useTargetAllocations();
+  const [summaryHoldings, setSummaryHoldings] = useState<HoldingSummary[]>([]);
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const data = await getHoldingsSummary();
+        setSummaryHoldings(data);
+      } catch (error) {
+        console.error("Kunde inte hämta holding summary:", error);
+      }
+    };
+
+    fetchSummary();
+  }, []);
 
   const statusColors = {
     good: "#16a34a",
@@ -27,11 +52,6 @@ function PortfolioHealthPage() {
     danger: "#dc2626",
   };
 
-  // const accountColors: Record<string, string> = {
-  //   ISK: "#16a34a",
-  //   KF: "#1976d2",
-  //   Depa: "#8b69a7",
-  // };
   useEffect(() => {
     if (!dashboard) return;
 
@@ -79,9 +99,12 @@ function PortfolioHealthPage() {
     danger: "Hög Risk",
   };
 
-  const diversification = dashboard
-    ? calculateHoldingSpread(dashboard.holdings.content)
-    : 0;
+  const diversification = calculateHoldingSpread(
+    summaryHoldings.map((holding) => ({
+      ticker: holding.ticker,
+      valueSek: holding.marketValue,
+    })),
+  );
 
   const diversificationLevel = () => {
     if (diversification >= 70) {
@@ -105,18 +128,25 @@ function PortfolioHealthPage() {
   //   color: accountColors[row.accountType],
   // }));
 
-  // const allocations =
-  //   dashboard?.allocationRows.map((row, index) => ({
-  //     id: `${row.accountType}-${index}`,
-  //     label: row.accountType,
-  //     value: row.target
-  //   })) ?? [];
+  const allocations = targetAllocation.map((target) => ({
+    id: String(target.id),
+    label: target.accountType,
+    value: target.targetPercentage,
+  }));
 
   const mockAllocations = [
-    { id: "stocks", label: "Aktier", value: 50, target: 60 },
-    { id: "funds", label: "Fonder", value: 30, target: 50 },
-    { id: "bonds", label: "Ränteplaceringar", value: 20, target: 10 },
+    { id: "stocks", label: "Aktier", value: 100 },
+    // { id: "funds", label: "Fonder", value: 30 },
+    // { id: "bonds", label: "Ränteplaceringar", value: 20 }
   ];
+
+  const stockCount =
+    summaryHoldings?.filter((holding) => holding.instrument_type === "Aktie")
+      .length ?? 0;
+
+  const fundCount =
+    summaryHoldings?.filter((holding) => holding.instrument_type === "Fond")
+      .length ?? 0;
 
   return (
     <>
@@ -188,8 +218,10 @@ function PortfolioHealthPage() {
             <div className={styles.header}>
               <p className={styles.label}>Antal innehav</p>
             </div>
-            <p className={styles.value}>
-              {dashboard?.holdings.totalElements} st
+            <p className={styles.value}>{summaryHoldings?.length ?? "–"} st</p>
+
+            <p className={styles.label}>
+              {stockCount} aktier · {fundCount} fonder
             </p>
           </div>
         </AppCard>
@@ -200,13 +232,12 @@ function PortfolioHealthPage() {
               <PopOver
                 title="Vad betyder Innehavsspridning?"
                 content="Innehavsspridning visar hur jämnt portföljens värde är fördelat mellan olika innehav.
-                  Ett högre värde innebär att kapitalet är mer utspritt, 
-                 men säger inte något om hur innehavens risker samvarierar."
+                  Ett högre värde innebär att kapitalet är mer utspritt."
               />
             </div>
             <div className={styles.row}>
               <div>
-                <p className={styles.value}>{diversification}%</p>
+                <p className={styles.value}>{diversification}/100</p>
                 <p
                   className={
                     styles.label + " " + styles[diversificationLevel()]
@@ -236,12 +267,18 @@ function PortfolioHealthPage() {
       </div>
       <div className={styles.container}>
         <AppCard>
-          {!loading && dashboard && (
+          {!loading && !targetAllocationLoading && dashboard && (
             <AllocationHandler
-              allocations={mockAllocations}
-              title="Målalloekering över instrumenttyp"
-              onSave={(values) => {
-                console.log(values);
+              allocations={allocations}
+              title="Målallokering över kontotyp"
+              onSave={async (values) => {
+                await Promise.all(
+                  targetAllocation.map((target) =>
+                    editTargetAllocation(target.id, {
+                      targetPercentage: values[String(target.id)],
+                    }),
+                  ),
+                );
               }}
             />
           )}
@@ -271,6 +308,7 @@ function PortfolioHealthPage() {
             "instrumentName",
             "quantity",
             "avgBuyPrice",
+            "valueSek",
             "account_type",
             "account_name",
             "marketValue",

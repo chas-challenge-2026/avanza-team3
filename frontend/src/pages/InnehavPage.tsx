@@ -4,9 +4,12 @@ import styles from "./InnehavPage.module.css";
 import { useHoldings } from "../hooks/useHoldings";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPiggyBank } from "@fortawesome/free-solid-svg-icons";
+import { useApprovedHoldings } from "../hooks/useApprovedHoldings";
+import ApprovedHoldingsList from "../components/ApprovedHoldingsList";
 
 function InnehavPage() {
   const { holdings, loading, error, removeHolding } = useHoldings();
+  const { approved, addApproved, removeApproved } = useApprovedHoldings();
 
   if (loading) return <p>Laddar...</p>;
   if (error) return <p>{error}</p>;
@@ -21,20 +24,22 @@ function InnehavPage() {
           </div>
         </div>
       </div>
-      <InnehavsLista
+      {/*       <InnehavsLista
         holdings={holdings}
         columns={[
           "ticker",
           "instrumentName",
           "quantity",
           "avgBuyPrice",
-          "account_type"
+          "valueSek",
+          "account_type",
         ]}
         onDelete={removeHolding}
         // width="1200px"
         showDelete
-      />
-      <InnehavsForm />
+      /> */}
+      <ApprovedHoldingsList approved={approved} onRemove={removeApproved} />
+      <InnehavsForm onAdd={addApproved} />
     </div>
   );
 }
