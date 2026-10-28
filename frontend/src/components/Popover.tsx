@@ -12,7 +12,7 @@ type PopoverProps = {
 
 const PopOver = ({ content, title }: PopoverProps) => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
-    null
+    null,
   );
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -27,25 +27,28 @@ const PopOver = ({ content, title }: PopoverProps) => {
   const id = open ? "simple-popover" : undefined;
   return (
     <>
-      <IconButton sx={{ p: 0 }} aria-describedby={id} onClick={handleClick}>
-        <FontAwesomeIcon className={styles.icon} icon={faCircleQuestion} />
-      </IconButton>
-      <Popover
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left"
-        }}
-      >
-        <Box sx={{ maxWidth: "300px", p: 1 }}>
-          <h2>{title}</h2>
+      <span className={styles.mobileOnly}>
+        <IconButton sx={{ p: 0 }} aria-describedby={id} onClick={handleClick}>
+          <FontAwesomeIcon className={styles.icon} icon={faCircleQuestion} />
+        </IconButton>
+        <Popover
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+        >
+          <Box sx={{ maxWidth: "300px", p: 1 }}>
+            <h2>{title}</h2>
 
-          <p className={styles.label}>{content}</p>
-        </Box>
-      </Popover>
+            <p className={styles.label}>{content}</p>
+          </Box>
+        </Popover>
+      </span>
+      <span className={styles.desktopOnly}>Content</span>
     </>
   );
 };
