@@ -3,9 +3,9 @@ import styles from "./Sidebar.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartPie,
-  faBriefcase,
   faRightLeft,
-  faBell
+  faBell,
+  faScaleBalanced,
 } from "@fortawesome/free-solid-svg-icons";
 
 const Sidebar = () => {
@@ -16,8 +16,8 @@ const Sidebar = () => {
         <NavLink to="/">
           <FontAwesomeIcon icon={faChartPie} /> Överblick
         </NavLink>
-        <NavLink to="/innehav">
-          <FontAwesomeIcon icon={faBriefcase} /> Innehav
+        <NavLink to="/rebalansering">
+          <FontAwesomeIcon icon={faScaleBalanced} /> Rebalansering
         </NavLink>
         <NavLink to="/portfoljhalsa">
           <FontAwesomeIcon icon={faRightLeft} /> Portföljhälsa

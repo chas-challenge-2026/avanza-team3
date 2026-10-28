@@ -11,7 +11,7 @@ const Footer = () => {
         </div>
         <nav aria-label="Sidfot" className={styles.links}>
           <NavLink to="/">Överblick</NavLink>
-          <NavLink to="/innehav">Innehav</NavLink>
+          <NavLink to="/rebalansering">Rebalansering</NavLink>
           <NavLink to="/portfoljhalsa">Portföljhälsa</NavLink>
           <NavLink to="/notiser">Notiser</NavLink>
         </nav>

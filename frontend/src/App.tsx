@@ -3,7 +3,7 @@ import BaseLayout from "./layouts/BaseLayout";
 import { Route, Routes } from "react-router-dom";
 
 import PortfolioPage from "./pages/PortfolioPage";
-import InnehavPage from "./pages/InnehavPage";
+import Rebalansering from "./pages/RebalanseringPage";
 import PortfolioHealthPage from "./pages/PortfolioHealthPage";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -20,7 +20,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<BaseLayout />}>
             <Route path="/" element={<PortfolioPage />} />
-            <Route path="/innehav" element={<InnehavPage />} />
+            <Route path="/rebalansering" element={<Rebalansering />} />
             <Route path="/portfoljhalsa" element={<PortfolioHealthPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/notiser" element={<NotificationPage />} />
