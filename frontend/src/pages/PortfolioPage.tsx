@@ -51,8 +51,8 @@ function PortfolioPage() {
       return {
         label: row.accountType,
         value: row.actual,
-        color: accountColors[row.accountType],
-        target: currentTarget?.targetPercentage ?? row.target
+        color: accountColors[row.accountType]
+        // target: currentTarget?.targetPercentage ?? row.target
       };
     });
 
