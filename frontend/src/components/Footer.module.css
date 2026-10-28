@@ -1,0 +1,81 @@
+.footer {
+  background: #f1f7f5;
+  border-top: 2px solid #068e6a60;
+  padding: 18px 40px 12px;
+  box-sizing: border-box;
+  width: 100%;
+  color: #1f3d36;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #068e6a;
+  font-weight: 700;
+  font-size: 1.0625rem;
+}
+
+.logoBadge {
+  background: #068e6a;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9375rem;
+}
+
+.links {
+  display: flex;
+  gap: 28px;
+  font-size: 0.875rem;
+}
+
+.links a {
+  color: #068e6a;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.links a:hover,
+.links a:focus-visible {
+  text-decoration: underline;
+}
+
+.bottom {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #c5e3d9;
+  font-size: 0.75rem;
+  color: #456860;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+@media (max-width: 599px) {
+  .footer {
+    padding: 16px;
+  }
+
+  .top,
+  .bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .links {
+    flex-wrap: wrap;
+    gap: 12px 20px;
+  }
+}
