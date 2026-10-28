@@ -1,25 +1,9 @@
 import { useState } from "react";
 import type { Instrument } from "../types/Instrument";
+import { mockApprovedHoldings } from "../mock/mockApprovedHoldings.tsx";
 
 export function useApprovedHoldings() {
-  const [approved, setApproved] = useState<Instrument[]>([
-    {
-      id: 1,
-      ticker: "AAPL",
-      name: "Apple Inc",
-      instrumentType: "STOCK",
-      sector: "TECHNOLOGY",
-      currency: "USD",
-    },
-    {
-      id: 2,
-      ticker: "ERIC-B",
-      name: "Ericsson B",
-      instrumentType: "STOCK",
-      sector: "TECHNOLOGY",
-      currency: "SEK",
-    },
-  ]);
+  const [approved, setApproved] = useState<Instrument[]>(mockApprovedHoldings);
 
   const addApproved = (instrument: Instrument) => {
     setApproved((prev) => [...prev, instrument]);
