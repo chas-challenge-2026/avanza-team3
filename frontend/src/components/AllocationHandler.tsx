@@ -3,6 +3,7 @@ import styles from "./AllocationHandler.module.css";
 import { useState, type ChangeEvent } from "react";
 import AppButton from "./AppButton";
 import PopOver from "./Popover";
+import InfoText from "./InfoText";
 
 type AllocationItem = {
   id: string;
@@ -58,6 +59,7 @@ const AllocationHandler = ({
         <h2 className={styles.sectionTitle}>{title}</h2>
         <PopOver title={helpTitle} content={helpText} />
       </div>
+      <InfoText content={helpText} />
 
       <p className={styles.label}>
         Justera fördelning med reglagen för önskad fördelning. <br />

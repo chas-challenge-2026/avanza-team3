@@ -48,7 +48,6 @@ const PopOver = ({ content, title }: PopoverProps) => {
           </Box>
         </Popover>
       </span>
-      <span className={styles.desktopOnly}>{content}</span>
     </>
   );
 };

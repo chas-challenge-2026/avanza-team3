@@ -10,18 +10,8 @@
   font-weight: 500;
 }
 
-.desktopOnly {
-  display: none;
-  font-size: 0.875rem;
-  color: var(--muted-foreground);
-}
-
-@media (min-width: 768px) {
+@media (min-width: 600px) {
   .mobileOnly {
     display: none;
-  }
-
-  .desktopOnly {
-    display: inline;
   }
 }
