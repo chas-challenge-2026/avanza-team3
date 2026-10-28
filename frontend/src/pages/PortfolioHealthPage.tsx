@@ -7,7 +7,7 @@ import InnehavsLista from "../components/Innehavslista";
 import { useHoldings } from "../hooks/useHoldings";
 import AllocationHandler from "../components/AllocationHandler";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
 import PopOver from "../components/Popover";
 import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
@@ -191,7 +191,7 @@ function PortfolioHealthPage() {
       <div className={styles.container}>
         <div className={styles.titleRow}>
           <div className={styles.iconTitle}>
-            <FontAwesomeIcon icon={faStethoscope} className={styles.icon} />
+            <FontAwesomeIcon icon={faHeart} className={styles.icon} />
             <div className={styles.titleText}>
               <h1 className={styles.title}>Min Portföljhälsa</h1>
             </div>

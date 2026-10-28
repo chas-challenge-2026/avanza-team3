@@ -3,7 +3,7 @@ import styles from "./Sidebar.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartPie,
-  faRightLeft,
+  faHeart,
   faBell,
   faScaleBalanced,
 } from "@fortawesome/free-solid-svg-icons";
@@ -20,7 +20,7 @@ const Sidebar = () => {
           <FontAwesomeIcon icon={faScaleBalanced} /> Rebalansering
         </NavLink>
         <NavLink to="/portfoljhalsa">
-          <FontAwesomeIcon icon={faRightLeft} /> Portföljhälsa
+          <FontAwesomeIcon icon={faHeart} /> Portföljhälsa
         </NavLink>
         {/* <NavLink to="/rapporter">
           <FontAwesomeIcon icon={faFileLines} /> Rapporter
