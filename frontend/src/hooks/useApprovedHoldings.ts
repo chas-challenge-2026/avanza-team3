@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Instrument } from "../types/Instrument";
-import { mockApprovedHoldings } from "../mock/mockApprovedHoldings.tsx";
+import { mockApprovedHoldings } from "../mock/mockApprovedHoldings.ts";
 
 export function useApprovedHoldings() {
   const [approved, setApproved] = useState<Instrument[]>(mockApprovedHoldings);
