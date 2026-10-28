@@ -228,7 +228,6 @@ function PortfolioHealthPage() {
                 value={riskPoint}
               />
             </div>
-            <InfoText content={riskHelp} />
           </div>
         </AppCard>
         <AppCard>
@@ -297,10 +296,27 @@ function PortfolioHealthPage() {
                 outerRadius="100%"
               />
             </div>
-            <InfoText content={spreadHelp} />
           </div>
         </AppCard>
       </div>
+
+      <div className={styles.infoRow}>
+        <AppCard>
+          <div className={styles.infoGrid}>
+            <div>
+              <h3 className={styles.infoTitle}>Vad betyder Riskpoäng?</h3>
+              <InfoText content={riskHelp} />
+            </div>
+            <div>
+              <h3 className={styles.infoTitle}>
+                Vad betyder Innehavsspridning?
+              </h3>
+              <InfoText content={spreadHelp} />
+            </div>
+          </div>
+        </AppCard>
+      </div>
+
       <div className={styles.container}>
         <AppCard>
           {!loading && !targetAllocationLoading && dashboard && (
