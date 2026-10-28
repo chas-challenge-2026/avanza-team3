@@ -151,9 +151,9 @@ function PortfolioHealthPage() {
   const getAccountInstrumentAllocations = (
     accountType: "ISK" | "KF" | "Depa"
   ) =>
-    mockPortfolioData.accountTypeInstrumentAllocations.find(
+    mockPortfolioData.accountTypeAssetClassAllocations.find(
       (allocation) => allocation.accountType === accountType
-    )?.instrumentAllocations ?? [];
+    )?.assetClassAllocations ?? [];
 
   function CustomTabPanel(props: TabPanelProps) {
     const { children, value, index, ...other } = props;
@@ -331,44 +331,44 @@ function PortfolioHealthPage() {
             <CustomTabPanel value={value} index={0}>
               <DonutChart
                 help={{
-                  title: "Vad betyder instrumenttyp?",
+                  title: "Vad betyder tillgångsslag?",
                   content:
-                    "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie, fond eller obligation."
+                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar."
                 }}
-                title="Aktuell fördelning per instrumenttyp"
-                data={mockPortfolioData.instrumentTypeAllocations}
+                title="Aktuell fördelning per tillgångsslag"
+                data={mockPortfolioData.assetClassAllocations}
               />
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1}>
               <DonutChart
                 help={{
-                  title: "Vad betyder instrumenttyp?",
+                  title: "Vad betyder tillgångsslag?",
                   content:
-                    "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie, fond eller obligation."
+                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar."
                 }}
-                title="Aktuell fördelning av aktier och fonder i ISK"
+                title="Aktuell fördelning av aktier, räntor och övrigt i ISK"
                 data={getAccountInstrumentAllocations("ISK")}
               />
             </CustomTabPanel>
             <CustomTabPanel value={value} index={2}>
               <DonutChart
                 help={{
-                  title: "Vad betyder instrumenttyp?",
+                  title: "Vad betyder tillgångsslag?",
                   content:
-                    "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie eller fond."
+                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar."
                 }}
-                title="Aktuell fördelning av aktier och fonder i KF"
+                title="Aktuell fördelning av aktier, räntor och övrigt i KF"
                 data={getAccountInstrumentAllocations("KF")}
               />
             </CustomTabPanel>
             <CustomTabPanel value={value} index={3}>
               <DonutChart
                 help={{
-                  title: "Vad betyder instrumenttyp?",
+                  title: "Vad betyder tillgångsslag?",
                   content:
-                    "Instrumenttyp beskriver vilken sorts finansiell produkt det är, till exempel en aktie eller fond."
+                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar."
                 }}
-                title="Aktuell fördelning av aktier och fonder i Depå"
+                title="Aktuell fördelning av aktier, räntor och övrigt i Depå"
                 data={getAccountInstrumentAllocations("Depa")}
               />
             </CustomTabPanel>
