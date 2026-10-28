@@ -85,6 +85,7 @@ public class DashboardService {
                 createAccountSummary(accounts, accountTotals),
                 createHoldingPage(holdingsPage),
                 toDashboardAllocationRows(allocationResult.rows()),
+                portfolioAllocationService.calculateInstrumentTypeAllocation(valuedHoldings),
                 roundToDouble(totalPortfolioValue),
                 getRecentAlerts(userId),
                 allocationResult.anyDrift(),

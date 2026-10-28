@@ -15,6 +15,8 @@ import java.util.Optional;
 @Repository
 public interface HoldingRepository extends JpaRepository<Holding, Integer> {
 
+    boolean existsByAccountId(Integer accountId);
+
     List<Holding> findByAccountUserIdOrderByAccountAccountTypeAscInstrumentTickerAsc(Integer userId);
 
     Optional<Holding> findByIdAndAccountUserId(Integer holdingId, Integer userId);
