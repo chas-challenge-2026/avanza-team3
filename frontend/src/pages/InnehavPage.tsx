@@ -1,20 +1,17 @@
 import InnehavsForm from "../components/InnehavForm";
-import InnehavsLista from "../components/Innehavslista";
 import styles from "./InnehavPage.module.css";
-import { useHoldings } from "../hooks/useHoldings";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPiggyBank } from "@fortawesome/free-solid-svg-icons";
+import { useApprovedHoldings } from "../hooks/useApprovedHoldings";
+import ApprovedHoldingsList from "../components/ApprovedHoldingsList";
 import AccountPicker from "../components/AccountPicker";
 import { useState } from "react";
 
 function InnehavPage() {
-  const { holdings, loading, error, removeHolding } = useHoldings();
+  const { approved, addApproved, removeApproved } = useApprovedHoldings();
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
     null,
   );
-
-  if (loading) return <p>Laddar...</p>;
-  if (error) return <p>{error}</p>;
 
   return (
     <div className={styles.InnehavPageWrapper}>
@@ -30,7 +27,7 @@ function InnehavPage() {
         selectedAccountId={selectedAccountId}
         onSelect={setSelectedAccountId}
       />
-      <InnehavsLista
+      {/*       <InnehavsLista
         holdings={holdings}
         columns={[
           "ticker",
@@ -43,8 +40,9 @@ function InnehavPage() {
         onDelete={removeHolding}
         // width="1200px"
         showDelete
-      />
-      <InnehavsForm />
+      /> */}
+      <ApprovedHoldingsList approved={approved} onRemove={removeApproved} />
+      <InnehavsForm onAdd={addApproved} />
     </div>
   );
 }
