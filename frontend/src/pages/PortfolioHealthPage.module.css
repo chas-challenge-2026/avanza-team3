@@ -112,6 +112,10 @@
   margin: 0;
 }
 
+.holdings {
+  margin-bottom: 3rem;
+}
+
 @media (min-width: 600px) {
   .infoRow {
     display: block;

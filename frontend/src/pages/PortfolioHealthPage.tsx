@@ -402,21 +402,23 @@ function PortfolioHealthPage() {
       </div>
 
       <div className={styles.container}>
-        <InnehavsLista
-          holdings={holdings}
-          columns={[
-            "ticker",
-            "instrumentName",
-            "quantity",
-            "avgBuyPrice",
-            "valueSek",
-            "account_type",
-            "account_name",
-            "marketValue",
-            "pnl",
-            "pnlPct",
-          ]}
-        />
+        <div className={styles.holdings}>
+          <InnehavsLista
+            holdings={holdings}
+            columns={[
+              "ticker",
+              "instrumentName",
+              "quantity",
+              "avgBuyPrice",
+              "valueSek",
+              "account_type",
+              "account_name",
+              "marketValue",
+              "pnl",
+              "pnlPct",
+            ]}
+          />
+        </div>
       </div>
     </>
   );
