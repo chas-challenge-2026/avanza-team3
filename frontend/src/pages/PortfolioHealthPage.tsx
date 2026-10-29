@@ -5,7 +5,7 @@ import DonutChart from "../components/DonutChart";
 import useDashboard from "../hooks/useDasboard";
 import InnehavsLista from "../components/Innehavslista";
 import { useHoldings } from "../hooks/useHoldings";
-import AllocationHandler from "../components/AllocationHandler";
+import NewAllocationHandler from "../components/NewAllocationHandler.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import CurrencyExposure from "../components/CurrencyExposure";
@@ -15,14 +15,15 @@ import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
 import React, { useState, useEffect } from "react";
 import {
   getHoldingsSummary,
-  type HoldingSummary,
+  type HoldingSummary
 } from "../services/holdingSummaryService";
-import { useTargetAllocations } from "../hooks/useTargetAllocation";
+
 import { mockPortfolioData } from "../data/portfolioMockData";
 import InfoText from "../components/InfoText";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
+import { targetAllocations } from "../data/mockData.tsx";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -31,14 +32,10 @@ interface TabPanelProps {
 }
 
 function PortfolioHealthPage() {
-  const { dashboard, loading } = useDashboard();
+  const { dashboard } = useDashboard();
   const { holdings } = useHoldings();
   const { riskData } = usePortfolioRisk();
-  const {
-    targetAllocation,
-    editTargetAllocation,
-    loading: targetAllocationLoading,
-  } = useTargetAllocations();
+
   const [summaryHoldings, setSummaryHoldings] = useState<HoldingSummary[]>([]);
   const [value, setValue] = React.useState(0);
 
@@ -62,7 +59,7 @@ function PortfolioHealthPage() {
   const statusColors = {
     good: "#16a34a",
     warning: "#d97706",
-    danger: "#dc2626",
+    danger: "#dc2626"
   };
 
   useEffect(() => {
@@ -74,13 +71,13 @@ function PortfolioHealthPage() {
       holdings.map((holding) => ({
         ticker: holding.ticker,
         valueSek: holding.valueSek,
-        currency: holding.currency,
-      })),
+        currency: holding.currency
+      }))
     );
 
     console.log(
       "Total SEK:",
-      holdings.reduce((sum, holding) => sum + holding.valueSek, 0),
+      holdings.reduce((sum, holding) => sum + holding.valueSek, 0)
     );
 
     console.log("Spread:", calculateHoldingSpread(holdings));
@@ -109,14 +106,14 @@ function PortfolioHealthPage() {
   const riskLevelText = {
     good: "Låg Risk",
     warning: "Måttlig Risk",
-    danger: "Hög Risk",
+    danger: "Hög Risk"
   };
 
   const diversification = calculateHoldingSpread(
     summaryHoldings.map((holding) => ({
       ticker: holding.ticker,
-      valueSek: holding.marketValue,
-    })),
+      valueSek: holding.marketValue
+    }))
   );
 
   const diversificationLevel = () => {
@@ -132,7 +129,7 @@ function PortfolioHealthPage() {
   const diversificationText = {
     good: "God spridning",
     warning: "Måttlig spridning",
-    danger: "Låg spridning",
+    danger: "Låg spridning"
   };
 
   const riskHelp =
@@ -141,11 +138,13 @@ function PortfolioHealthPage() {
   const spreadHelp =
     "Innehavsspridning visar hur jämnt portföljens värde är fördelat mellan olika innehav. Ett högre värde innebär att kapitalet är mer utspritt.";
 
-  const allocations = targetAllocation.map((target) => ({
+  const allocations = targetAllocations.map((target) => ({
     id: String(target.id),
-    label: target.accountType,
-    value: target.targetPercentage,
+    label: target.accountType
   }));
+
+  // hämta allocationtarget till newallocationhandler, visa target.
+  // uppdatera target med slider och spara värdet med onclick, behöver antagligen formulär.
 
   const stockCount =
     summaryHoldings?.filter((holding) => holding.instrument_type === "Aktie")
@@ -156,10 +155,10 @@ function PortfolioHealthPage() {
       .length ?? 0;
 
   const getAccountInstrumentAllocations = (
-    accountType: "ISK" | "KF" | "Depa",
+    accountType: "ISK" | "KF" | "Depa"
   ) =>
     mockPortfolioData.accountTypeAssetClassAllocations.find(
-      (allocation) => allocation.accountType === accountType,
+      (allocation) => allocation.accountType === accountType
     )?.assetClassAllocations ?? [];
 
   function CustomTabPanel(props: TabPanelProps) {
@@ -182,7 +181,7 @@ function PortfolioHealthPage() {
   function a11yProps(index: number) {
     return {
       id: `simple-tab-${index}`,
-      "aria-controls": `simple-tabpanel-${index}`,
+      "aria-controls": `simple-tabpanel-${index}`
     };
   }
 
@@ -219,7 +218,7 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": { fill: statusColors[riskLevel()] },
-                  "& .MuiGauge-valueText": { display: "none" },
+                  "& .MuiGauge-valueText": { display: "none" }
                 }}
                 width={90}
                 height={90}
@@ -237,7 +236,7 @@ function PortfolioHealthPage() {
             </div>
             <p className={styles.value}>
               {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-                maximumFractionDigits: 0,
+                maximumFractionDigits: 0
               })}{" "}
               SEK
             </p>
@@ -283,9 +282,9 @@ function PortfolioHealthPage() {
               <Gauge
                 sx={{
                   "& .MuiGauge-valueArc": {
-                    fill: statusColors[diversificationLevel()],
+                    fill: statusColors[diversificationLevel()]
                   },
-                  "& .MuiGauge-valueText": { display: "none" },
+                  "& .MuiGauge-valueText": { display: "none" }
                 }}
                 width={90}
                 height={60}
@@ -319,21 +318,11 @@ function PortfolioHealthPage() {
 
       <div className={styles.container}>
         <AppCard>
-          {!loading && !targetAllocationLoading && dashboard && (
-            <AllocationHandler
-              allocations={allocations}
-              title="Målallokering över kontotyp"
-              onSave={async (values) => {
-                await Promise.all(
-                  targetAllocation.map((target) =>
-                    editTargetAllocation(target.id, {
-                      targetPercentage: values[String(target.id)],
-                    }),
-                  ),
-                );
-              }}
-            />
-          )}
+          <h2>Målallokering över kontotyp</h2>
+          <p className={styles.label}>
+            Justera fördelning med reglagen för önskad fördelning. <br />
+          </p>
+          <NewAllocationHandler allocations={allocations} />
         </AppCard>
         <AppCard>
           <Box>
@@ -354,7 +343,7 @@ function PortfolioHealthPage() {
                 help={{
                   title: "Vad betyder tillgångsslag?",
                   content:
-                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar.",
+                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar."
                 }}
                 title="Aktuell fördelning per tillgångsslag"
                 data={mockPortfolioData.assetClassAllocations}
@@ -365,7 +354,7 @@ function PortfolioHealthPage() {
                 help={{
                   title: "Vad betyder tillgångsslag?",
                   content:
-                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar.",
+                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar."
                 }}
                 title="Aktuell fördelning av aktier, räntor och övrigt i ISK"
                 data={getAccountInstrumentAllocations("ISK")}
@@ -376,7 +365,7 @@ function PortfolioHealthPage() {
                 help={{
                   title: "Vad betyder tillgångsslag?",
                   content:
-                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar.",
+                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar."
                 }}
                 title="Aktuell fördelning av aktier, räntor och övrigt i KF"
                 data={getAccountInstrumentAllocations("KF")}
@@ -387,7 +376,7 @@ function PortfolioHealthPage() {
                 help={{
                   title: "Vad betyder tillgångsslag?",
                   content:
-                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar.",
+                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar."
                 }}
                 title="Aktuell fördelning av aktier, räntor och övrigt i Depå"
                 data={getAccountInstrumentAllocations("Depa")}
@@ -415,7 +404,7 @@ function PortfolioHealthPage() {
               "account_name",
               "marketValue",
               "pnl",
-              "pnlPct",
+              "pnlPct"
             ]}
           />
         </div>
