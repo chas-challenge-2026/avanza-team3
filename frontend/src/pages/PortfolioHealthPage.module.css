@@ -36,12 +36,13 @@
 }
 
 .value {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 600;
   color: var(--foreground);
   margin: 0;
-  letter-spacing: -0.5px;
-  line-height: 1;
+  letter-spacing: 0;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 
 .label {
@@ -89,4 +90,35 @@
 .popoverWrapper {
   display: flex;
   flex-direction: row-reverse;
+}
+
+.infoRow {
+  display: none;
+  width: 100%;
+  max-width: 1440px;
+  margin: 10px auto 0;
+  padding: 0 36px 0 40px;
+  box-sizing: border-box;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.infoTitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.holdings {
+  margin-bottom: 4rem;
+}
+
+@media (min-width: 600px) {
+  .infoRow {
+    display: block;
+  }
 }

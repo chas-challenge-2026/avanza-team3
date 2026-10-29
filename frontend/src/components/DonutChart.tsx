@@ -2,6 +2,7 @@ import { PieChart } from "@mui/x-charts";
 import { useMediaQuery, useTheme } from "@mui/material";
 import styles from "./DonutChart.module.css";
 import PopOver from "./Popover";
+import InfoText from "./InfoText";
 
 type DonutChartItem = {
   label: string;
@@ -38,7 +39,7 @@ const DonutChart = ({ title, data, help }: DonutChartProps) => {
     return {
       label: `${item.label} ${percentage}%${deviationText}`,
       value: item.value,
-      color: item.color
+      color: item.color,
     };
   });
 
@@ -66,8 +67,8 @@ const DonutChart = ({ title, data, help }: DonutChartProps) => {
                 cornerRadius: 5,
                 paddingAngle: 0.5,
                 valueFormatter: (item) =>
-                  item ? `${((item.value / total) * 100).toFixed(0)}%` : ""
-              }
+                  item ? `${((item.value / total) * 100).toFixed(0)}%` : "",
+              },
             ]}
             slotProps={{
               legend: {
@@ -78,15 +79,16 @@ const DonutChart = ({ title, data, help }: DonutChartProps) => {
                     fontFamily: "Roboto",
                     color: "#5a6569",
                     whiteSpace: "pre-line",
-                    lineHeight: 1.7
-                  }
-                }
-              }
+                    lineHeight: 1.7,
+                  },
+                },
+              },
             }}
             margin={{ right: 5 }}
             hideLegend={false}
           />
         </div>
+        <InfoText content={help.content} />
       </div>
     </>
   );

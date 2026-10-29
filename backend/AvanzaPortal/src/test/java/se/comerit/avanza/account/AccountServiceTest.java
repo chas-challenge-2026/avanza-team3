@@ -11,10 +11,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 import se.comerit.avanza.account.dto.AccountResponse;
+import se.comerit.avanza.account.dto.AccountRequest;
+import se.comerit.avanza.account.dto.AccountPatchRequest;
 import se.comerit.avanza.account.model.Account;
 import se.comerit.avanza.account.repository.AccountRepository;
 import se.comerit.avanza.account.service.AccountService;
 import se.comerit.avanza.exception.ResourceNotFoundException;
+import se.comerit.avanza.exception.ResourceConflictException;
+import se.comerit.avanza.exception.BusinessRuleException;
+import se.comerit.avanza.holding.repository.HoldingRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -28,6 +33,9 @@ class AccountServiceTest {
 
     @Mock
     private AccountRepository accountRepository;
+
+    @Mock
+    private HoldingRepository holdingRepository;
 
     @InjectMocks
     private AccountService accountService;
@@ -95,6 +103,115 @@ class AccountServiceTest {
         assertEquals("ISK", row.get("account_type"));
         assertEquals("Main ISK", row.get("account_name"));
         assertEquals("SEK", row.get("currency"));
+    }
+
+
+    @Test
+    void createAccountShouldTakeUserIdFromAuthenticationAndAllowMultipleIskAccounts() {
+        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        AccountResponse first = accountService.createAccount(7,
+                new AccountRequest(" ISK ", " Pension ISK ", null));
+        AccountResponse second = accountService.createAccount(7,
+                new AccountRequest("ISK", "Semesterkonto", "sek"));
+
+        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
+        verify(accountRepository, times(2)).save(captor.capture());
+        List<Account> accounts = captor.getAllValues();
+        assertEquals(7, accounts.get(0).getUserId());
+        assertEquals(7, accounts.get(1).getUserId());
+        assertEquals("ISK", first.accountType());
+        assertEquals("Pension ISK", first.accountName());
+        assertEquals("SEK", first.currency());
+        assertEquals("Semesterkonto", second.accountName());
+        assertEquals("SEK", second.currency());
+    }
+
+    @Test
+    void getAccountResponseShouldNeverExposeAnotherUsersAccount() {
+        when(accountRepository.findByIdAndUserId(21, 7)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> accountService.getAccountResponse(21, 7));
+        verify(accountRepository, never()).findById(21);
+    }
+
+    @Test
+    void replaceShouldUpdateAllEditableFieldsWithoutChangingUserId() {
+        Account original = account(11, 7, "ISK", "Original", "SEK");
+        when(accountRepository.findByIdAndUserId(11, 7)).thenReturn(Optional.of(original));
+        when(accountRepository.save(original)).thenReturn(original);
+
+        AccountResponse result = accountService.replaceAccount(11, 7,
+                new AccountRequest("KF", "Uppdaterat", "usd"));
+
+        assertEquals(7, original.getUserId());
+        assertEquals("KF", result.accountType());
+        assertEquals("Uppdaterat", result.accountName());
+        assertEquals("USD", result.currency());
+    }
+
+    @Test
+    void patchShouldOnlyChangeProvidedFields() {
+        Account original = account(11, 7, "ISK", "Original", "SEK");
+        when(accountRepository.findByIdAndUserId(11, 7)).thenReturn(Optional.of(original));
+        when(accountRepository.save(original)).thenReturn(original);
+
+        AccountResponse result = accountService.updateAccount(11, 7,
+                new AccountPatchRequest(null, "Ny etikett", null));
+        assertEquals("ISK", result.accountType());
+        assertEquals("Ny etikett", result.accountName());
+        assertEquals("SEK", result.currency());
+    }
+
+    @Test
+    void patchShouldRejectNoChangesEvenIfValidationWasBypassed() {
+        when(accountRepository.findByIdAndUserId(11, 7))
+                .thenReturn(Optional.of(account(11, 7, "ISK", "Original", "SEK")));
+        assertThrows(BusinessRuleException.class,
+                () -> accountService.updateAccount(11, 7, new AccountPatchRequest(null, null, null)));
+        verify(accountRepository, never()).save(any());
+    }
+
+    @Test
+    void createShouldRejectInvalidCurrencyEvenIfValidationWasBypassed() {
+        assertThrows(BusinessRuleException.class,
+                () -> accountService.createAccount(7, new AccountRequest("ISK", "Test", "XYZ")));
+        verify(accountRepository, never()).save(any());
+    }
+
+    @Test
+    void replaceAndPatchShouldRejectOtherUsersAccount() {
+        when(accountRepository.findByIdAndUserId(11, 7)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class,
+                () -> accountService.replaceAccount(11, 7, new AccountRequest("ISK", "X", "SEK")));
+        assertThrows(ResourceNotFoundException.class,
+                () -> accountService.updateAccount(11, 7, new AccountPatchRequest(null, "X", null)));
+        verify(accountRepository, never()).save(any());
+    }
+
+    @Test
+    void deleteShouldRefuseAccountWithHoldings() {
+        Account account = account(11, 7, "ISK", "Main ISK", "SEK");
+        when(accountRepository.findOwnedAccountForUpdate(11, 7)).thenReturn(Optional.of(account));
+        when(holdingRepository.existsByAccountId(11)).thenReturn(true);
+        assertThrows(ResourceConflictException.class, () -> accountService.deleteAccount(11, 7));
+        verify(accountRepository, never()).delete(any());
+    }
+
+    @Test
+    void deleteShouldRemoveEmptyOwnedAccount() {
+        Account account = account(11, 7, "ISK", "Main ISK", "SEK");
+        when(accountRepository.findOwnedAccountForUpdate(11, 7)).thenReturn(Optional.of(account));
+        when(holdingRepository.existsByAccountId(11)).thenReturn(false);
+        accountService.deleteAccount(11, 7);
+        verify(accountRepository).delete(account);
+    }
+
+    @Test
+    void deleteShouldReturnNotFoundForAnotherUsersAccount() {
+        when(accountRepository.findOwnedAccountForUpdate(11, 7)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> accountService.deleteAccount(11, 7));
+        verifyNoInteractions(holdingRepository);
+        verify(accountRepository, never()).delete(any());
     }
 
     private Account account(
