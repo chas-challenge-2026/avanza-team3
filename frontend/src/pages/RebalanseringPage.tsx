@@ -1,6 +1,6 @@
 import InnehavsForm from "../components/InnehavForm";
 import styles from "./RebalanseringPage.module.css";
-import { useHoldings } from "../hooks/useHoldings";
+// import { useHoldings } from "../hooks/useHoldings";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faScaleBalanced } from "@fortawesome/free-solid-svg-icons";
 import { useApprovedHoldings } from "../hooks/useApprovedHoldings";
@@ -9,7 +9,7 @@ import AccountPicker from "../components/AccountPicker";
 import { useState } from "react";
 
 function RebalanseringPage() {
-  const { loading, error } = useHoldings();
+  // const { loading, error } = useHoldings();
   const { approved, addApproved, removeApproved } = useApprovedHoldings();
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
     null,

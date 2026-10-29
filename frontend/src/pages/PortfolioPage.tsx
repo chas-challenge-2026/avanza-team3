@@ -17,11 +17,11 @@ import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
 import { useState, useEffect } from "react";
 import { getHoldingsSummary } from "../services/holdingSummaryService";
 import type { HoldingSummary } from "../services/holdingSummaryService";
-import { useTargetAllocations } from "../hooks/useTargetAllocation";
+// import { useTargetAllocations } from "../hooks/useTargetAllocation";
 
 function PortfolioPage() {
   const { rows } = usePortfolioAllocations();
-  const { targetAllocation } = useTargetAllocations();
+  // const { targetAllocation } = useTargetAllocations();
   const { dashboard } = useDashboard();
   const accounts = dashboard?.accounts ?? [];
   const { liveAlerts } = useLiveAlerts();
@@ -38,20 +38,20 @@ function PortfolioPage() {
   const accountColors: Record<string, string> = {
     ISK: "#6366F1",
     KF: "#0D9488",
-    Depa: "#D97706"
+    Depa: "#D97706",
   };
 
   const allocationData = rows
     .filter((row) => !row.accountType.toLowerCase().includes("pension"))
     .map((row) => {
-      const currentTarget = targetAllocation.find(
-        (target) => target.accountType === row.accountType
-      );
+      // const currentTarget = targetAllocation.find(
+      //   (target) => target.accountType === row.accountType
+      // );
 
       return {
         label: row.accountType,
         value: row.actual,
-        color: accountColors[row.accountType]
+        color: accountColors[row.accountType],
         // target: currentTarget?.targetPercentage ?? row.target
       };
     });
@@ -62,8 +62,8 @@ function PortfolioPage() {
     ? calculateHoldingSpread(
         summaryHoldings.map((holding) => ({
           ticker: holding.ticker,
-          valueSek: holding.marketValue
-        }))
+          valueSek: holding.marketValue,
+        })),
       )
     : undefined;
 
@@ -94,7 +94,7 @@ function PortfolioPage() {
           </div>
           <p className={styles.value}>
             {dashboard?.totalPortfolioValue.toLocaleString("sv-se", {
-              maximumFractionDigits: 0
+              maximumFractionDigits: 0,
             })}{" "}
             SEK
           </p>
@@ -108,7 +108,7 @@ function PortfolioPage() {
             help={{
               title: "Vad betyder kontotyp?",
               content:
-                "Kontotyp visar hur ditt konto är upplagt. ISK, KF och depå är olika sätt att äga och hantera investeringar."
+                "Kontotyp visar hur ditt konto är upplagt. ISK, KF och depå är olika sätt att äga och hantera investeringar.",
             }}
           />
         </AppCard>
@@ -120,7 +120,7 @@ function PortfolioPage() {
               help={{
                 title: "Vad betyder portföljhälsa?",
                 content:
-                  "Portföljhälsa ger en överblick över hur väl din portfölj är balanserad, till exempel utifrån risk, diversifiering och fördelning mellan innehav."
+                  "Portföljhälsa ger en överblick över hur väl din portfölj är balanserad, till exempel utifrån risk, diversifiering och fördelning mellan innehav.",
               }}
               riskScore={riskScore}
               spread={spread}
