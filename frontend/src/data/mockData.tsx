@@ -35,20 +35,20 @@ export const accounts: Account[] = [
     id: 1,
     userId: 1,
     accountType: "ISK",
-    accountName: "Anna ISK"
+    accountName: "Anna ISK",
   },
   {
     id: 2,
     userId: 1,
     accountType: "KF",
-    accountName: "Anna KF"
+    accountName: "Anna KF",
   },
   {
     id: 3,
     userId: 1,
     accountType: "Depa",
-    accountName: "Anna Depå"
-  }
+    accountName: "Anna Depå",
+  },
 ];
 
 export const holdings: Holding[] = [
@@ -60,7 +60,7 @@ export const holdings: Holding[] = [
     quantity: 500,
     avgBuyPrice: 68.5,
     currentPrice: 70.2,
-    currency: "SEK"
+    currency: "SEK",
   },
   {
     id: 2,
@@ -70,7 +70,7 @@ export const holdings: Holding[] = [
     quantity: 100,
     avgBuyPrice: 245.0,
     currentPrice: 70.2,
-    currency: "SEK"
+    currency: "SEK",
   },
   {
     id: 3,
@@ -80,7 +80,7 @@ export const holdings: Holding[] = [
     quantity: 50,
     avgBuyPrice: 165.0,
     currentPrice: 170.2,
-    currency: "USD"
+    currency: "USD",
   },
   {
     id: 4,
@@ -90,7 +90,7 @@ export const holdings: Holding[] = [
     quantity: 200,
     avgBuyPrice: 185.0,
     currentPrice: 270.2,
-    currency: "SEK"
+    currency: "SEK",
   },
   {
     id: 5,
@@ -100,28 +100,28 @@ export const holdings: Holding[] = [
     quantity: 300,
     avgBuyPrice: 205.0,
     currentPrice: 170.2,
-    currency: "SEK"
-  }
+    currency: "SEK",
+  },
 ];
 export const targetAllocations: TargetAllocation[] = [
   {
     id: 1,
     userId: 1,
     accountType: "ISK",
-    targetPct: 60.0
+    targetPct: 60.0,
   },
   {
     id: 2,
     userId: 1,
     accountType: "KF",
-    targetPct: 25.0
+    targetPct: 25.0,
   },
   {
     id: 3,
     userId: 1,
     accountType: "Depa",
-    targetPct: 15.0
-  }
+    targetPct: 15.0,
+  },
 ];
 
 export const alerts: Alert[] = [
@@ -129,12 +129,12 @@ export const alerts: Alert[] = [
     id: 1,
     userId: 1,
     alertType: "DRIFT",
-    message: "ISK-allokering avviker 8% från mål (60%). Överväg ombalansering."
+    message: "ISK-allokering avviker 8% från mål (60%). Överväg ombalansering.",
   },
   {
     id: 2,
     userId: 1,
     alertType: "DRIFT",
-    message: "KF-allokering avviker 6% från mål (25%)."
-  }
+    message: "KF-allokering avviker 6% från mål (25%).",
+  },
 ];

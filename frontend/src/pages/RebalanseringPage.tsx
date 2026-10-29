@@ -1,17 +1,19 @@
 import InnehavsForm from "../components/InnehavForm";
 import styles from "./RebalanseringPage.module.css";
-import { useHoldings } from "../hooks/useHoldings";
+// import { useHoldings } from "../hooks/useHoldings";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faScaleBalanced } from "@fortawesome/free-solid-svg-icons";
 import { useApprovedHoldings } from "../hooks/useApprovedHoldings";
 import ApprovedHoldingsList from "../components/ApprovedHoldingsList";
+import AccountPicker from "../components/AccountPicker";
+import { useState } from "react";
 
 function RebalanseringPage() {
-  const { loading, error } = useHoldings();
+  // const { loading, error } = useHoldings();
   const { approved, addApproved, removeApproved } = useApprovedHoldings();
-
-  if (loading) return <p>Laddar...</p>;
-  if (error) return <p>{error}</p>;
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
+    null,
+  );
 
   return (
     <div className={styles.RebalanseringWrapper}>
@@ -23,6 +25,10 @@ function RebalanseringPage() {
           </div>
         </div>
       </div>
+      <AccountPicker
+        selectedAccountId={selectedAccountId}
+        onSelect={setSelectedAccountId}
+      />
       {/*       <InnehavsLista
         holdings={holdings}
         columns={[
