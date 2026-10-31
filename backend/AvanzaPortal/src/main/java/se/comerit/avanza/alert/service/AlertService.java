@@ -6,30 +6,38 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import se.comerit.avanza.account.model.Account;
+import se.comerit.avanza.account.repository.AccountRepository;
+import se.comerit.avanza.accountallocation.dto.AccountAllocationCategoryResponse;
+import se.comerit.avanza.accountallocation.dto.AccountAllocationOverviewResponse;
+import se.comerit.avanza.accountallocation.model.AssetCategory;
+import se.comerit.avanza.accountallocation.service.AccountAllocationOverviewService;
 import se.comerit.avanza.alert.dto.AlertResponse;
+import se.comerit.avanza.alert.dto.LiveAlertDto;
 import se.comerit.avanza.alert.model.Alert;
 import se.comerit.avanza.alert.repository.AlertRepository;
 import se.comerit.avanza.exception.ResourceNotFoundException;
-import se.comerit.avanza.portfolio.dto.PortfolioAllocationResult;
-import se.comerit.avanza.portfolio.dto.PortfolioAllocationRow;
-import se.comerit.avanza.portfolio.service.PortfolioAllocationService;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class AlertService {
+    private static BigDecimal DRIFT_THRESHOLD = new BigDecimal("5.00");
 
     private final AlertRepository alertRepository;
-    private final PortfolioAllocationService portfolioAllocationService;
+    private final AccountRepository accountRepository;
+    private final AccountAllocationOverviewService accountAllocationOverviewService;
 
     public AlertService(
             AlertRepository alertRepository,
-            PortfolioAllocationService portfolioAllocationService) {
+            AccountRepository accountRepository,
+            AccountAllocationOverviewService accountAllocationOverviewService) {
         this.alertRepository = alertRepository;
-        this.portfolioAllocationService = portfolioAllocationService;
+        this.accountRepository = accountRepository;
+        this.accountAllocationOverviewService = accountAllocationOverviewService;
     }
 
     @PreAuthorize("#userId == authentication.details")
@@ -56,8 +64,7 @@ public class AlertService {
                 .findByUserIdAndDismissedOrderByCreatedAtDesc(
                         userId,
                         dismissed,
-                        pageable
-                )
+                        pageable)
                 .map(this::toAlertResponse);
     }
 
@@ -71,32 +78,60 @@ public class AlertService {
 
     @PreAuthorize("#userId == authentication.details")
     @Transactional(readOnly = true)
-    public List<Map<String, Object>> getLiveAlertsByUserId(Integer userId) {
-        PortfolioAllocationResult allocation =
-                portfolioAllocationService.getAccountTypeAllocation(userId);
+    public List<LiveAlertDto> getLiveAlertsByUserId(Integer userId) {
+        List<Account> accounts = accountRepository.findByUserIdOrderByAccountTypeAscAccountNameAsc(userId);
 
-        List<Map<String, Object>> liveAlerts = new ArrayList<>();
+        List<LiveAlertDto> liveAlerts = new ArrayList<>();
 
-        for (PortfolioAllocationRow row : allocation.rows()) {
-            if (!row.overThreshold()) {
+        for (Account account : accounts) {
+            AccountAllocationOverviewResponse allocation = accountAllocationOverviewService
+                    .getAllocation(account.getId(), userId);
+
+            if (!allocation.targetsConfigured()) {
                 continue;
             }
 
-            Map<String, Object> liveAlert = new LinkedHashMap<>();
-            liveAlert.put("alert_type", "LIVE_DRIFT");
-            liveAlert.put(
-                    "message",
-                    String.format(
-                            "%s-allokering: faktisk %.1f%% vs mål %.1f%% (avvikelse %.1f procentenheter) — ombalansering rekommenderas",
-                            row.accountType(),
-                            row.actualPercentage().doubleValue(),
-                            row.targetPercentage().doubleValue(),
-                            row.driftPercentagePoints().doubleValue()
-                    )
-            );
-            liveAlert.put("dismissed", false);
-            liveAlert.put("created_at", "Nu");
-            liveAlerts.add(liveAlert);
+            for (AccountAllocationCategoryResponse category : allocation.categories()) {
+                if (category.category() != AssetCategory.STOCK && category.category() != AssetCategory.FUND) {
+                    continue;
+                }
+
+                BigDecimal difference = category.differencePctPoints();
+                if (difference == null || difference.abs().compareTo(DRIFT_THRESHOLD) <= 0) {
+                    continue;
+                }
+
+                String accountName = account.getAccountName() != null
+                        ? account.getAccountName()
+                        : account.getAccountType();
+
+                String direction = difference.signum() > 0
+                        ? "över"
+                        : "under";
+
+                String message = String.format(
+                        "%s ligger %.2f procentenheter %s målet för %s" + "(nuvarande %.2f, mål %.2f%%).",
+                        category.category(),
+                        difference.abs(),
+                        direction,
+                        accountName,
+                        category.actualPct(),
+                        category.targetPct());
+
+                LiveAlertDto liveAlert = new LiveAlertDto(
+                        "LIVE_DRIFT",
+                        account.getId(),
+                        accountName,
+                        category.category().name(),
+                        category.actualPct(),
+                        category.targetPct(),
+                        difference,
+                        message,
+                        false,
+                        "Nu");
+
+                liveAlerts.add(liveAlert);
+            }
         }
 
         return liveAlerts;
@@ -108,11 +143,6 @@ public class AlertService {
                 alert.getAlertType(),
                 alert.getMessage(),
                 alert.isDismissed(),
-                alert.getCreatedAt()
-        );
-    }
-
-    public int getDriftThresholdPercent() {
-        return portfolioAllocationService.getDriftThresholdPercent();
+                alert.getCreatedAt());
     }
 }
