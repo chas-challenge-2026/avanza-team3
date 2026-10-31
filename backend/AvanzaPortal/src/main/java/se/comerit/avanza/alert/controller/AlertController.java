@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import se.comerit.avanza.alert.dto.AlertResponse;
+import se.comerit.avanza.alert.dto.LiveAlertDto;
 import se.comerit.avanza.alert.service.AlertService;
 
 import java.util.List;
@@ -87,7 +88,7 @@ public class AlertController {
             @ApiResponse(responseCode = "401", description = "Authentication required")
     })
     @GetMapping("/live")
-    public ResponseEntity<List<Map<String, Object>>> getLiveAlerts(
+    public ResponseEntity<List<LiveAlertDto>> getLiveAlerts(
             @Parameter(hidden = true)
             Authentication authentication) {
 
