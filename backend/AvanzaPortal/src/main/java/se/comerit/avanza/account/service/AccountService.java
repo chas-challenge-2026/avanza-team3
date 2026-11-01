@@ -107,7 +107,8 @@ public class AccountService {
         // Ingen delete om holdings finns kvar i account.
         Account account = accountRepository.findOwnedAccountForUpdate(accountId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
-        if (holdingRepository.existsByAccountId(accountId)) {
+        if (holdingRepository.existsByAccountId(accountId)
+                || account.getCashBalanceSek().signum() > 0) {
             throw new ResourceConflictException("Account still has holdings");
         }
         accountRepository.delete(account);

@@ -38,7 +38,7 @@ public class AccountAllocationOverviewService {
     @PreAuthorize("#userId == authentication.details")
     @Transactional(readOnly = true)
     public AccountAllocationOverviewResponse getAllocation(Integer accountId, Integer userId) {
-        accountRepository.findByIdAndUserId(accountId, userId)
+        var account = accountRepository.findByIdAndUserId(accountId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
         List<ValuedHolding> holdings = valuationService
@@ -54,7 +54,12 @@ public class AccountAllocationOverviewService {
             values.merge(category, value, BigDecimal::add);
             total = total.add(value);
         }
-        total = money(total);
+        // Uninvested cash from simulated rebalancing is part of OTHER,
+        // preserving total portfolio value after rounded trades.
+        BigDecimal cash = account.getCashBalanceSek() == null
+                ? BigDecimal.ZERO : account.getCashBalanceSek();
+        values.merge(AssetCategory.OTHER, cash, BigDecimal::add);
+        total = money(total.add(cash));
 
         Map<AssetCategory, BigDecimal> targetPcts = new EnumMap<>(AssetCategory.class);
         for (AccountAllocationTarget target : targets) {
