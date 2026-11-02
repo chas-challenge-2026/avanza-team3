@@ -72,6 +72,9 @@ class RebalanceServiceTest {
         assertEquals("BUY", preview.trades().getFirst().side());
         assertEquals(42, preview.trades().getFirst().instrumentId());
         assertEquals(new BigDecimal("1000.00"), preview.totalValueSek());
+        assertEquals(1, preview.proposedHoldings().size());
+        assertEquals(new BigDecimal("0"), preview.proposedHoldings().getFirst().currentQuantity());
+        assertEquals(new BigDecimal("10"), preview.proposedHoldings().getFirst().proposedQuantity());
         verify(holdings, never()).save(any());
         verify(accounts, never()).save(any());
     }

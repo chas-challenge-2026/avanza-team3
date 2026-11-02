@@ -60,6 +60,16 @@ class RebalanceCalculatorTest {
         assertEquals(new BigDecimal("0.00"), result.cashAfterSek());
         assertEquals(new BigDecimal("50.00"), result.after().get(0).actualPct());
         assertEquals(new BigDecimal("50.00"), result.after().get(1).actualPct());
+        assertEquals(2, result.proposedHoldings().size());
+        var stockAfter = result.proposedHoldings().stream()
+                .filter(row -> row.instrumentId() == 1).findFirst().orElseThrow();
+        var fundAfter = result.proposedHoldings().stream()
+                .filter(row -> row.instrumentId() == 2).findFirst().orElseThrow();
+        assertEquals(new BigDecimal("7"), stockAfter.currentQuantity());
+        assertEquals(new BigDecimal("5"), stockAfter.proposedQuantity());
+        assertEquals(new BigDecimal("3"), fundAfter.currentQuantity());
+        assertEquals(new BigDecimal("5.0000"), fundAfter.proposedQuantity());
+        assertEquals(new BigDecimal("500.00"), fundAfter.proposedValueSek());
     }
 
     @Test
@@ -73,6 +83,9 @@ class RebalanceCalculatorTest {
         assertFalse(result.executable());
         assertTrue(result.trades().isEmpty());
         assertEquals(result.before(), result.after());
+        assertTrue(result.proposedHoldings().stream()
+                .allMatch(row -> row.currentQuantity().compareTo(row.proposedQuantity()) == 0));
+        assertEquals(2, result.proposedHoldings().size());
     }
 
     @Test
@@ -88,6 +101,42 @@ class RebalanceCalculatorTest {
         assertEquals(2, result.trades().size());
         assertEquals(2, result.trades().get(1).instrumentId());
         assertEquals(new BigDecimal("5.0000"), result.trades().get(1).quantity());
+        var newFund = result.proposedHoldings().stream()
+                .filter(row -> row.instrumentId() == 2).findFirst().orElseThrow();
+        assertEquals(0, newFund.currentQuantity().compareTo(BigDecimal.ZERO));
+        assertEquals(new BigDecimal("5.0000"), newFund.proposedQuantity());
+    }
+
+    @Test
+    void proposedHoldingsIncludeFullySoldPositionsWithZeroQuantity() {
+        var stock = instrument("STOCK", InstrumentType.STOCK);
+        var fund = instrument("FUND", InstrumentType.FUND);
+        org.springframework.test.util.ReflectionTestUtils.setField(stock, "id", 1);
+        org.springframework.test.util.ReflectionTestUtils.setField(fund, "id", 2);
+        var result = calculator.calculate(BigDecimal.ZERO,
+                List.of(holding(11, 1, InstrumentType.STOCK, "10")),
+                List.of(quote(stock), quote(fund)), targets("0.00", "100.00"));
+        assertTrue(result.executable());
+        assertEquals(2, result.proposedHoldings().size());
+        var sold = result.proposedHoldings().stream()
+                .filter(row -> row.instrumentId() == 1).findFirst().orElseThrow();
+        assertEquals(new BigDecimal("10"), sold.currentQuantity());
+        assertEquals(0, sold.proposedQuantity().compareTo(BigDecimal.ZERO));
+        assertEquals(new BigDecimal("0.00"), sold.proposedValueSek());
+    }
+
+    @Test
+    void proposedHoldingsExcludeUnpurchasedApprovedCandidates() {
+        var stock = instrument("STOCK", InstrumentType.STOCK);
+        var fund = instrument("FUND", InstrumentType.FUND);
+        org.springframework.test.util.ReflectionTestUtils.setField(stock, "id", 1);
+        org.springframework.test.util.ReflectionTestUtils.setField(fund, "id", 2);
+        var result = calculator.calculate(BigDecimal.ZERO,
+                List.of(holding(11, 1, InstrumentType.STOCK, "10")),
+                List.of(quote(stock), quote(fund)), targets("100.00", "0.00"));
+        assertFalse(result.executable());
+        assertEquals(1, result.proposedHoldings().size());
+        assertEquals(1, result.proposedHoldings().getFirst().instrumentId());
     }
 
     @Test

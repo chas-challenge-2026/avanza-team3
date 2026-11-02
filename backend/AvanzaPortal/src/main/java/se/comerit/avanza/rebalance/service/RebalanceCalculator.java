@@ -5,17 +5,18 @@ import java.math.RoundingMode;
 import java.util.*;
 import org.springframework.stereotype.Service;
 import se.comerit.avanza.accountallocation.model.AssetCategory;
+import se.comerit.avanza.accountallocation.model.AllocationRules;
 import se.comerit.avanza.exception.BusinessRuleException;
 import se.comerit.avanza.instrument.model.Instrument;
 import se.comerit.avanza.instrument.model.InstrumentType;
 import se.comerit.avanza.portfolio.dto.ValuedHolding;
 import se.comerit.avanza.rebalance.dto.RebalanceAllocationRow;
 import se.comerit.avanza.rebalance.dto.RebalanceTradeResponse;
+import se.comerit.avanza.rebalance.dto.RebalanceProposedHoldingResponse;
 
 @Service
 public class RebalanceCalculator {
     private static final BigDecimal HUNDRED = new BigDecimal("100");
-    private static final BigDecimal FIVE = new BigDecimal("5");
 
     public record Quote(Instrument instrument, BigDecimal priceNative, BigDecimal fxToSek) {
         public BigDecimal unitPriceSek() { return priceNative.multiply(fxToSek); }
@@ -26,18 +27,22 @@ public class RebalanceCalculator {
                               List<RebalanceAllocationRow> before,
                               List<RebalanceAllocationRow> after,
                               List<RebalanceTradeResponse> trades,
+                              List<RebalanceProposedHoldingResponse> proposedHoldings,
                               List<String> warnings) {}
 
     private static final class Position {
         final Integer instrumentId;
         final String ticker;
+        final String instrumentName;
         final AssetCategory category;
         final BigDecimal unitPriceSek;
         BigDecimal quantity;
 
-        Position(Integer id, String ticker, AssetCategory category, BigDecimal priceSek, BigDecimal quantity) {
+        Position(Integer id, String ticker, String instrumentName, AssetCategory category,
+                 BigDecimal priceSek, BigDecimal quantity) {
             this.instrumentId = id;
             this.ticker = ticker;
+            this.instrumentName = instrumentName;
             this.category = category;
             this.unitPriceSek = priceSek;
             this.quantity = quantity;
@@ -64,7 +69,7 @@ public class RebalanceCalculator {
             var category = AssetCategory.fromInstrumentType(holding.instrumentType());
             var existing = positions.get(holding.instrumentId());
             if (existing == null) {
-                positions.put(holding.instrumentId(), new Position(holding.instrumentId(), holding.ticker(),
+                positions.put(holding.instrumentId(), new Position(holding.instrumentId(), holding.ticker(), holding.instrumentName(),
                         category, unitPriceSek, holding.quantity()));
             } else {
                 if (existing.unitPriceSek.compareTo(unitPriceSek) != 0)
@@ -89,9 +94,13 @@ public class RebalanceCalculator {
             quotes.put(quote.instrument().getId(), quote);
             positions.putIfAbsent(quote.instrument().getId(),
                     new Position(quote.instrument().getId(), quote.instrument().getTicker(),
-                            AssetCategory.fromInstrumentType(type), quote.unitPriceSek(), BigDecimal.ZERO));
+                            quote.instrument().getName(), AssetCategory.fromInstrumentType(type), quote.unitPriceSek(), BigDecimal.ZERO));
         }
 
+        Map<Integer, BigDecimal> initialQuantities = new TreeMap<>();
+        for (Position position : positions.values()) {
+            initialQuantities.put(position.instrumentId, position.quantity);
+        }
         List<RebalanceTradeResponse> trades = new ArrayList<>();
         BigDecimal cash = cashBefore;
 
@@ -158,16 +167,28 @@ public class RebalanceCalculator {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         if (!trades.isEmpty() && finalDrift.compareTo(originalDrift) >= 0) {
             trades.clear();
+            for (Position position : positions.values()) {
+                position.quantity = initialQuantities.get(position.instrumentId);
+            }
             cash = cashBefore;
             after = before;
             warnings.add("No improvement is possible with the approved instrument selection");
         }
         if (trades.isEmpty()) warnings.add("No executable trades for the selected instruments and targets");
-        if (after.stream().anyMatch(r -> r.differencePctPoints().abs().compareTo(FIVE) > 0))
+        if (after.stream().anyMatch(r -> r.differencePctPoints().abs().compareTo(AllocationRules.DRIFT_THRESHOLD_PERCENTAGE_POINTS) > 0))
             warnings.add("Target allocation could not be fully reached with approved instruments, available funds and unit rounding");
         warnings.add("Simulation prices may come from configured fallback quotes; no real orders are placed");
+        List<RebalanceProposedHoldingResponse> proposedHoldings = new ArrayList<>();
+        for (Position position : positions.values()) {
+            BigDecimal originalQuantity = initialQuantities.get(position.instrumentId);
+            if (originalQuantity.signum() == 0 && position.quantity.signum() == 0) continue;
+            proposedHoldings.add(new RebalanceProposedHoldingResponse(
+                    position.instrumentId, position.ticker, position.instrumentName, position.category,
+                    originalQuantity, position.quantity, money(position.unitPriceSek),
+                    money(originalQuantity.multiply(position.unitPriceSek)), position.valueSek()));
+        }
         return new Calculation(total, cashBefore, money(cash), !trades.isEmpty(), List.copyOf(before),
-                List.copyOf(after), List.copyOf(trades), List.copyOf(warnings));
+                List.copyOf(after), List.copyOf(trades), List.copyOf(proposedHoldings), List.copyOf(warnings));
     }
 
     private static RebalanceTradeResponse trade(String side, Position p, BigDecimal qty, BigDecimal amount) {

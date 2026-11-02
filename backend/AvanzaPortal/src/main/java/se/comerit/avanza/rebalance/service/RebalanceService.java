@@ -66,7 +66,8 @@ public class RebalanceService {
                 : null;
         return new RebalancePreviewResponse(accountId, token, calculation.totalValueSek(),
                 calculation.cashBeforeSek(), calculation.cashAfterSek(), calculation.executable(),
-                calculation.before(), calculation.after(), calculation.trades(), calculation.warnings());
+                calculation.before(), calculation.after(), calculation.trades(),
+                calculation.proposedHoldings(), calculation.warnings());
     }
 
     @PreAuthorize("#userId == authentication.details")

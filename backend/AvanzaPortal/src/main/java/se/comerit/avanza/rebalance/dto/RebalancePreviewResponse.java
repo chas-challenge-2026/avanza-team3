@@ -13,5 +13,6 @@ public record RebalancePreviewResponse(
         List<RebalanceAllocationRow> before,
         List<RebalanceAllocationRow> after,
         List<RebalanceTradeResponse> trades,
+        List<RebalanceProposedHoldingResponse> proposedHoldings,
         List<String> warnings
 ) {}
