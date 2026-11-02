@@ -8,10 +8,16 @@ import PopOver from "./Popover";
 import { useState } from "react";
 import InfoText from "./InfoText";
 
+type AccountHealth = {
+  accountId: number;
+  accountType: string;
+  score: number | null;
+  valueSek: number;
+};
+
 type PortfolioHealthProps = {
   value: number;
-  riskScore: number;
-  spread: number;
+  accountHealth: AccountHealth[];
   help: {
     title: string;
     content: string;
@@ -21,8 +27,7 @@ type PortfolioHealthProps = {
 const PortfolioHealth = ({
   value,
   help,
-  riskScore,
-  spread,
+  accountHealth,
 }: PortfolioHealthProps) => {
   const [expanded, setExpanded] = useState(false);
   const valueStatus = () => {
@@ -104,21 +109,23 @@ const PortfolioHealth = ({
         {expanded && (
           <div className={styles.details}>
             <div className={styles.metrics}>
-              <div>
-                <p>Riskpoäng</p>
-                <strong>{riskScore}/100</strong>
-              </div>
-
-              <div>
-                <p>Innehavsspridning</p>
-                <strong>{spread}/100</strong>
-              </div>
+              {accountHealth.map((account) => (
+                <div key={account.accountId}>
+                  <p>{account.accountType}</p>
+                  <strong>
+                    {account.score !== null
+                      ? `${account.score}/100`
+                      : "Inget mål"}
+                  </strong>
+                </div>
+              ))}
             </div>
 
             <p className={styles.explanation}>
-              Portföljhälsan baseras till 50 % på risknivå och 50 % på
-              innehavsspridning. Lägre risk och högre spridning ger högre poäng.
+              Portföljhälsan visar hur väl dina konton följer sina
+              målallokeringar. Konton med högre värde påverkar totalpoängen mer.
             </p>
+
             <NavLink to="/portfoljhalsa" className={styles.readMore}>
               Läs mer
               <FontAwesomeIcon icon={faArrowRight} />

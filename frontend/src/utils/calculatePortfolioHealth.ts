@@ -1,13 +1,22 @@
-export function calculatePortfolioHealth(
-  riskScore: number,
-  spread: number
-): number {
-  const riskBalance = 100 - riskScore;
+type AccountHealth = {
+  score: number;
+  valueSek: number;
+};
 
-  return Math.round(
-    Math.max(
-      0,
-      Math.min(100, riskBalance * 0.5 + spread * 0.5)
-    )
+export const calculatePortfolioHealth = (
+  accounts: AccountHealth[]
+): number | null => {
+  const totalValue = accounts.reduce(
+    (sum, account) => sum + account.valueSek,
+    0
   );
-}
+
+  if (totalValue <= 0) return null;
+
+  const weightedScore = accounts.reduce(
+    (sum, account) => sum + account.score * account.valueSek,
+    0
+  );
+
+  return Math.round(weightedScore / totalValue);
+};

@@ -11,29 +11,26 @@ import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import useDashboard from "../hooks/useDasboard";
 import useLiveAlerts from "../hooks/useLiveAlerts";
-import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
-import { calculatePortfolioHealth } from "../utils/calculatePortfolioHealth";
-import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
-import { useState, useEffect } from "react";
-import { getHoldingsSummary } from "../services/holdingSummaryService";
-import type { HoldingSummary } from "../services/holdingSummaryService";
+import { useMemo } from "react";
+import { usePortfolioHealth } from "../hooks/usePortfolioHealth";
 // import { useTargetAllocations } from "../hooks/useTargetAllocation";
 
 function PortfolioPage() {
   const { rows } = usePortfolioAllocations();
   // const { targetAllocation } = useTargetAllocations();
   const { dashboard } = useDashboard();
-  const accounts = dashboard?.accounts ?? [];
   const { liveAlerts } = useLiveAlerts();
-  const { riskData } = usePortfolioRisk();
 
-  const [summaryHoldings, setSummaryHoldings] = useState<
-    HoldingSummary[] | null
-  >(null);
+  const accounts = useMemo(
+    () => dashboard?.accounts ?? [],
+    [dashboard?.accounts],
+  );
 
-  useEffect(() => {
-    getHoldingsSummary().then(setSummaryHoldings).catch(console.error);
-  }, []);
+  const {
+    portfolioHealth,
+    accountHealth,
+    loading: healthLoading,
+  } = usePortfolioHealth(accounts);
 
   const accountColors: Record<string, string> = {
     ISK: "#6366F1",
@@ -55,22 +52,6 @@ function PortfolioPage() {
         // target: currentTarget?.targetPercentage ?? row.target
       };
     });
-
-  const riskScore = riskData?.current.riskScore;
-
-  const spread = summaryHoldings
-    ? calculateHoldingSpread(
-        summaryHoldings.map((holding) => ({
-          ticker: holding.ticker,
-          valueSek: holding.marketValue,
-        })),
-      )
-    : undefined;
-
-  const portfolioHealth =
-    riskScore !== undefined && spread !== undefined
-      ? calculatePortfolioHealth(riskScore, spread)
-      : undefined;
 
   return (
     <div className={styles.container}>
@@ -112,20 +93,17 @@ function PortfolioPage() {
             }}
           />
         </AppCard>
-        {portfolioHealth !== undefined &&
-          riskScore !== undefined &&
-          spread !== undefined && (
-            <PortfolioHealth
-              value={portfolioHealth}
-              help={{
-                title: "Vad betyder portföljhälsa?",
-                content:
-                  "Portföljhälsa ger en överblick över hur väl din portfölj är balanserad, till exempel utifrån risk, diversifiering och fördelning mellan innehav.",
-              }}
-              riskScore={riskScore}
-              spread={spread}
-            />
-          )}
+        {!healthLoading && portfolioHealth !== null && (
+          <PortfolioHealth
+            value={portfolioHealth}
+            accountHealth={accountHealth}
+            help={{
+              title: "Vad betyder portföljhälsa?",
+              content:
+                "Portföljhälsa visar hur väl dina konton följer sina målallokeringar. Poängen viktas efter varje kontos värde.",
+            }}
+          />
+        )}
       </div>
 
       <div className={styles.row3}>
