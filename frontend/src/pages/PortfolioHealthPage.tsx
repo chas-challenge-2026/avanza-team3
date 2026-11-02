@@ -17,13 +17,14 @@ import {
   getHoldingsSummary,
   type HoldingSummary
 } from "../services/holdingSummaryService";
-
+import { useAccounts } from "../hooks/useAccounts";
+import { useAccountAllocationTargets } from "../hooks/useAccountAllocationTargets";
 import { mockPortfolioData } from "../data/portfolioMockData";
+import { replaceAccountAllocationTargets } from "../services/accountAllocationTargetsService";
 import InfoText from "../components/InfoText";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import { targetAllocations } from "../data/mockData.tsx";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -38,6 +39,20 @@ function PortfolioHealthPage() {
 
   const [summaryHoldings, setSummaryHoldings] = useState<HoldingSummary[]>([]);
   const [value, setValue] = React.useState(0);
+
+  const {
+    accounts,
+    loading: accountsLoading,
+    error: accountsError
+  } = useAccounts();
+
+  const accountIds = accounts.map((account) => account.id);
+
+  const {
+    targetsByAccount,
+    loading: targetsLoading,
+    error: targetsError
+  } = useAccountAllocationTargets(accountIds);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -138,13 +153,13 @@ function PortfolioHealthPage() {
   const spreadHelp =
     "Innehavsspridning visar hur jämnt portföljens värde är fördelat mellan olika innehav. Ett högre värde innebär att kapitalet är mer utspritt.";
 
-  const allocations = targetAllocations.map((target) => ({
-    id: String(target.id),
-    label: target.accountType
+  const allocations = accounts.map((account) => ({
+    id: String(account.id),
+    label: account.accountType,
+    targets: targetsByAccount[account.id] ?? []
   }));
 
-  // hämta allocationtarget till newallocationhandler, visa target.
-  // uppdatera target med slider och spara värdet med onclick, behöver antagligen formulär.
+  console.log(allocations);
 
   const stockCount =
     summaryHoldings?.filter((holding) => holding.instrument_type === "Aktie")
@@ -160,6 +175,30 @@ function PortfolioHealthPage() {
     mockPortfolioData.accountTypeAssetClassAllocations.find(
       (allocation) => allocation.accountType === accountType
     )?.assetClassAllocations ?? [];
+
+  const handleSaveAllocations = async (
+    values: Record<string, [number, number]>
+  ) => {
+    await Promise.all(
+      accounts.map((account) => {
+        const [stocks, stocksAndBonds] = values[String(account.id)];
+
+        return replaceAccountAllocationTargets(account.id, {
+          targets: [
+            { category: "STOCK", targetPercentage: stocks },
+            {
+              category: "BOND",
+              targetPercentage: stocksAndBonds - stocks
+            },
+            {
+              category: "OTHER",
+              targetPercentage: 100 - stocksAndBonds
+            }
+          ]
+        });
+      })
+    );
+  };
 
   function CustomTabPanel(props: TabPanelProps) {
     const { children, value, index, ...other } = props;
@@ -319,10 +358,20 @@ function PortfolioHealthPage() {
       <div className={styles.container}>
         <AppCard>
           <h2>Målallokering över kontotyp</h2>
-          <p className={styles.label}>
-            Justera fördelning med reglagen för önskad fördelning. <br />
+          <p className={styles.allocationLabel}>
+            Justera fördelning med reglagen för önskad fördelning över dina
+            konton. <br />
           </p>
-          <NewAllocationHandler allocations={allocations} />
+          {accountsLoading || targetsLoading ? (
+            <p>Laddar konton och mål...</p>
+          ) : accountsError || targetsError ? (
+            <p role="alert">{accountsError ?? targetsError}</p>
+          ) : (
+            <NewAllocationHandler
+              allocations={allocations}
+              onSave={handleSaveAllocations}
+            />
+          )}
         </AppCard>
         <AppCard>
           <Box>

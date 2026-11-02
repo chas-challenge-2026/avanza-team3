@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Alert, Box, Slider, Snackbar, Typography } from "@mui/material";
 import styles from "./AllocationHandler.module.css";
 import AppButton from "./AppButton";
+import type { AccountAllocationTarget } from "../types/accountAllocationTargets";
 
 type SliderValue = [number, number];
 
@@ -10,11 +11,36 @@ const INITIAL_SLIDER_VALUE: SliderValue = [33, 66];
 type AllocationItem = {
   id: string;
   label: string;
+  targets: AccountAllocationTarget[];
 };
 
 type NewAllocationHandlerProps = {
   allocations: AllocationItem[];
-  onSave?: (values: Record<string, SliderValue>) => void;
+  onSave?: (values: Record<string, SliderValue>) => Promise<void>;
+};
+
+const getInitialSliderValue = (
+  targets: AccountAllocationTarget[]
+): SliderValue => {
+  const stocks =
+    targets.find((target) => target.category === "STOCK")?.targetPercentage ??
+    0;
+  const bonds =
+    targets.find((target) => target.category === "BOND")?.targetPercentage ?? 0;
+  const other =
+    targets.find((target) => target.category === "OTHER")?.targetPercentage ??
+    0;
+
+  const total = stocks + bonds + other;
+
+  if (total === 0) {
+    return INITIAL_SLIDER_VALUE;
+  }
+
+  return [
+    Math.round((stocks / total) * 100),
+    Math.round(((stocks + bonds) / total) * 100)
+  ];
 };
 
 const NewAllocationhandler = ({
@@ -25,10 +51,9 @@ const NewAllocationhandler = ({
   const [successMessage, setSuccessMessage] = useState("");
   const [values, setValues] = useState<Record<string, SliderValue>>(
     Object.fromEntries(
-      allocations.map(({ id }) => [id, [...INITIAL_SLIDER_VALUE]])
+      allocations.map(({ id, targets }) => [id, getInitialSliderValue(targets)])
     )
   );
-
   const handleValueChange = (id: string, value: SliderValue) => {
     setValues((current) => ({
       ...current,
@@ -36,18 +61,27 @@ const NewAllocationhandler = ({
     }));
   };
 
-  const handleSaveGoal = () => {
+  const handleSaveGoal = async () => {
     setSuccessMessage("");
-    onSave?.(values);
-    setSuccessMessage("Din önskade målallokering är uppdaterad!");
-    setOpenSnackbar(true);
+
+    try {
+      await onSave?.(values);
+      setSuccessMessage("Din önskade målallokering är uppdaterad!");
+      setOpenSnackbar(true);
+    } catch (error) {
+      setSuccessMessage(
+        error instanceof Error
+          ? error.message
+          : "Kunde inte spara målallokeringen"
+      );
+      setOpenSnackbar(true);
+    }
   };
 
   return (
     <>
       {allocations.map((allocation) => {
-        const [first, second] =
-          values[allocation.id] ?? INITIAL_SLIDER_VALUE;
+        const [first, second] = values[allocation.id] ?? INITIAL_SLIDER_VALUE;
         const stocks = first;
         const rates = second - first;
         const other = 100 - second;
@@ -57,7 +91,7 @@ const NewAllocationhandler = ({
             key={allocation.id}
             sx={{
               borderRadius: 3,
-              p: 3,
+              pb: 3,
               width: "100%"
             }}
           >
@@ -65,8 +99,7 @@ const NewAllocationhandler = ({
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center",
-                mb: 3
+                alignItems: "center"
               }}
             >
               <h2 className={styles.label}>{allocation.label}</h2>
@@ -76,10 +109,7 @@ const NewAllocationhandler = ({
               value={values[allocation.id] ?? INITIAL_SLIDER_VALUE}
               onChange={(_, newValue) => {
                 if (Array.isArray(newValue)) {
-                  handleValueChange(allocation.id, [
-                    newValue[0],
-                    newValue[1]
-                  ]);
+                  handleValueChange(allocation.id, [newValue[0], newValue[1]]);
                 }
               }}
               min={0}
@@ -107,8 +137,9 @@ const NewAllocationhandler = ({
                 },
 
                 "& .MuiSlider-thumb": {
-                  width: 25,
-                  height: 25,
+                  borderRadius: 2,
+                  width: 35,
+                  height: 35,
                   bgcolor: "#fff",
                   border: "2px solid #8491a5",
 
@@ -167,7 +198,7 @@ const NewAllocationhandler = ({
           </Box>
         );
       })}
-      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
         <AppButton onClick={handleSaveGoal} variant="contained">
           Spara
         </AppButton>
