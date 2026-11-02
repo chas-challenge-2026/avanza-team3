@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import se.comerit.avanza.account.model.Account;
 import se.comerit.avanza.account.repository.AccountRepository;
+import se.comerit.avanza.accountallocation.model.AllocationRules;
 import se.comerit.avanza.accountallocation.dto.AccountAllocationCategoryResponse;
 import se.comerit.avanza.accountallocation.dto.AccountAllocationOverviewResponse;
 import se.comerit.avanza.accountallocation.model.AssetCategory;
@@ -25,7 +26,6 @@ import java.util.List;
 
 @Service
 public class AlertService {
-    private static BigDecimal DRIFT_THRESHOLD = new BigDecimal("5.00");
 
     private final AlertRepository alertRepository;
     private final AccountRepository accountRepository;
@@ -97,7 +97,7 @@ public class AlertService {
                 }
 
                 BigDecimal difference = category.differencePctPoints();
-                if (difference == null || difference.abs().compareTo(DRIFT_THRESHOLD) <= 0) {
+                if (difference == null || difference.abs().compareTo(AllocationRules.DRIFT_THRESHOLD_PERCENTAGE_POINTS) <= 0) {
                     continue;
                 }
 
