@@ -7,6 +7,7 @@ import { useApprovedHoldings } from "../hooks/useApprovedHoldings";
 import ApprovedHoldingsList from "../components/ApprovedHoldingsList";
 import AccountPicker from "../components/AccountPicker";
 import { useState } from "react";
+import AllocationSuggestion from "../components/AllocationSuggestion";
 
 function RebalanseringPage() {
   // const { loading, error } = useHoldings();
@@ -29,6 +30,9 @@ function RebalanseringPage() {
         selectedAccountId={selectedAccountId}
         onSelect={setSelectedAccountId}
       />
+      {selectedAccountId !== null && (
+        <AllocationSuggestion accountId={selectedAccountId} />
+      )}
       {/*       <InnehavsLista
         holdings={holdings}
         columns={[
