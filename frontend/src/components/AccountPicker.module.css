@@ -1,0 +1,51 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.container h2 {
+  margin: 0;
+}
+
+.container p {
+  margin: 0;
+  color: var(--text-gray);
+}
+
+.accountList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.account:hover {
+  border-color: var(--bg-green);
+}
+
+.selected {
+  /* border-color: #2674d9; */
+  /* background: rgba(38, 116, 217, 0.06); */
+
+  border-color: var(--bg-green);
+  background: rgb(6, 142, 106, 0.06);
+}
+
+.account input {
+  /* accent-color: #2674d9; */
+  accent-color: var(--bg-green);
+  cursor: pointer;
+}

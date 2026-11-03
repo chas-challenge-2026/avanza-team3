@@ -9,3 +9,9 @@
   margin: 5px 0;
   font-weight: 500;
 }
+
+@media (min-width: 600px) {
+  .mobileOnly {
+    display: none;
+  }
+}

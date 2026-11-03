@@ -49,39 +49,31 @@ function CurrencyExposure() {
               styles[item.currency.toLowerCase()]
             }`}
             style={{ width: `${item.percentage}%` }}
-          >
-            <strong>{item.percentage}%</strong>
-            <span>{item.currency}</span>
-          </div>
+          ></div>
         ))}
       </div>
 
-      <div className={styles.currencyGrid}>
+      <ul className={styles.currencyList}>
         {currencyExposure.map((item) => (
-          <div key={item.currency} className={styles.currencyCard}>
-            <div className={styles.currencyCardTop}>
-              <div
-                className={`${styles.currencyIcon} ${
-                  styles[item.currency.toLowerCase()]
-                }`}
-              >
-                {item.currency}
-              </div>
-              <span className={styles.currencyPercentage}>
-                {item.percentage}%
-              </span>
-            </div>
-
-            <div className={styles.currencyText}>
+          <li key={item.currency} className={styles.currencyRow}>
+            <span
+              className={`${styles.currencyDot} ${
+                styles[item.currency.toLowerCase()]
+              }`}
+            />
+            <span className={styles.currencyText}>
+              <strong>{item.currency}</strong>
               <span>{item.name}</span>
-            </div>
-
-            <p className={styles.currencyValue}>
+            </span>
+            <span className={styles.currencyPercentage}>
+              {item.percentage} %
+            </span>
+            <span className={styles.currencyValue}>
               {item.value.toLocaleString("sv-SE")} kr
-            </p>
-          </div>
+            </span>
+          </li>
         ))}
-      </div>
+      </ul>
     </AppCard>
   );
 }

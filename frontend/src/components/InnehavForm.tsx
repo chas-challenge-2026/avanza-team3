@@ -50,7 +50,7 @@ const InnehavsForm = ({ onAdd }: Props) => {
 
       setSelectedInstrument(null);
       setErrors({});
-      setSuccessMessage("Innehavet har lagts till");
+      setSuccessMessage("Instrumentet har lagts till");
       setOpenSnackbar(true);
     } catch (error) {
       setErrors({
@@ -91,11 +91,10 @@ const InnehavsForm = ({ onAdd }: Props) => {
     <div className={styles.formWrapper}>
       <AppCard>
         <div className={styles.titleWrapper}>
-          <h2 className={styles.sectionTitle}>Lägg till innehav</h2>
+          <h2 className={styles.sectionTitle}>Lägg till gödkänt innehav</h2>
         </div>
         <p className={styles.label}>
-          Fyll i uppgifterna nedanför för att lägga till ett nytt innehav i din
-          portfölj.
+          Välj ett instrument som får användas vid rebalansering.
         </p>
         <Box
           component="form"
@@ -120,7 +119,7 @@ const InnehavsForm = ({ onAdd }: Props) => {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Ticker"
+                  label="Instrument"
                   placeholder="Sök ticker eller företag"
                   size="small"
                   error={Boolean(errors.ticker)}
