@@ -12,7 +12,6 @@ import {
   DialogActions,
 } from "@mui/material";
 import Badge from "./Badge";
-/* import { formatCurrency } from "../utils/formatCurrency"; */
 import AppButton from "./AppButton";
 import { useState } from "react";
 
