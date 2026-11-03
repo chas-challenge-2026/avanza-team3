@@ -1,12 +1,15 @@
 import { useState } from "react";
 import type { Instrument } from "../types/Instrument";
-import { mockApprovedHoldings } from "../mock/mockApprovedHoldings.ts";
 
 export function useApprovedHoldings() {
-  const [approved, setApproved] = useState<Instrument[]>(mockApprovedHoldings);
+  const [approved, setApproved] = useState<Instrument[]>([]);
 
   const addApproved = (instrument: Instrument) => {
-    setApproved((prev) => [...prev, instrument]);
+    setApproved((prev) =>
+      prev.some((i) => i.id === instrument.id)
+        ? prev
+        : [...prev, instrument],
+    );
   };
 
   const removeApproved = (id: number) => {

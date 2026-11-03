@@ -1,6 +1,7 @@
 import DonutChart from "./DonutChart";
 import styles from "./AllocationSuggestion.module.css";
 import { useAccountAllocation } from "../hooks/useAccountAllocation";
+import type { RebalancePreviewResponse } from "../types/rebalance";
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
   STOCK: { label: "Aktier", color: "#3b82f6" },
@@ -11,25 +12,36 @@ const categoryConfig: Record<string, { label: string; color: string }> = {
 
 type AllocationSuggestionProps = {
   accountId: number;
+  preview: RebalancePreviewResponse | null;
 };
 
-const AllocationSuggestion = ({ accountId }: AllocationSuggestionProps) => {
+const AllocationSuggestion = ({
+  accountId,
+  preview,
+}: AllocationSuggestionProps) => {
   const { allocation, loading, error } = useAccountAllocation(accountId);
 
   if (loading) return <p>Laddar allokering...</p>;
   if (error) return <p>{error}</p>;
   if (!allocation) return null;
 
-  console.log("ACCOUNT ALLOCATION:", allocation);
-
-  const suggestedAllocation = [
-    { label: "Aktier", value: 50, color: "#3b82f6" },
-    { label: "Fonder", value: 25, color: "#22c55e" },
-    { label: "Räntor", value: 15, color: "#f59e0b" },
-    { label: "Övrigt", value: 10, color: "#94a3b8" },
-  ];
+  const targetAllocation = allocation.categories
+    .filter((item) => (item.targetPct ?? 0) > 0)
+    .map((item) => ({
+      label: categoryConfig[item.category]?.label ?? item.category,
+      value: item.targetPct ?? 0,
+      color: categoryConfig[item.category]?.color ?? "#94a3b8",
+    }));
 
   const currentAllocation = allocation.categories
+    .filter((item) => item.valueSek > 0)
+    .map((item) => ({
+      label: categoryConfig[item.category]?.label ?? item.category,
+      value: item.valueSek,
+      color: categoryConfig[item.category]?.color ?? "#94a3b8",
+    }));
+
+  const suggestedAllocation = (preview?.after ?? [])
     .filter((item) => item.valueSek > 0)
     .map((item) => ({
       label: categoryConfig[item.category]?.label ?? item.category,
@@ -49,12 +61,13 @@ const AllocationSuggestion = ({ accountId }: AllocationSuggestionProps) => {
       />
 
       <DonutChart
-        title="Föreslagen fördelning"
-        data={suggestedAllocation}
+        title={preview ? "Föreslagen fördelning" : "Målallokering"}
+        data={preview ? suggestedAllocation : targetAllocation}
         help={{
-          title: "Föreslagen fördelning",
-          content:
-            "Så här skulle dina tillgångar fördelas efter ombalansering.",
+          title: preview ? "Föreslagen fördelning" : "Målallokering",
+          content: preview
+            ? "Så här beräknas kontot vara fördelat efter rebalansering."
+            : "Så här vill du att kontot ska vara fördelat.",
         }}
       />
     </div>
