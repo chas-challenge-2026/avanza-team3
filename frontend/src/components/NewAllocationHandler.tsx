@@ -20,8 +20,14 @@ type NewAllocationHandlerProps = {
   onSave?: (values: Record<string, SliderValue>) => Promise<void>;
 };
 
+const COLORS = {
+  STOCK: "#3B82F6",
+  BOND: "#F59E0B",
+  OTHER: "#94A3B8",
+};
+
 const getInitialSliderValue = (
-  targets: AccountAllocationTarget[]
+  targets: AccountAllocationTarget[],
 ): SliderValue => {
   const stocks =
     targets.find((target) => target.category === "STOCK")?.targetPercentage ??
@@ -40,33 +46,36 @@ const getInitialSliderValue = (
 
   return [
     Math.round((stocks / total) * 100),
-    Math.round(((stocks + bonds) / total) * 100)
+    Math.round(((stocks + bonds) / total) * 100),
   ];
 };
 
 const NewAllocationhandler = ({
   allocations,
-  onSave
+  onSave,
 }: NewAllocationHandlerProps) => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [values, setValues] = useState<Record<string, SliderValue>>(
     Object.fromEntries(
-      allocations.map(({ id, targets }) => [id, getInitialSliderValue(targets)])
-    )
+      allocations.map(({ id, targets }) => [
+        id,
+        getInitialSliderValue(targets),
+      ]),
+    ),
   );
 
   const handleValueChange = (id: string, value: SliderValue) => {
     setValues((current) => ({
       ...current,
-      [id]: value
+      [id]: value,
     }));
   };
 
   const handleAllocationInput = (
     id: string,
     field: AllocationField,
-    rawValue: string
+    rawValue: string,
   ) => {
     const value = Math.max(0, Math.min(100, Math.round(Number(rawValue) || 0)));
 
@@ -95,7 +104,7 @@ const NewAllocationhandler = ({
     field: AllocationField,
     label: string,
     value: number,
-    color: string
+    color: string,
   ) => (
     <Typography
       component="label"
@@ -120,7 +129,7 @@ const NewAllocationhandler = ({
           padding: 0,
           background: "transparent",
           color: "inherit",
-          font: "inherit"
+          font: "inherit",
         }}
       />
       %
@@ -138,7 +147,7 @@ const NewAllocationhandler = ({
       setSuccessMessage(
         error instanceof Error
           ? error.message
-          : "Kunde inte spara målallokeringen"
+          : "Kunde inte spara målallokeringen",
       );
       setOpenSnackbar(true);
     }
@@ -158,14 +167,14 @@ const NewAllocationhandler = ({
             sx={{
               borderRadius: 3,
               pb: 3,
-              width: "100%"
+              width: "100%",
             }}
           >
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
               <h2 className={styles.label}>{allocation.label}</h2>
@@ -191,15 +200,15 @@ const NewAllocationhandler = ({
                 "& .MuiSlider-rail": {
                   opacity: 1,
                   background: `linear-gradient(
-              to right,
-              #5875f5 0%,
-              #5875f5 ${first}%,
-              #2bb887 ${first}%,
-              #2bb887 ${second}%,
-              #f5a623 ${second}%,
-              #f5a623 100%
-            )`,
-                  borderRadius: "5px"
+                    to right,
+                    ${COLORS.STOCK} 0%,
+                    ${COLORS.STOCK} ${first}%,
+                    ${COLORS.BOND} ${first}%,
+                    ${COLORS.BOND} ${second}%,
+                    ${COLORS.OTHER} ${second}%,
+                    ${COLORS.OTHER} 100%
+                  )`,
+                  borderRadius: "5px",
                 },
 
                 "& .MuiSlider-thumb": {
@@ -210,7 +219,7 @@ const NewAllocationhandler = ({
                   border: "2px solid #8491a5",
 
                   "&:before": {
-                    boxShadow: "none"
+                    boxShadow: "none",
                   },
 
                   "&:after": {
@@ -218,17 +227,17 @@ const NewAllocationhandler = ({
                     height: 8,
                     borderRadius: "50%",
                     bgcolor: "#64748b",
-                    boxShadow: "none"
+                    boxShadow: "none",
                   },
 
                   "&:hover, &.Mui-focusVisible": {
-                    boxShadow: "0 0 0 3px rgba(255,255,255,0.15)"
-                  }
+                    boxShadow: "0 0 0 3px rgba(255,255,255,0.15)",
+                  },
                 },
 
                 "& .MuiSlider-track": {
-                  display: "none"
-                }
+                  display: "none",
+                },
               }}
             />
 
@@ -237,7 +246,7 @@ const NewAllocationhandler = ({
                 display: "flex",
                 justifyContent: "space-between",
                 mt: 2,
-                gap: 1
+                gap: 1,
               }}
             >
               {renderAllocationValue(
@@ -245,7 +254,7 @@ const NewAllocationhandler = ({
                 "stocks",
                 "Aktier",
                 stocks,
-                "#5875f5"
+                COLORS.STOCK,
               )}
 
               {renderAllocationValue(
@@ -253,7 +262,7 @@ const NewAllocationhandler = ({
                 "rates",
                 "Ränta",
                 rates,
-                "#2bb887"
+                COLORS.BOND,
               )}
 
               {renderAllocationValue(
@@ -261,7 +270,7 @@ const NewAllocationhandler = ({
                 "other",
                 "Övrigt",
                 other,
-                "#f5a623"
+                COLORS.OTHER,
               )}
             </Box>
           </Box>

@@ -10,27 +10,32 @@ import NotificationCard from "../components/NotificationCard";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import useDashboard from "../hooks/useDasboard";
-import useLiveAlerts from "../hooks/useLiveAlerts";
+// import useLiveAlerts from "../hooks/useLiveAlerts";
 import { useMemo } from "react";
 import { usePortfolioHealth } from "../hooks/usePortfolioHealth";
 // import { useTargetAllocations } from "../hooks/useTargetAllocation";
+import { useAccountAllocations } from "../hooks/useAccountAllocations";
 
 function PortfolioPage() {
   const { rows } = usePortfolioAllocations();
   // const { targetAllocation } = useTargetAllocations();
   const { dashboard } = useDashboard();
-  const { liveAlerts } = useLiveAlerts();
+  // const { liveAlerts } = useLiveAlerts();
 
   const accounts = useMemo(
     () => dashboard?.accounts ?? [],
     [dashboard?.accounts],
   );
 
-  const {
-    portfolioHealth,
-    accountHealth,
-    loading: healthLoading,
-  } = usePortfolioHealth(accounts);
+  const accountIds = accounts.map((account) => account.id);
+
+  const { allocations: accountAllocations, loading: healthLoading } =
+    useAccountAllocations(accountIds);
+
+  const { portfolioHealth, accountHealth } = usePortfolioHealth(
+    accounts,
+    accountAllocations,
+  );
 
   const accountColors: Record<string, string> = {
     ISK: "#6366F1",
@@ -93,22 +98,28 @@ function PortfolioPage() {
             }}
           />
         </AppCard>
-        {!healthLoading && portfolioHealth !== null && (
-          <PortfolioHealth
-            value={portfolioHealth}
-            accountHealth={accountHealth}
-            help={{
-              title: "Vad betyder portföljhälsa?",
-              content:
-                "Portföljhälsa visar hur väl dina konton följer sina målallokeringar. Poängen viktas efter varje kontos värde.",
-            }}
-          />
-        )}
+        {!healthLoading &&
+          accounts.length > 0 &&
+          accountAllocations.length === accounts.length &&
+          portfolioHealth !== null && (
+            <PortfolioHealth
+              value={portfolioHealth}
+              accountHealth={accountHealth}
+              help={{
+                title: "Vad betyder portföljhälsa?",
+                content:
+                  "Portföljhälsa visar hur väl dina konton följer sina målallokeringar. Poängen viktas efter varje kontos värde.",
+              }}
+            />
+          )}
       </div>
 
       <div className={styles.row3}>
         <DataTable title="Konton" rows={accounts} columns={accountColumns} />
-        <NotificationCard alerts={liveAlerts} allocationRows={rows} />
+        <NotificationCard
+          allocations={accountAllocations}
+          accounts={accounts}
+        />{" "}
       </div>
 
       <div className={styles.row4}></div>
