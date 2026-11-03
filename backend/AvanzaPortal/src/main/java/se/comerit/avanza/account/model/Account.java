@@ -25,6 +25,17 @@ public class Account {
     private String currency = "SEK";
 
 
+    @Column(name = "cash_balance_sek", nullable = false, precision = 16, scale = 2)
+    private java.math.BigDecimal cashBalanceSek = java.math.BigDecimal.ZERO;
+
+    @Column(name = "rebalance_version", nullable = false)
+    private int rebalanceVersion = 0;
+
+    public java.math.BigDecimal getCashBalanceSek() { return cashBalanceSek; }
+    public void setCashBalanceSek(java.math.BigDecimal cashBalanceSek) { this.cashBalanceSek = cashBalanceSek; }
+    public int getRebalanceVersion() { return rebalanceVersion; }
+    public void setRebalanceVersion(int rebalanceVersion) { this.rebalanceVersion = rebalanceVersion; }
+
     protected Account() {
     }
 
