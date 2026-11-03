@@ -294,26 +294,196 @@ k6 var ett nytt verktyg för mig. Testerna och verifieringen genomfördes manuel
 
 
 
-### Bearbetning av specialisternas feedforward
+## Bearbetning av specialisternas feedforward
 
-Under projektets gång har vi fått återkoppling från bland annat CTO och inom användarupplevelse och produktutveckling. Återkopplingen har använts för att identifiera säkerhetsbrister, förbättra backendarkitekturen och prioritera funktioner utifrån användarens behov.
+Under projektets gång har vi fått återkoppling från bland annat CTO och specialister inom användarupplevelse. Återkopplingen har använts för att prioritera säkerhetsåtgärder, identifiera tekniska brister och diskutera förbättringar av användarupplevelsen.
 
-Säkerhet och backend – CTO
+### Säkerhet och backend – CTO
 
-CTO lyfte bland annat behovet av backendvalidering, säker felhantering och skydd mot exponering av stacktraces.
+CTO lyfte bland annat behovet av bättre backendvalidering, central felhantering, skydd mot exponering av stacktraces, säkrare API:er och automatiserade säkerhetskontroller.
 
-Vi gick igenom befintlig backendvalidering och kompletterade vissa delar där kontroller saknades. Vi har även infört central felhantering genom GlobalExceptionHandler och konfigurerat applikationen så att interna stacktraces inte skickas till klienten.
+**Backendvalidering:** En stor del av valideringen fanns redan, men efter återkopplingen gick jag igenom implementationen och kompletterade vissa luckor. Valideringen omfattar bland annat tillåtna värden, format och affärsregler.
 
-För att stärka säkerheten använder v2 Spring Security med JWT-autentisering och ägarkontroller på skyddade resurser. Rate limiting har också införts för inloggning och övriga API-anrop.
+**Felhantering och stacktraces:** Jag arbetade med att införa `GlobalExceptionHandler` för centraliserad hantering av API-fel och standardiserade felmeddelanden. Jag konfigurerade också applikationen så att interna stacktraces inte skickas tillbaka till klienten.
 
-Automatiserade backendtester och frontendkontroller körs via GitHub Actions. Vi har dessutom genomfört säkerhetsskanning med OWASP ZAP. Ett High-fynd kopplat till Swagger UI hanterades genom att Swagger inaktiverades i deploymiljön.
+**Rate limiting:** Jag implementerade begränsningar av antalet anrop till inloggning och övriga API-endpoints som ytterligare skydd mot överbelastning och upprepade anrop.
 
-UUID – medveten avgränsning
+**Säkerhetsskanning:** Jag genomförde en OWASP ZAP-skanning. Den identifierade bland annat ett High-fynd kopplat till Swagger/OpenAPI. Som åtgärd inaktiverades Swagger i deploymiljön, och vi verifierade att exponeringen inte längre fanns där. Eftersom applikationen har vidareutvecklats efter skanningen behövs en ny skanning för att verifiera slutversionen.
 
-CTO rekommenderade även att överväga UUID i stället för sekventiella databas-ID.
+Projektet använder även Spring Security, JWT-autentisering och ägarskapskontroller för att skydda användardata. Detta ingår i teamets övergripande säkerhetsarbete.
 
-Detta har inte implementerats. Vi bedömde att ändringen skulle påverka flera delar av systemet, bland annat databasrelationer, entiteter, API-kontrakt, tester och frontendintegration.
+### CI/CD och beroendehantering
 
-Vi prioriterade därför att färdigställa och verifiera befintliga säkerhetskontroller, särskilt ägarskapskontroller, inom den tillgängliga projekttiden.
+GitHub Actions används för automatiserade backendtester och frontendkontroller.
 
-UUID-migreringen är dokumenterad som möjlig vidareutveckling.
+Dependabot har lagts till och skapar uppdateringsförslag via pull requests. Dessa har dock inte hanterats konsekvent, vilket innebär att identifierade beroendeuppdateringar kan bli liggande.
+
+Automatiserad sårbarhetsskanning med exempelvis `npm audit` som en del av CI/CD har inte verifierats som färdigimplementerad.
+
+### UUID – medveten avgränsning
+
+CTO rekommenderade att ersätta sekventiella databas-ID:n med UUID för att göra identifierare svårare att förutsäga.
+
+Jag tog på mig att undersöka och genomföra ändringen, men valde att prioritera andra åtgärder inom den återstående projekttiden.
+
+En UUID-migrering skulle beröra databasrelationer, entiteter, API-kontrakt, tester och eventuellt frontend. Den är därför inte genomförd och kvarstår som en medveten avgränsning.
+
+UUID ersätter inte behovet av ägarskaps- och behörighetskontroller, som fortsatt är avgörande för att skydda användarnas uppgifter.
+
+### Användarupplevelse – feedback till frontendgruppen
+
+Feedbacken om användarupplevelsen betonade behovet av en tydlig helhetsbild av sparandet, begripliga riskmått och färre svårtolkade grafer.
+
+Specialisterna lyfte även vikten av att förklara begrepp som målallokering och diversifiering samt att tydliggöra var informationen kommer ifrån.
+
+Denna återkoppling hanterades huvudsakligen av frontendgruppen genom deras arbete med design och presentation av portföljinformationen.
+
+### Kvarstående brister och vidareutveckling
+
+All feedforward har inte kunnat genomföras inom projektperioden. Följande områden kvarstår:
+
+- **UUID:** Sekventiella ID:n har inte ersatts.
+- **Audit trail och loggskydd:** Fullständig spårbarhet för ändringar och skydd mot manipulation av loggar har inte implementerats.
+- **Aktiv övervakning:** Automatisk övervakning och larm vid driftstörningar är inte färdigställda.
+- **Beroendeuppdateringar:** Dependabot finns, men inkommande pull requests behöver granskas och hanteras.
+- **Automatiserad säkerhetsskanning:** Ytterligare säkerhetskontroller i CI/CD återstår.
+- **Marknadsdata och fallback:** Vid saknade priser kan applikationen använda simulerade eller generiska standardpriser. Det riskerar att ge missvisande portföljvärden och ska inte betraktas som en säker fallbacklösning.
+- **Återhämtning vid driftstörningar:** Mer fullständig hantering av tillfälliga tjänstefel och återförsök återstår.
+
+Dessa begränsningar behöver dokumenteras tydligt så att det framgår vad systemet faktiskt klarar och vad som kräver vidareutveckling.
+
+
+## Köra PostgreSQL-integrationstest för rebalansering
+
+`RebalancePostgresIntegrationTest` testar rebalanseringsflödet mot en riktig PostgreSQL-databas, inklusive förhandsgranskning, bekräftelse, uppdatering av innehav och kontoavvikelser.
+
+Testet är normalt avaktiverat och aktiveras med miljövariabeln `REBALANCE_PG_TEST=true`.
+
+### Förutsättningar
+
+- Docker Desktop är installerat och igång.
+- Java och Maven är installerade.
+- Kommandona körs i Windows PowerShell.
+- En separat PostgreSQL-databas används för testet.
+
+### 1. Starta PostgreSQL med Docker
+
+Kör följande kommando för att skapa och starta en testdatabas:
+
+```powershell
+docker run -d --name avanza-rebalance-test -e POSTGRES_DB=avanza -e POSTGRES_USER=avanza -e POSTGRES_PASSWORD=avanza123 -p 15432:5432 postgres:15
+```
+
+Detta behöver endast göras första gången.
+
+Om containern redan finns men är stoppad, använd i stället:
+
+```powershell
+docker start avanza-rebalance-test
+```
+
+### 2. Kontrollera att databasen körs
+
+```powershell
+docker ps
+```
+
+Kontrollera att `avanza-rebalance-test` har status `Up`.
+
+Kontrollera sedan att PostgreSQL accepterar anslutningar:
+
+```powershell
+docker exec avanza-rebalance-test pg_isready -U avanza -d avanza
+```
+
+Förväntat svar:
+
+```text
+/var/run/postgresql:5432 - accepting connections
+```
+
+### 3. Navigera till backend
+
+Från projektets rotmapp:
+
+```powershell
+cd backend/AvanzaPortal
+```
+
+### 4. Konfigurera miljövariabler
+
+Kör följande kommandon i PowerShell:
+
+```powershell
+$env:REBALANCE_PG_TEST="true"
+
+$env:SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:15432/avanza"
+$env:SPRING_DATASOURCE_USERNAME="avanza"
+$env:SPRING_DATASOURCE_PASSWORD="avanza123"
+
+$env:SPRING_FLYWAY_URL="jdbc:postgresql://localhost:15432/avanza"
+$env:SPRING_FLYWAY_USER="avanza"
+$env:SPRING_FLYWAY_PASSWORD="avanza123"
+
+$env:JWT_SECRET="test-secret-key-with-at-least-32-characters"
+```
+
+Dessa värden gäller för den lokala testmiljön och ska inte användas i produktion.
+
+### 5. Kör integrationstestet
+
+```powershell
+mvn "-Dtest=RebalancePostgresIntegrationTest" test
+```
+
+### 6. Förväntat resultat
+
+Om testet lyckas visas:
+
+```text
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+
+BUILD SUCCESS
+```
+
+Flyway applicerar automatiskt de databasmigreringar som ännu inte har körts. Vid första lyckade testkörningen applicerades migrationerna V1–V9.
+
+### Felsökning
+
+**Testet skippas**
+
+Kontrollera att miljövariabeln är satt:
+
+```powershell
+$env:REBALANCE_PG_TEST="true"
+```
+
+**Connection refused**
+
+Databasen körs inte eller är inte tillgänglig på port `15432`. Starta containern:
+
+```powershell
+docker start avanza-rebalance-test
+```
+
+**Password authentication failed**
+
+Kontrollera att både `SPRING_DATASOURCE_*` och `SPRING_FLYWAY_*` använder rätt användarnamn och lösenord.
+
+**BUILD FAILURE**
+
+Läs felmeddelandet i terminalen eller kontrollera testrapporterna under:
+
+```text
+backend/AvanzaPortal/target/surefire-reports/
+```
+
+### Stoppa testdatabasen
+
+När testerna är klara kan databasen stoppas med:
+
+```powershell
+docker stop avanza-rebalance-test
+```
+
+Den kan sedan startas igen med `docker start avanza-rebalance-test` utan att behöva skapas på nytt.
