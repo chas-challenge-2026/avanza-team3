@@ -117,6 +117,12 @@
   margin-bottom: 4rem;
 }
 
+.allocationLabel {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 12px 0px 10px;
+}
+
 @media (min-width: 600px) {
   .infoRow {
     display: block;
