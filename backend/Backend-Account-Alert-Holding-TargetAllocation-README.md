@@ -1,337 +1,207 @@
-Backend- Account, Holding, Alert och TargetAllocation:
-
-Detta är en sammanställning av metoderna och klasserna som bröts ut ur HoldingController och AlertController
-
-Account, Holding, Alert och TargetAllocation följer forfarande schemat som fanns i seed.sql och är oförändrade:
-
-CREATE TABLE target_allocations (
-id SERIAL PRIMARY KEY,
-user_id INT REFERENCES users(id),
-account_type VARCHAR(10),
-target_pct DECIMAL(5,2)
-);
-
-CREATE TABLE alerts (
-id SERIAL PRIMARY KEY,
-user_id INT REFERENCES users(id),
-alert_type VARCHAR(50),
-message TEXT,
-dismissed BOOLEAN DEFAULT false,
-created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE holdings (
-id SERIAL PRIMARY KEY,
-account_id INT REFERENCES accounts(id),
-ticker VARCHAR(20),
-instrument_name VARCHAR(100),
-quantity DECIMAL(12,4),
-avg_buy_price DECIMAL(12,2),
-currency VARCHAR(3) DEFAULT 'SEK'
-);
-
-CREATE TABLE accounts (
-id SERIAL PRIMARY KEY,
-user_id INT REFERENCES users(id),
-account_type VARCHAR(10),
-account_name VARCHAR(100),
-currency VARCHAR(3) DEFAULT 'SEK'
-);
-
-Det som kommer täckas här är:
-
-Account
-Holding
-Alert
-TargetAllocation
-Rest-Endpoints för dessa
-JPA Repository
-Service Struktur
-Pagination
-DTO
-Validering
-Ownership-kontroller(IDOR)
-Caching
-Transactional service-metoder
-Tester
+# Backend v2 – Account, Holding, Alert, Target Allocation och Rebalancing
 
-Spring-Security/JWT kommer senare och då också  @PreAuthorize. Tills dess används HttpSession.
+Det här dokumentet uppdaterar den tidigare sammanställningen av Account-, Holding-, Alert- och TargetAllocation-API:erna. Det beskriver **aktuell backendimplementation i v2**, inte de ursprungliga v1-controllers eller de gamla `seed.sql`-tabellerna. Se även [v2-arkitekturen](../docs/v2/architecture.md) och [projekt-README](../README.md).
 
-## Endpoints:
+**Swagger/OpenAPI är referens för de aktuella HTTP-kontrakten:**
 
-### Account
+- Lokal Swagger UI: `http://localhost:8082/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8082/v3/api-docs`
+- Källkod: `backend/AvanzaPortal/src/main/java/se/comerit/avanza/`
 
-#### GET /api/accounts?page=0&size=20
--inloggad användares konton hämtas med 20 som default och 100 som max.
--401 returneras om  session saknas
+## Teknik och struktur
 
-### Holding
+- **Java 21 / Spring Boot 3.2.11**, Spring Web, Spring Security, JPA/Hibernate, PostgreSQL 15 och Flyway.
+- Controllers tar emot request-DTO:er och returnerar response-DTO:er. Servicelagret ansvarar för behörighet, transaktioner, validering och beräkningar. Repositories hanterar databasfrågor.
+- **JWT Bearer** används i stället för v1:s `HttpSession`. `@EnableMethodSecurity` och `@PreAuthorize` finns. Vid konto-/innehavsåtkomst filtreras också på autentiserad användares ID.
+- DTO-validering (`@Valid`, storleks-, tal- och obligatoriska fält) kombineras med affärsregler i tjänster.
+- `Pageable` används på centrala listendpoints, vanligtvis `page=0&size=20` som standard och högst 100 per sida.
+- Läsningar kan cachas; skrivande Holding-/Rebalance-flöden använder cacheinvalidering. Mutationer som hör ihop ligger i transactional-block.
 
-currentPrice hämtas via MarketDataService, det kan behöva ändras när fx-rate är klart.
+## Endpointöversikt
 
-marketValue, pnl och pnlPct beräknas i HoldingService.
-Samma beräkning används för listan av holdings, GET för ett specifikt holding och responsen efter PATCH.
+Alla `/api/**`-anrop kräver i normalfallet `Authorization: Bearer <JWT>`, utom inloggning. För detaljerade fält och felkoder: se Swagger.
 
-#### GET /api/holdings/{holdingId}
--returnerar ett specifikt holding för inloggad användare
--holding hämtas med både holdingId och userId så man inte kan läsa annan användares holdings
--returnerar HoldingResponse
+### Authentication
 
-#### PATCH /api/holdings/{holdingId}
--uppdaterar ett befintligt holding
--partial update används, endast fält som skickas i requesten ändras
--holding hämtas med både holdingId och userId så man inte kan ändra annan användares holdings
--HoldingPatchRequest används för input och validering
--returnerar uppdaterad HoldingResponse
--cacheevict eftersom cachade holdings kan ha ändrats
+| Metod | Endpoint | Funktion |
+| --- | --- | --- |
+| `POST` | `/api/auth/login` | Autentisera och returnera JWT |
+| `DELETE` | `/api/auth/logout` | Svarar med utloggningsbekräftelse; spärrar **inte** JWT server-side |
+| `GET` | `/api/auth/me` | Returnerar inloggad användares uppgifter |
 
-#### GET /api/accounts/{accountId}/holdings?page=0&size=20
--returnerar holdings för ett specifikt konto
--innan holdings hämtas kontrolleras att account tillhör användaren
+`AuthService` använder `UserRepository` (JPA) och BCrypt. `JwtService` signerar token och kontrollerar giltighetstid (standard 24 timmar). JWT-nyckel anges genom `JWT_SECRET`.
 
-#### POST /api/accounts/{accountId}/holdings
--skapa ett nytt holding för kontot
--innan holdings skapas kontrolleras att account tillhör användaren
--cachar vid GET och evictar vid POST
+### Account – CRUD
 
+| Metod | Endpoint | Funktion |
+| --- | --- | --- |
+| `GET` | `/api/accounts?page=0&size=20` | Paginerad lista över egna konton |
+| `GET` | `/api/accounts/{accountId}` | Läs ett eget konto |
+| `POST` | `/api/accounts` | Skapa konto |
+| `PUT` | `/api/accounts/{accountId}` | Ersätt redigerbara kontofält |
+| `PATCH` | `/api/accounts/{accountId}` | Uppdatera angivna fält |
+| `DELETE` | `/api/accounts/{accountId}` | Ta bort tomt konto |
 
-#### DELETE /api/holdings/{holdingId}
--ta bort en holding
--holding hämtas med både holdingId och userId så man inte kan ta bort annan användares holdings
--cacheevict
+`AccountService` kontrollerar ägarskap före läsning och ändring. Ett konto med innehav eller positivt `cash_balance_sek` får inte raderas. Flera konton av samma typ stöds. Kontot har också `rebalance_version` för rebalanseringsflödet.
 
-### Tester
+### Holding – CRUD, filtrering och värdering
 
-HoldingServiceTest och HoldingControllerTest har uppdaterats för de nya ändringarna.
+| Metod | Endpoint | Funktion |
+| --- | --- | --- |
+| `GET` | `/api/holdings?page=0&size=20&accountId=1&instrumentType=STOCK` | Paginerad, filtrerbar lista |
+| `GET` | `/api/holdings/summary` | Komplett filtrerat innehavsurval för sammanfattningar, **utan pagination** |
+| `GET` | `/api/holdings/{holdingId}` | Hämta eget innehav |
+| `POST` | `/api/holdings` | Skapa innehav; `accountId` anges i request-body |
+| `PATCH` | `/api/holdings/{holdingId}` | Ändra bara skickade fält |
+| `DELETE` | `/api/holdings/{holdingId}` | Radera eget innehav |
 
-Tester täcker bland annat:
--hämtning av specifikt holding
--PATCH av holding
--att PATCH endast ändrar fält som skickas
--ownership-kontroll för GET/PATCH
--att MarketDataService används för pris
--marketValue
--pnl
--pnlPct
--pagination och sortering
--cache-relaterade serviceflöden vid ändringar
+**Notera ändringen jämfört med äldre dokumentation:** `POST /api/accounts/{accountId}/holdings` är inte den aktuella create-endpointen. Det är `POST /api/holdings` med exempelvis `accountId`, `ticker`, `quantity` och `avgBuyPrice` i requesten.
 
+`HoldingService` verifierar konto- och innehavsägarskap. Instrument hämtas från instrumentkatalogen; marknadspris, marknadsvärde och orealiserat resultat beräknas via backendtjänster. Cacherensning görs vid mutationer.
 
-### Alert
+### Instruments och Market Data
 
-#### GET /api/alerts?dismissed=false&page=0&size=20
+| Metod | Endpoint | Funktion |
+| --- | --- | --- |
+| `GET` | `/api/instruments` | Lista tillgängliga instrument |
+| `GET` | `/api/instruments/{instrumentId}` | Instrumentdetaljer |
+| `POST` | `/api/instruments` | Skapa instrument |
+| `GET` | `/api/market/price/{ticker}` | Pris via marknadsdataprovider |
+| `GET` | `/api/market/fx/{from}/{to}` | Växelkurs |
+| `GET` | `/api/market/fx/convert?amount=100&from=USD&to=SEK` | Valutakonvertering |
 
--returnerar alerts för användaren
--filtrerar på dismissed först
+`MarketDataService` väljer data från `MarketDataProvider`-implementationer. Native FX via JNA finns, men `FallbackMarketDataProvider` använder fasta demo-priser och kurser. För okänd ticker returneras i dag ett generellt fallbackpris på **100,00**. Flyway V9 lägger till instrument och prisrader i databasen men **runtime-prisinhämtningen läser inte automatiskt `instrument_prices`**. Detta ska inte förväxlas med livehandel.
 
--OBS här kan vara en bra plats att fundera på unik implementation(tex vissa alerts kanske är viktigare än andra och visas alltid först, vissa kanske kräver åtgärd innan dom försvinner)
+### Target allocations – två separata modeller
 
-#### PATCH /api/alerts/{alertId}/dismiss
--markera ett alert som dismissed
--i uppgiften står det PUT, jag skrev put här ursprungligen för jag va helt säker på att jag ändrade till PUT, men versionen jag skickat vidare till frontend var med patch, så låter det vara tills vidare.
+**Äldre mål per kontotyp**, finns kvar för befintliga funktioner:
 
+| Metod | Endpoint | Funktion |
+| --- | --- | --- |
+| `GET` | `/api/target-allocations?page=0&size=20` | Paginerad lista |
+| `GET` | `/api/target-allocations/{targetAllocationId}` | Hämta ett mål |
+| `POST` | `/api/target-allocations` | Skapa mål per kontotyp |
+| `PATCH` | `/api/target-allocations/{targetAllocationId}` | Ändra mål |
+| `DELETE` | `/api/target-allocations/{targetAllocationId}` | Ta bort mål |
 
-#### GET /api/alerts/live
--finns kvar sen tidigare
--ingen cache eftersom dessa kan va kopplade till data som ändras hela tiden.
+**Nya mål per individuellt konto**, används i live-notiser och rebalansering:
 
+| Metod | Endpoint | Funktion |
+| --- | --- | --- |
+| `GET` | `/api/accounts/{accountId}/allocation-targets` | Läs kontots mål |
+| `PUT` | `/api/accounts/{accountId}/allocation-targets` | Ersätt hela målallokeringen; summan måste vara 100 % |
+| `DELETE` | `/api/accounts/{accountId}/allocation-targets` | Ta bort kontots mål |
+| `GET` | `/api/accounts/{accountId}/allocation` | Faktisk allokering, mål och differenser |
 
-### TargetAllocation
--inga endpoints skulle skapas enligt v2-targets.md
+Request-exempel för `PUT /api/accounts/{accountId}/allocation-targets`:
 
-GET /api/target-allocations?page=0&size=20
--skapde denna ändå. Tanken är delvis till frontend för att läsa en användares target-allocations.
--härifrån är det lätt att lägga till endpoints som put/post etc. för att låta användare sätta egna targetallocations via frontend.
+```json
+{
+  "targets": [
+    { "category": "STOCK", "targetPercentage": 60.00 },
+    { "category": "FUND", "targetPercentage": 40.00 }
+  ]
+}
+```
 
-## DTO:
+Kategorierna är `STOCK`, `FUND`, `BOND`, `OTHER`. `ETF` klassas som `FUND`, och tillgängligt kontantsaldo ingår i `OTHER` vid beräkning av faktisk allokering. `AccountAllocationTargetService` kräver unika kategorier och exakt 100 % total. `AccountAllocationOverviewService` räknar ut faktiska andelar och avvikelser.
 
-REST-lager returnerar DTO istället för JPA-entiteter, tex AccountResponse.
-Då exponeras inte databasfält eller JPA-struktur  direkt till frontend.
-Request-DTO används när frontend skickar data som behöver valideras.
+### Alert – sparade och dynamiska notiser
 
-## Pagination:
+| Metod | Endpoint | Funktion |
+| --- | --- | --- |
+| `GET` | `/api/alerts?dismissed=false&page=0&size=20` | Paginerade sparade notiser |
+| `PATCH` | `/api/alerts/{alertId}/dismiss` | Avfärda en egen sparad notis |
+| `GET` | `/api/alerts/live` | Beräkna kontobaserade live-notiser på begäran |
 
-List-endpoints använder Page. Tex ?page=0&size=20 för användare inte ska kunna läsa och skicka obegränsade mängder data. Default är 20 och max är 100. Finns flera metoder utan paginering som inte kan nås från frontend, endast för internt bruk i backend(till exempel för TargetAllocations eller Alert som kan behöva nå alla konton samtidigt(tänk annars att alert endast kan ge begränsat antal varningar eller TargetAllocation kan bara beräknas för delar av av användares holdings)).
+`AlertService` använder `AccountAllocationOverviewService` för **alla användarens konton** och skapar `LIVE_DRIFT` om `STOCK` eller `FUND` avviker **mer än fem procentenheter** från kontots mål. Gränsen definieras i `AllocationRules.DRIFT_THRESHOLD_PERCENTAGE_POINTS`. Live-notiser lagras inte i databasen och ska inte förväxlas med sparade/dismissbara alerts.
 
-## Ownership(IDOR)
+**API-kontrakt att verifiera mot klienten:** nuvarande `LiveAlertDto` har JSON-fälten `alertType` och `createdAt` (camelCase). En kontrollerad frontendtyp har använt `alert_type` och `created_at`. Lös detta tillsammans med frontendgruppen; beskriv inte ett format som inte överensstämmer med koden.
 
-begränsat användares åtkomst åt andras resurser genom att kontrollera att id tex accountId tillhör inloggad user.
-Detta ska kompleteras med @PreAuthorize enligt instruktioner efter Spring Security/JWT är implementerat.
-Detta är fortfarande inte klart, saknas @EnableMethodSecurity i config.
+### Rebalancing – simulering per konto
 
-## Transactional
+| Metod | Endpoint | Funktion |
+| --- | --- | --- |
+| `POST` | `/api/accounts/{accountId}/rebalance/preview` | Beräkna förslag; inga databasskrivningar |
+| `POST` | `/api/accounts/{accountId}/rebalance/confirm` | Genomför simulerade ändringar i innehav och kontantsaldo |
 
-Implementerar för dataintegritet.
+**Preview-request:**
 
-## Caching
+```json
+{ "allowedInstrumentIds": [1, 6] }
+```
 
-Caching används för data som läses ofta så man inte behöver hämta från databasen vid varje request.
-När PUT/POST/DELETE används så evictas cachen om data som är cachad ändras.
+Detta är ID:n för instrument användaren tillåter i förslaget. En preview förutsätter kontomål som summerar till 100 % och returnerar bland annat:
 
+- `accountId`, `proposalToken`, `executable`, `warnings`
+- `totalValueSek`, `cashBeforeSek`, `cashAfterSek`
+- `before`, `after` och `trades`
+- `proposedHoldings` – **hela föreslagna innehavslistan**, inklusive oförändrade och helt sålda innehav (`currentQuantity` respektive `proposedQuantity`)
 
-## Validering
+**Confirm-request:**
 
-Input från frontend valideras innan det sparas. För request-DTO används bland annat @NotBlank, @Size, @NotNull, @Digits, @DecimalMin.
-Dessa är baserade på databasens tidigare implementation(seed.sql). Dock är vissa saker inte från databasen, tex kvantitet > 0 fanns inte med i start och va listat som en punkt som behövde åtgärdas.
+```json
+{ "proposalToken": "<token from preview>" }
+```
 
-## Ej avslutat
+Confirm returnerar bland annat `status: "EXECUTED"`, `cashBalanceSek` och `executedTrades`. Det betyder en **simulerad genomförd ändring i projektets PostgreSQL-databas**, inte riktig handel.
 
-GET /api/target-allocations
-Detta är för vidareutveckling om gruppen vill ett krav enligt v2-targets.md.
+`RebalanceCalculator` beräknar köp/sälj separat från databaslagret. `RebalanceService` verifierar ägarskap och styr transaktioner. `RebalanceProposalTokenService` skapar signerade HMAC-token med giltighetstid **10 minuter**. Vid confirm kontrolleras kontolås, `rebalance_version`, innehavs-/pris-/målsnapshot samt token innan uppdatering. Preview ska vara läsande och får inte ändra innehav.
 
+### Dashboard och risk
 
-GET /api/alerts/live
-Detta ligger kvar sen tidigare med hårdkodade värden. behöver kopplas till värden som ska skickas från C/C++ utvecklare.
+| Metod | Endpoint | Funktion |
+| --- | --- | --- |
+| `GET` | `/api/portfolio?page=0&size=20` | Dashboard/portföljsammanställning |
+| `GET` | `/api/risk/portfolio` | Riskmått och historik |
 
-Tester
-Det saknas integrationstester unittester för targetallocation.
+Riskvärden beräknas genom `RiskService` och C/JNA. `PortfolioRiskService` använder fortfarande **simulerad historik** (`MOCKED`), vilket begränsar hur siffrorna kan tolkas.
 
+## Databas, migration och transaktioner
 
+Aktuellt schema finns i Flywayfiler under `AvanzaPortal/src/main/resources/db/migration/`; äldre SQL-utdrag från `infra/seed.sql` är inte längre en korrekt beskrivning av hela datamodellen.
 
+- V1–V3: ursprungligt schema, seedning och lösenordsmigrering.
+- V4–V6: instrumentmodell, klassificering och prislagring.
+- V7: målallokering per enskilt konto.
+- V8: konto-kassasaldo och versionsnummer för rebalansering.
+- V9: demofonder, obligation, råvaru-ETF och simulerade prisrader.
 
+Rebalanseringens `confirm` är transaktionell och kan uppdatera flera holdings och konto i samma operation. Vanliga Holding API-ändringar behöver testas mot samtidiga rebalanseringsflöden innan systemet kan betraktas som produktionssäkert.
 
+## Testning och verifiering
 
+Kör tester lokalt från `backend/AvanzaPortal`:
 
+```bash
+mvn test
+```
 
+CI-jobbet `backend-tests` kör Maven-tester vid PR och push mot `develop` eller `main`. Exempel på testområden i repot är `HoldingServiceTest`, `AccountAllocationOverviewServiceTest`, `RebalanceServiceTest`, `RebalanceProposalTokenServiceTest`, `MarketDataServiceTest` och `NativeFxMarketDataProviderTest`.
 
+Enhetstesterna för rebalansering omfattar exempelvis läsande preview, confirm en gång, avvisning av upprepad bekräftelse och avvisning när kassasaldot ändrats. Alla tester eller 100 % kodtäckning kan inte antas vara verifierade enbart utifrån denna dokumentation; kontrollera CI-resultat och utför nödvändiga integrationstester med PostgreSQL och Docker.
 
+## Kända begränsningar och nästa steg
 
+1. Instrumentprisers fallback är simulerad, inklusive ett generellt standardpris för okänd ticker. Runtime-provider läser inte V9:s `instrument_prices` automatiskt.
+2. Riskhistorik är mockad trots en fungerande JNA-beräkningsmodul.
+3. JWT återkallas inte vid logout och databasens demouppgifter finns i konfigurationen.
+4. JSON-kontraktet för `LiveAlertDto` måste samordnas med klientens förväntningar.
+5. Samtidighet mellan vanligt Holding API och rebalansering samt fullständiga databas- och end-to-end-tester behöver fortsatt uppföljning.
 
+För systemövergripande dokumentation relevant för projektet finns: [docs/v2/known-bugs.md](../docs/v2/known-bugs.md), [docs/v2/README-pain-points.md](../docs/v2/README-pain-points.md) och [docs/v2/v2-targets.md](../docs/v2/v2-targets.md).
 
 
+## Säkerhetstest – OWASP ZAP
 
+En OWASP ZAP-skanning har genomförts som underlag för bedömningen av projektets säkerhet.
 
+Skanningen identifierade en risk med allvarlighetsgraden **High**, direkt kopplad till Swagger/OpenAPI. Som åtgärd har Swagger inaktiverats i deploymiljön. Swagger finns fortfarande tillgängligt vid lokal utveckling och testning.
 
+Den identifierade exponeringen är inte tillgänglig i deploy, detta har verifierats.
 
+Sedan den senaste skanningen har ytterligare funktionalitet och endpoints lagts till. Därför bör en ny OWASP ZAP-skanning genomföras om tiden tillåter före slutleveransen.
 
+Den tidigare skanningen kan alltså inte betraktas som en fullständig säkerhetsverifiering av den slutliga versionen.
 
-
-PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 sh -c 'PGPASSWORD=avanza123 pg_dump -h db -U avanza -d avanza -Fc --no-owner --no-privileges -f /tmp/avanza12.dump'                                         
-time="2026-09-15T11:44:56+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
-
-PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 ls -lh /tmp/avanza12.dump                                                                                                                                   
-time="2026-09-15T11:55:34+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
--rw-r--r-- 1 root root 14K Sep 15 09:44 /tmp/avanza12.dump
-
-PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 sh -c 'PGPASSWORD=avanza123 pg_restore -U avanza -d avanza --no-owner --no-privileges /tmp/avanza12.dump'                                                   
-time="2026-09-15T11:59:20+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
-
-PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 psql -U avanza -d avanza -c "\dt"                                                                                                                           
-time="2026-09-15T12:17:36+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
-List of relations
-Schema |        Name        | Type  | Owner  
---------+--------------------+-------+--------
-public | accounts           | table | avanza
-public | alerts             | table | avanza
-public | holdings           | table | avanza
-public | target_allocations | table | avanza
-public | users              | table | avanza
-(5 rows)
-
-
-
-PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db psql -U avanza -d avanza -c "SELECT 'users' AS table_name, COUNT(*) FROM users UNION ALL SELECT 'accounts', COUNT(*) FROM accounts UNION ALL SELECT 'holdings', COUNT(*) FROM holdings UNION ALL SELECT 'alerts', COUNT(*) FROM alerts UNION ALL SELECT 'target_allocations', COUNT(*) FROM target_allocations;"
-time="2026-09-15T12:19:06+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
-table_name     | count
---------------------+-------
-users              |     2
-accounts           |     3
-holdings           |     5
-alerts             |     2
-target_allocations |     3
-(5 rows)
-
-PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> docker compose -f docker-compose.yml -f docker-compose.migration.yml exec db15 psql -U avanza -d avanza -c "SELECT 'users' AS table_name, COUNT(*) FROM users UNION ALL SELECT 'accounts', COUNT(*) FROM accounts UNION ALL SELECT 'holdings', COUNT(*) FROM holdings UNION ALL SELECT 'alerts', COUNT(*) FROM alerts UNION ALL SELECT 'target_allocations', COUNT(*) FROM target_allocations;"
-time="2026-09-15T12:38:24+02:00" level=warning msg="C:\\Users\\swede\\chas_projekt\\Kurs7_Avanza\\avanza3\\infra\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
-table_name     | count
---------------------+-------
-users              |     2
-accounts           |     3
-holdings           |     5
-alerts             |     2
-target_allocations |     3
-(5 rows)
-manuellt jämföra är kanske inte optimalt, så kommer skriva tester som visar detta också.
-
-
-
-
-PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\infra> cd ..\backend\AvanzaPortal
->> mvn "-Dmigration.testing=true" "-Dtest=PostgresMigrationTest" test
-WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
-WARNING: sun.misc.Unsafe::staticFieldBase has been called by com.google.inject.internal.aop.HiddenClassDefiner (file:/C:/Program%20Files/Maven/apache-maven-3.9.11/lib/guice-5.1.0-classes.jar)
-WARNING: Please consider reporting this to the maintainers of class com.google.inject.internal.aop.HiddenClassDefiner
-WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
-[INFO] Scanning for projects...
-[INFO]
-[INFO] ----------------------< se.comerit:avanza-portal >----------------------
-[INFO] Building AvanzaPortal 1.0-SNAPSHOT
-[INFO]   from pom.xml
-[INFO] --------------------------------[ jar ]---------------------------------
-[INFO]
-[INFO] --- resources:3.3.1:resources (default-resources) @ avanza-portal ---
-[INFO] Copying 1 resource from src\main\resources to target\classes
-[INFO] Copying 9 resources from src\main\resources to target\classes
-[INFO]
-[INFO] --- compiler:3.11.0:compile (default-compile) @ avanza-portal ---
-[INFO] Nothing to compile - all classes are up to date
-[INFO]
-[INFO] --- resources:3.3.1:testResources (default-testResources) @ avanza-portal ---
-[INFO] Copying 1 resource from src\test\resources to target\test-classes
-[INFO]
-[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ avanza-portal ---
-[INFO] Changes detected - recompiling the module! :source
-[INFO] Compiling 18 source files with javac [debug release 21] to target\test-classes
-[INFO]
-[INFO] --- surefire:3.1.2:test (default-test) @ avanza-portal ---
-[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
-[INFO]
-[INFO] -------------------------------------------------------
-[INFO]  T E S T S
-[INFO] -------------------------------------------------------
-[INFO] Running se.comerit.avanza.migration.PostgresMigrationTest
-Old= PostgreSQL 12.22 (Debian 12.22-1.pgdg120+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit
-New= PostgreSQL 15.19 (Debian 15.19-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
-users OK
-accounts OK
-holdings OK
-alerts OK
-target_allocations OK
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.621 s -- in se.comerit.avanza.migration.PostgresMigrationTest
-[INFO]
-[INFO] Results:
-[INFO]
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
-[INFO]
-[INFO] ------------------------------------------------------------------------
-[INFO] BUILD SUCCESS
-[INFO] ------------------------------------------------------------------------
-[INFO] Total time:  7.318 s
-[INFO] Finished at: 2026-09-16T09:52:28+02:00
-[INFO] ------------------------------------------------------------------------
-PS C:\Users\swede\chas_projekt\Kurs7_Avanza\avanza3\backend\AvanzaPortal>
-
-
-
-
-OWASP Top 10 2025
-
-A01:2025 - Broken Access Control maintains its position at #1 as the most serious application security risk; the contributed data indicates that on average, 3.73% of applications tested had one or more of the 40 Common Weakness Enumerations (CWEs) in this category. As indicated by the dashed line in the above figure, Server-Side Request Forgery (SSRF) has been rolled into this category.
-
-A02:2025 - Security Misconfiguration moved up from #5 in 2021 to #2 in 2025. Misconfigurations are more prevalent in the data for this cycle. 3.00% of the applications tested had one or more of the 16 CWEs in this category. This is not surprising, as software engineering is continuing to increase the amount of an application’s behavior that is based on configurations.
-
-A03:2025 - Software Supply Chain Failures is an expansion of A06:2021-Vulnerable and Outdated Components to include a broader scope of compromises occurring within or across the entire ecosystem of software dependencies, build systems, and distribution infrastructure. This category was overwhelmingly voted a top concern in the community survey. This category has 5 CWEs and a limited presence in the collected data, but we believe this is due to challenges in testing and hope that testing catches up in this area. This category has the fewest occurrences in the data, but also the highest average exploit and impact scores from CVEs.
-
-A04:2025 - Cryptographic Failures falls two spots from #2 to #4 in the ranking. The contributed data indicates that, on average, 3.80% of applications have one or more of the 32 CWEs in this category. This category often leads to sensitive data exposure or system compromise.
-
-A05:2025 - Injection falls two spots from #3 to #5 in the ranking, maintaining its position relative to Cryptographic Failures and Insecure Design. Injection is one of the most tested categories, with the greatest number of CVEs associated with the 38 CWEs in this category. Injection includes a range of issues from Cross-site Scripting (high frequency/low impact) to SQL Injection (low frequency/high impact) vulnerabilities.
-
-A06:2025 - Insecure Design slides two spots from #4 to #6 in the ranking as Security Misconfiguration and Software Supply Chain Failures leapfrog it. This category was introduced in 2021, and we have seen noticeable improvements in the industry related to threat modeling and a greater emphasis on secure design.
-
-A07:2025 - Authentication Failures maintains its position at #7 with a slight name change (prevously it was “Identification and Authentication Failures") to more accurately reflect the 36 CWEs in this category. This category remains important, but the increased use of standardized frameworks for authentication appears to be having beneficial effects on the occurrences of authentication failures.
-
-A08:2025 - Software or Data Integrity Failures continues at #8 in the list. This category is focused on the failure to maintain trust boundaries and verify the integrity of software, code, and data artifacts at a lower level than Software Supply Chain Failures.
-
-A09:2025 - Security Logging & Alerting Failures retains its position at #9. This category has a slight name change (previously Security Logging and Monitoring Failures”) to emphasize the importance of the alerting functionality needed to induce appropriate action on relevant logging events. Great logging with no alerting is of minimal value in identifying security incidents. This category will always be underrepresented in the data, and was again voted into a position in the list from the community survey participants.
-
-A10:2025 - Mishandling of Exceptional Conditions is a new category for 2025. This category contains 24 CWEs focusing on improper error handling, logical errors, failing open, and other related scenarios stemming from abnormal conditions that systems may encounter.
+**OWASP ZAP-rapporten bifogas i projektets rotkatalog** som dokumentation av genomförd säkerhetstestning.
