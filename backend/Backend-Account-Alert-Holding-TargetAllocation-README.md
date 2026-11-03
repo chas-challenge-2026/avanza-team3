@@ -291,3 +291,29 @@ k6 run --vus 100 --duration 60s --summary-export=k6-summary-optimized-100vu.json
 ### AI-stöd
 
 k6 var ett nytt verktyg för mig. Testerna och verifieringen genomfördes manuellt, med omfattande AI-stöd för testupplägg, felsökning, analys och framtagning av kodoptimeringen.
+
+
+
+### Bearbetning av specialisternas feedforward
+
+Under projektets gång har vi fått återkoppling från bland annat CTO och inom användarupplevelse och produktutveckling. Återkopplingen har använts för att identifiera säkerhetsbrister, förbättra backendarkitekturen och prioritera funktioner utifrån användarens behov.
+
+Säkerhet och backend – CTO
+
+CTO lyfte bland annat behovet av backendvalidering, säker felhantering och skydd mot exponering av stacktraces.
+
+Vi gick igenom befintlig backendvalidering och kompletterade vissa delar där kontroller saknades. Vi har även infört central felhantering genom GlobalExceptionHandler och konfigurerat applikationen så att interna stacktraces inte skickas till klienten.
+
+För att stärka säkerheten använder v2 Spring Security med JWT-autentisering och ägarkontroller på skyddade resurser. Rate limiting har också införts för inloggning och övriga API-anrop.
+
+Automatiserade backendtester och frontendkontroller körs via GitHub Actions. Vi har dessutom genomfört säkerhetsskanning med OWASP ZAP. Ett High-fynd kopplat till Swagger UI hanterades genom att Swagger inaktiverades i deploymiljön.
+
+UUID – medveten avgränsning
+
+CTO rekommenderade även att överväga UUID i stället för sekventiella databas-ID.
+
+Detta har inte implementerats. Vi bedömde att ändringen skulle påverka flera delar av systemet, bland annat databasrelationer, entiteter, API-kontrakt, tester och frontendintegration.
+
+Vi prioriterade därför att färdigställa och verifiera befintliga säkerhetskontroller, särskilt ägarskapskontroller, inom den tillgängliga projekttiden.
+
+UUID-migreringen är dokumenterad som möjlig vidareutveckling.
