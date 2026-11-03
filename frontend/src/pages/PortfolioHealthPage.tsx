@@ -32,6 +32,23 @@ interface TabPanelProps {
   value: number;
 }
 
+function CustomTabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      tabIndex={0}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
+
 function PortfolioHealthPage() {
   const { dashboard } = useDashboard();
   const { holdings } = useHoldings();
@@ -199,23 +216,6 @@ function PortfolioHealthPage() {
       })
     );
   };
-
-  function CustomTabPanel(props: TabPanelProps) {
-    const { children, value, index, ...other } = props;
-
-    return (
-      <div
-        role="tabpanel"
-        hidden={value !== index}
-        tabIndex={0}
-        id={`simple-tabpanel-${index}`}
-        aria-labelledby={`simple-tab-${index}`}
-        {...other}
-      >
-        {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-      </div>
-    );
-  }
 
   function a11yProps(index: number) {
     return {
