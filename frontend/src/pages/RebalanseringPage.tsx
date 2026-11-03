@@ -15,6 +15,7 @@ import {
 import type { RebalancePreviewResponse } from "../types/rebalance";
 import AppButton from "../components/AppButton";
 import RebalanceProposal from "../components/RebalanceProposal";
+import { Snackbar, Alert } from "@mui/material";
 
 function RebalanseringPage() {
   // const { loading, error } = useHoldings();
@@ -28,6 +29,8 @@ function RebalanseringPage() {
   const [previewError, setPreviewError] = useState<string | null>(null);
 
   const [confirming, setConfirming] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [allocationVersion, setAllocationVersion] = useState(0);
 
   const handlePreview = async () => {
     if (selectedAccountId === null || approved.length === 0) return;
@@ -61,8 +64,10 @@ function RebalanseringPage() {
 
     try {
       await confirmRebalance(selectedAccountId, preview.proposalToken);
+
       setPreview(null);
-      alert("Rebalanseringen har genomförts!");
+      setSnackbarOpen(true);
+      setAllocationVersion((prev) => prev + 1);
     } catch (error) {
       setPreviewError(
         error instanceof Error
@@ -73,6 +78,7 @@ function RebalanseringPage() {
       setConfirming(false);
     }
   };
+
   return (
     <div className={styles.RebalanseringWrapper}>
       <div className={styles.titleRow}>
@@ -91,7 +97,11 @@ function RebalanseringPage() {
         }}
       />
       {selectedAccountId !== null && (
-        <AllocationSuggestion accountId={selectedAccountId} preview={preview} />
+        <AllocationSuggestion
+          key={`${selectedAccountId}-${allocationVersion}`}
+          accountId={selectedAccountId}
+          preview={preview}
+        />
       )}
       {/*       <InnehavsLista
         holdings={holdings}
@@ -140,6 +150,20 @@ function RebalanseringPage() {
       )}
 
       {previewError && <p>{previewError}</p>}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          onClose={() => setSnackbarOpen(false)}
+        >
+          Rebalanseringen har genomförts!
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
