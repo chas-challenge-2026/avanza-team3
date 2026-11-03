@@ -207,4 +207,87 @@ Den tidigare skanningen kan alltså inte betraktas som en fullständig säkerhet
 **OWASP ZAP-rapporten bifogas i projektets rotkatalog** som dokumentation av genomförd säkerhetstestning.
 
 
-docker compose -p avanza-loadtest -f infra/docker-compose.yml up -d db
+## Prestandamätning med k6
+
+### Testupplägg
+
+Prestandatester genomfördes den 3 november 2026 med **k6** för att verifiera projektkravet på **P95 under 200 ms vid 100 samtidiga användare och 10 000 innehav**.
+
+Testerna kördes mot en isolerad lokal Docker-miljö med Spring Boot och PostgreSQL 15. Testdatabasen innehöll 10 000 syntetiska innehav kopplade till ett testkonto.
+
+Följande endpoints testades:
+
+- `GET /api/holdings?page=0&size=20`
+- `GET /api/portfolio?page=0&size=100`
+
+Belastningstestet kördes med **100 virtuella användare (VUs) under 60 sekunder**. Rate limiting inaktiverades enbart i den isolerade testmiljön för att kunna mäta backendens svarstider utan att anrop blockerades med HTTP 429.
+
+### Identifierat prestandaproblem
+
+De inledande testerna visade att `/api/portfolio` överskred kravet på P95 under 200 ms.
+
+Undersökningen visade att dashboarden hämtade och värderade samtliga 10 000 innehav individuellt vid varje anrop, trots att själva innehavslistan var paginerad.
+
+Tidsmätningar i `DashboardService` visade att en stor del av bearbetningstiden användes av `PortfolioValuationService`. Vid hög samtidig belastning ökade dessutom svarstiderna kraftigt.
+
+Även en ökning av HikariCP:s anslutningspool från 10 till 30 testades, men gav sämre prestanda. Poolstorleken återställdes därför till 10.
+
+### Genomförd optimering
+
+Backend optimerades genom att flytta delar av sammanställningen till databaslagret.
+
+I stället för att hämta och värdera alla individuella innehav för dashboardens sammanställningar grupperas innehav i databasen. Java utför sedan värderingar och allokeringsberäkningar utifrån de aggregerade resultaten.
+
+Den befintliga paginationen och API:ets JSON-struktur behölls. Inga frontendändringar krävdes.
+
+### Resultat före och efter optimering
+
+Jämförbara tester genomfördes med 100 VUs under 60 sekunder och `size=100` för portföljendpointen.
+
+| Mätvärde | Före optimering | Efter optimering |
+|---|---:|---:|
+| `/api/holdings` P95 | 20,06 ms | **5,64 ms** |
+| `/api/portfolio` P95 | 669,71 ms | **33,25 ms** |
+| HTTP-fel | 0 % | **0 %** |
+| Genomförda iterationer | 4 628 | **5 748** |
+
+Efter optimeringen minskade P95 för `/api/portfolio` med cirka **95 %**. Båda testade endpoints uppfyllde därmed prestandakravet på under 200 ms i testmiljön.
+
+Totalt genomfördes 11 496 lyckade kontroller vid det avslutande lasttestet, utan HTTP-fel.
+
+### Verifiering och begränsningar
+
+Efter kodändringarna kördes backendtesterna med Java 21 och Maven:
+
+- **205 tester totalt**
+- **200 godkända**
+- **0 fel**
+- **5 överhoppade**
+- **BUILD SUCCESS**
+
+Lasttestresultaten har följande begränsningar:
+
+- De 100 virtuella användarna använde samma testkonto och JWT.
+- De 10 000 testinnehaven bestod nästan helt av samma instrument.
+- Rate limiting var inaktiverat under prestandamätningen.
+- Testerna utfördes lokalt och är inte ett bevis på motsvarande prestanda i produktionsmiljö.
+
+Resultaten verifierar därför prestandakravet **under de beskrivna testförutsättningarna**, men ersätter inte kompletterande tester med flera separata användare och mer varierade innehav.
+
+### Testunderlag
+
+Filerna finns i `infra/`:
+
+- `k6-load.js` – lasttestskript.
+- `k6-summary-size100-100vu.json` – resultat före optimering.
+- `k6-summary-optimized-100vu.json` – resultat efter optimering.
+
+Testet kördes med:
+
+```powershell
+k6 run --vus 100 --duration 60s --summary-export=k6-summary-optimized-100vu.json .\k6-load.js
+```
+
+### AI-stöd
+
+k6 var ett nytt verktyg för mig. Testerna och verifieringen genomfördes manuellt, med omfattande AI-stöd för testupplägg, felsökning, analys och framtagning av kodoptimeringen.
