@@ -5,6 +5,7 @@ import AppButton from "./AppButton";
 import type { AccountAllocationTarget } from "../types/accountAllocationTargets";
 
 type SliderValue = [number, number];
+type AllocationField = "stocks" | "rates" | "other";
 
 const INITIAL_SLIDER_VALUE: SliderValue = [33, 66];
 
@@ -54,12 +55,77 @@ const NewAllocationhandler = ({
       allocations.map(({ id, targets }) => [id, getInitialSliderValue(targets)])
     )
   );
+
   const handleValueChange = (id: string, value: SliderValue) => {
     setValues((current) => ({
       ...current,
       [id]: value
     }));
   };
+
+  const handleAllocationInput = (
+    id: string,
+    field: AllocationField,
+    rawValue: string
+  ) => {
+    const value = Math.max(0, Math.min(100, Math.round(Number(rawValue) || 0)));
+
+    setValues((current) => {
+      const [first, second] = current[id] ?? INITIAL_SLIDER_VALUE;
+      const stocks = first;
+      const rates = second - first;
+
+      if (field === "stocks") {
+        const nextStocks = Math.min(value, 100 - rates);
+        return { ...current, [id]: [nextStocks, nextStocks + rates] };
+      }
+
+      if (field === "rates") {
+        const nextRates = Math.min(value, 100 - stocks);
+        return { ...current, [id]: [stocks, stocks + nextRates] };
+      }
+
+      const nextOther = Math.min(value, 100 - stocks);
+      return { ...current, [id]: [first, 100 - nextOther] };
+    });
+  };
+
+  const renderAllocationValue = (
+    id: string,
+    field: AllocationField,
+    label: string,
+    value: number,
+    color: string
+  ) => (
+    <Typography
+      component="label"
+      variant="body2"
+      sx={{ color, fontWeight: 500 }}
+    >
+      {label}:{" "}
+      <input
+        type="number"
+        min={0}
+        max={100}
+        step={1}
+        value={value}
+        aria-label={`${label} i procent`}
+        onFocus={(event) => event.currentTarget.select()}
+        onChange={(event) =>
+          handleAllocationInput(id, field, event.target.value)
+        }
+        style={{
+          width: "3em",
+          border: 0,
+          padding: 0,
+          background: "transparent",
+          color: "inherit",
+          font: "inherit"
+        }}
+      />
+      %
+    </Typography>
+  );
 
   const handleSaveGoal = async () => {
     setSuccessMessage("");
@@ -174,26 +240,29 @@ const NewAllocationhandler = ({
                 gap: 1
               }}
             >
-              <Typography
-                variant="body2"
-                sx={{ color: "#5875f5", fontWeight: 500 }}
-              >
-                Aktier: {stocks}%
-              </Typography>
+              {renderAllocationValue(
+                allocation.id,
+                "stocks",
+                "Aktier",
+                stocks,
+                "#5875f5"
+              )}
 
-              <Typography
-                variant="body2"
-                sx={{ color: "#2bb887", fontWeight: 500 }}
-              >
-                Ränta: {rates}%
-              </Typography>
+              {renderAllocationValue(
+                allocation.id,
+                "rates",
+                "Ränta",
+                rates,
+                "#2bb887"
+              )}
 
-              <Typography
-                variant="body2"
-                sx={{ color: "#f5a623", fontWeight: 500 }}
-              >
-                Övrigt: {other}%
-              </Typography>
+              {renderAllocationValue(
+                allocation.id,
+                "other",
+                "Övrigt",
+                other,
+                "#f5a623"
+              )}
             </Box>
           </Box>
         );
