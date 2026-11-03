@@ -9,6 +9,7 @@ import se.comerit.avanza.instrument.model.Sector;
 import se.comerit.avanza.portfolio.dto.PortfolioAllocationResult;
 import se.comerit.avanza.portfolio.dto.PortfolioAllocationRow;
 import se.comerit.avanza.portfolio.dto.ValuedHolding;
+import se.comerit.avanza.portfolio.dto.AggregatedValuedHolding;
 import se.comerit.avanza.portfolio.service.PortfolioAllocationService;
 import se.comerit.avanza.portfolio.service.PortfolioValuationService;
 import se.comerit.avanza.targetallocation.model.TargetAllocation;
@@ -90,6 +91,30 @@ class PortfolioAllocationServiceTest {
         assertFalse(row(result, "ISK").overThreshold());
         assertFalse(row(result, "KF").overThreshold());
         assertFalse(result.anyDrift());
+    }
+
+    @Test
+    void aggregatedPositionsShouldProduceCorrectAccountAndInstrumentAllocation() {
+        PortfolioAllocationService service = new PortfolioAllocationService(
+                portfolioValuationService, targetAllocationService);
+
+        var groups = List.of(
+                new AggregatedValuedHolding(11, "ISK", InstrumentType.STOCK,
+                        new BigDecimal("600.00")),
+                new AggregatedValuedHolding(12, "KF", InstrumentType.ETF,
+                        new BigDecimal("400.00"))
+        );
+        var allocation = service.calculateAccountTypeAllocation(groups, List.of(
+                new TargetAllocation(7, "ISK", new BigDecimal("50.00")),
+                new TargetAllocation(7, "KF", new BigDecimal("50.00"))
+        ));
+        var instrumentAllocation = service.calculateInstrumentTypeAllocation(groups);
+
+        assertEquals(new BigDecimal("1000.00"), allocation.totalPortfolioValueSek());
+        assertEquals(new BigDecimal("60.00"), row(allocation, "ISK").actualPercentage());
+        assertEquals(new BigDecimal("40.00"), row(allocation, "KF").actualPercentage());
+        assertEquals(new BigDecimal("600.00"), instrumentAllocation.get(0).valueSek());
+        assertEquals(new BigDecimal("400.00"), instrumentAllocation.get(1).valueSek());
     }
 
     private PortfolioAllocationRow row(PortfolioAllocationResult result, String accountType) {

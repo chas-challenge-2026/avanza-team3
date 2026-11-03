@@ -205,3 +205,6 @@ Sedan den senaste skanningen har ytterligare funktionalitet och endpoints lagts 
 Den tidigare skanningen kan alltså inte betraktas som en fullständig säkerhetsverifiering av den slutliga versionen.
 
 **OWASP ZAP-rapporten bifogas i projektets rotkatalog** som dokumentation av genomförd säkerhetstestning.
+
+
+docker compose -p avanza-loadtest -f infra/docker-compose.yml up -d db

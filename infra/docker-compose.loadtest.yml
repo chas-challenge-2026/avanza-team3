@@ -1,0 +1,11 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.loadtest
+    ports:
+      - "8083:8082"
+    environment:
+      APP_RATE_LIMIT_ENABLED: "false"
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "10"
+

@@ -24,5 +24,5 @@ public record ValuedHolding(
         BigDecimal costBasisSek,
         BigDecimal pnlSek,
         BigDecimal pnlPct
-) {
+) implements PortfolioValuationEntry {
 }
