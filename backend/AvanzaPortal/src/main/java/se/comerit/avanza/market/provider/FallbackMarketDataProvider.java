@@ -15,7 +15,11 @@ public class FallbackMarketDataProvider implements MarketDataProvider {
             "VOLV-B", new BigDecimal("268.50"),
             "AAPL", new BigDecimal("187.32"),
             "SWED-A", new BigDecimal("193.10"),
-            "SAND", new BigDecimal("212.80")
+            "SAND", new BigDecimal("212.80"),
+            "FND-SE", new BigDecimal("125.00"),
+            "FND-WORLD", new BigDecimal("200.00"),
+            "GOV-SE", new BigDecimal("100.00"),
+            "GOLD-ETF", new BigDecimal("150.00")
     );
     private static final Map<String, BigDecimal> FX_FALLBACKS = Map.of(
             "USD/SEK", new BigDecimal("10.45"),

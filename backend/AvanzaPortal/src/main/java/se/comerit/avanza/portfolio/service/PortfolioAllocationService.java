@@ -2,6 +2,7 @@ package se.comerit.avanza.portfolio.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import se.comerit.avanza.accountallocation.model.AllocationRules;
 import se.comerit.avanza.portfolio.dto.PortfolioAllocationResult;
 import se.comerit.avanza.portfolio.dto.PortfolioAllocationRow;
 import se.comerit.avanza.portfolio.dto.ValuedHolding;
@@ -20,7 +21,6 @@ import java.util.Set;
 @Service
 public class PortfolioAllocationService {
 
-    private static final BigDecimal DRIFT_THRESHOLD_PERCENTAGE_POINTS = new BigDecimal("5.00");
     private static final List<String> DEFAULT_ACCOUNT_TYPES = List.of("ISK", "KF", "Depa", "Pension");
 
     private final PortfolioValuationService portfolioValuationService;
@@ -84,7 +84,7 @@ public class PortfolioAllocationService {
 
             BigDecimal targetPercentage = targetMap.getOrDefault(accountType, BigDecimal.ZERO);
             BigDecimal driftPercentagePoints = actualPercentage.subtract(targetPercentage).abs();
-            boolean overThreshold = driftPercentagePoints.compareTo(DRIFT_THRESHOLD_PERCENTAGE_POINTS) > 0;
+            boolean overThreshold = driftPercentagePoints.compareTo(AllocationRules.DRIFT_THRESHOLD_PERCENTAGE_POINTS) > 0;
 
             rows.add(new PortfolioAllocationRow(
                     accountType,
@@ -131,7 +131,7 @@ public class PortfolioAllocationService {
     }
 
     public int getDriftThresholdPercent() {
-        return DRIFT_THRESHOLD_PERCENTAGE_POINTS.intValue();
+        return AllocationRules.DRIFT_THRESHOLD_PERCENTAGE_POINTS.intValue();
     }
 
     private String normalizeAccountType(String accountType) {
