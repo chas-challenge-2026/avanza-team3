@@ -277,7 +277,11 @@ const NewAllocationhandler = ({
         );
       })}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <AppButton onClick={handleSaveGoal} variant="contained">
+        <AppButton
+          onClick={handleSaveGoal}
+          variant="contained"
+          sx={{ minWidth: 120 }}
+        >
           Spara
         </AppButton>
         <Snackbar
