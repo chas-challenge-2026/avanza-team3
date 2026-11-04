@@ -14,7 +14,7 @@ const AccountPicker = ({ selectedAccountId, onSelect }: AccountPickerProps) => {
   if (error) return <p>{error}</p>;
 
   return (
-    <section className={styles.container}>
+    <div className={styles.container}>
       <h2>1. Välj konto</h2>
       <p>Vilket konto vill du rebalansera?</p>
 
@@ -49,7 +49,7 @@ const AccountPicker = ({ selectedAccountId, onSelect }: AccountPickerProps) => {
           </label>
         ))}
       </div>
-    </section>
+    </div>
   );
 };
 

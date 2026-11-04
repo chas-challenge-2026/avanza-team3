@@ -121,11 +121,6 @@ const PortfolioHealth = ({
               ))}
             </div>
 
-            <p className={styles.explanation}>
-              Portföljhälsan visar hur väl dina konton följer sina
-              målallokeringar. Konton med högre värde påverkar totalpoängen mer.
-            </p>
-
             <NavLink to="/portfoljhalsa" className={styles.readMore}>
               Läs mer
               <FontAwesomeIcon icon={faArrowRight} />

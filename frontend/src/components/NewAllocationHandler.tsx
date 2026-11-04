@@ -20,11 +20,7 @@ type NewAllocationHandlerProps = {
   onSave?: (values: Record<string, SliderValue>) => Promise<void>;
 };
 
-const COLORS = {
-  STOCK: "#3B82F6",
-  BOND: "#F59E0B",
-  OTHER: "#94A3B8",
-};
+const COLORS = { STOCK: "#2f6f8f", BOND: "#3d9b82", OTHER: "#d9a441" };
 
 const getInitialSliderValue = (
   targets: AccountAllocationTarget[],
@@ -109,27 +105,50 @@ const NewAllocationhandler = ({
     <Typography
       component="label"
       variant="body2"
-      sx={{ color, fontWeight: 500 }}
+      sx={{
+        color,
+        fontWeight: 500,
+        display: "flex",
+        alignItems: "center",
+        gap: 0.75,
+        "& input": {
+          width: `${Math.max(2, String(value).length) + 2}ch`,
+          padding: "3px 6px",
+          border: "1px solid #cfd6d4",
+          borderRadius: "6px",
+          background: "#fff",
+          color: "#0d1112",
+          font: "inherit",
+          textAlign: "center",
+        },
+        "& input:hover": { borderColor: "#9aa7a4" },
+        "& input:focus": {
+          outline: "2px solid #3d7f6e",
+          outlineOffset: 0,
+          borderColor: "transparent",
+        },
+      }}
     >
-      {label}:{" "}
+      {label}:
       <input
-        type="number"
-        min={0}
-        max={100}
-        step={1}
+        type="text"
+        inputMode="numeric"
+        maxLength={3}
         value={value}
         aria-label={`${label} i procent`}
         onFocus={(event) => event.currentTarget.select()}
         onChange={(event) =>
           handleAllocationInput(id, field, event.target.value)
         }
-        style={{
-          width: "3em",
-          border: 0,
-          padding: 0,
-          background: "transparent",
-          color: "inherit",
-          font: "inherit",
+        onKeyDown={(event) => {
+          if (event.key === "ArrowUp") {
+            event.preventDefault();
+            handleAllocationInput(id, field, String(value + 1));
+          }
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            handleAllocationInput(id, field, String(value - 1));
+          }
         }}
       />
       %
@@ -166,7 +185,7 @@ const NewAllocationhandler = ({
             key={allocation.id}
             sx={{
               borderRadius: 3,
-              pb: 3,
+              pb: 2,
               width: "100%",
             }}
           >
@@ -194,8 +213,8 @@ const NewAllocationhandler = ({
               track={false}
               aria-label={`Målallokering för ${allocation.label}`}
               sx={{
-                height: 19,
-                padding: "10px 0",
+                height: 14,
+                padding: "9px 0",
 
                 "& .MuiSlider-rail": {
                   opacity: 1,
@@ -212,9 +231,9 @@ const NewAllocationhandler = ({
                 },
 
                 "& .MuiSlider-thumb": {
-                  borderRadius: 2,
-                  width: 35,
-                  height: 35,
+                  borderRadius: 1.5,
+                  width: 28,
+                  height: 28,
                   bgcolor: "#fff",
                   border: "2px solid #8491a5",
 
@@ -223,8 +242,8 @@ const NewAllocationhandler = ({
                   },
 
                   "&:after": {
-                    width: 8,
-                    height: 8,
+                    width: 7,
+                    height: 7,
                     borderRadius: "50%",
                     bgcolor: "#64748b",
                     boxShadow: "none",
@@ -245,7 +264,7 @@ const NewAllocationhandler = ({
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                mt: 2,
+                mt: 1.5,
                 gap: 1,
               }}
             >
@@ -277,7 +296,11 @@ const NewAllocationhandler = ({
         );
       })}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <AppButton onClick={handleSaveGoal} variant="contained">
+        <AppButton
+          onClick={handleSaveGoal}
+          variant="contained"
+          sx={{ minWidth: 120 }}
+        >
           Spara
         </AppButton>
         <Snackbar
