@@ -29,7 +29,7 @@ Förutsättning: Docker Desktop. Kommandona nedan är för Windows PowerShell.
    ```
 2. Starta allt:
    ```
-   docker compose up --build
+   docker compose up --build -d
    ```
 3. Öppna `http://localhost:8082`
 
@@ -53,6 +53,7 @@ Frontend körs normalt på `http://localhost:5173` och skickar API-anrop till ba
 - [Mål och resultat för v2](docs/v2/v2-targets.md)
 - [Drift och felsökning](docs/v2/DRIFT.md)
 - [Beslutslogg](backend/AvanzaPortal/beslutslogg.md)
+- [Riskregister](https://docs.google.com/spreadsheets/d/15aQThoBAIlbQ0rTUjj9GF38N44Xqe1cTKJvhzu8E1dk/edit?gid=1570674874#gid=1570674874) (Google Sheets)
 
 ## Teamet
 
