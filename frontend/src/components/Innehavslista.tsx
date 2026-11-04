@@ -1,5 +1,8 @@
 import DataTable from "./DataTable";
 import type { Holding } from "../types/Holding";
+import useDashboard from "../hooks/useDasboard";
+import styles from "./Innehavslista.module.css";
+
 type ColumnKey = keyof Holding;
 
 type InnehavsListaProps = {
@@ -9,6 +12,7 @@ type InnehavsListaProps = {
   showDelete?: boolean;
   onDelete?: (id: number) => Promise<void>;
 };
+
 const InnehavsLista = ({
   holdings,
   columns,
@@ -16,6 +20,9 @@ const InnehavsLista = ({
   showDelete,
   onDelete,
 }: InnehavsListaProps) => {
+  const { dashboard } = useDashboard();
+  const usdToSek = dashboard?.usdToSek ?? 1;
+
   const columnConfig: Record<
     ColumnKey,
     {
@@ -33,6 +40,14 @@ const InnehavsLista = ({
       render: (row: Holding) =>
         `${row.marketValue.toLocaleString("sv-SE")} SEK`,
     },
+    valueSek: {
+      field: "valueSek",
+      headerName: "Värde (SEK)",
+      render: (row: Holding) =>
+        `${row.marketValue.toLocaleString("sv-SE", {
+          maximumFractionDigits: 0,
+        })} SEK`,
+    },
     account_name: { field: "account_name", headerName: "Konto" },
     ticker: { field: "ticker", headerName: "Ticker" },
     instrumentName: { field: "instrumentName", headerName: "Instrument" },
@@ -41,7 +56,7 @@ const InnehavsLista = ({
       field: "avgBuyPrice",
       headerName: "Köppris",
       render: (row: Holding) =>
-        `${row.avgBuyPrice.toLocaleString("sv-SE")} SEK`,
+        `${row.avgBuyPrice.toLocaleString("sv-SE")} ${row.currency}`,
     },
     currentPrice: { field: "currentPrice", headerName: "Aktuellt pris" },
     currency: { field: "currency", headerName: "Valuta" },
@@ -53,7 +68,8 @@ const InnehavsLista = ({
     pnl: {
       field: "pnl",
       headerName: "Vinst/Förlust",
-      render: (row: Holding) => `${row.pnl.toLocaleString("sv-SE")} SEK`,
+      render: (row: Holding) =>
+        `${row.pnl.toLocaleString("sv-SE")} ${row.currency}`,
     },
     pnlPct: {
       field: "pnlPct",
@@ -74,14 +90,19 @@ const InnehavsLista = ({
   const tableColumns = selectedColumns.map((column) => columnConfig[column]);
 
   return (
-    <DataTable
-      rows={holdings}
-      columns={tableColumns}
-      title="Nuvarande innehav"
-      width={width}
-      showDelete={showDelete}
-      onDelete={onDelete}
-    />
+    <div>
+      <DataTable
+        rows={holdings}
+        columns={tableColumns}
+        title="Nuvarande innehav"
+        width={width}
+        showDelete={showDelete}
+        onDelete={onDelete}
+      />
+      <p className={styles.currency}>
+        Växelkurs: 1 USD = {usdToSek.toLocaleString("sv-SE")} SEK
+      </p>
+    </div>
   );
 };
 

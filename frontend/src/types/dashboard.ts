@@ -14,7 +14,7 @@ export type AccountSummary = {
   accountType: string;
   accountName: string;
   currency: string;
-  totalValue: number;
+  totalValueSek: number;
 };
 
 export type DashboardHolding = {

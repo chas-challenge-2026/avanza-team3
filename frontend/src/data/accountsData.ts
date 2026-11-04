@@ -36,5 +36,5 @@
 export const accountColumns = [
   { field: "accountName", headerName: "Konto" },
   { field: "accountType", headerName: "Typ", isBadge: true },
-  { field: "totalValue", headerName: "Värde" },
+  { field: "totalValueSek", headerName: "Värde" },
 ] as const;

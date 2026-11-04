@@ -38,6 +38,14 @@ public class PortfolioValuationService {
     }
 
     @Transactional(readOnly = true)
+    public List<ValuedHolding> getValuedHoldingsByAccountIdAndUserId(Integer accountId, Integer userId) {
+        return holdingRepository.findAllByOwnedAccount(accountId, userId)
+                .stream()
+                .map(this::value)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public BigDecimal getPortfolioValueSek(Integer userId) {
         return getValuedHoldingsByUserId(userId).stream()
                 .map(ValuedHolding::marketValueSek)

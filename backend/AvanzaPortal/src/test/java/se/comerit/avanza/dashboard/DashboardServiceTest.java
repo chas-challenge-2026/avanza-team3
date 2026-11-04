@@ -86,6 +86,9 @@ class DashboardServiceTest {
                         true
                 )
         );
+        when(portfolioAllocationService.calculateInstrumentTypeAllocation(valuedHoldings))
+                .thenReturn(List.of(new se.comerit.avanza.portfolio.dto.InstrumentAllocationRow(
+                        "Aktie", new BigDecimal("10000.00"), new BigDecimal("100.00"))));
         when(alertService.getAlertsByUserId(7)).thenReturn(List.of());
         when(marketDataService.getEffectiveFxRate("USD", "SEK"))
                 .thenReturn(new BigDecimal("10.00"));
@@ -99,6 +102,7 @@ class DashboardServiceTest {
         assertEquals(new BigDecimal("25.00"), result.holdings().content().getFirst().unrealizedReturnPct());
         assertEquals(new BigDecimal("40.00"), result.allocationRows().getFirst().drift());
         assertTrue(result.anyDrift());
+        assertEquals("Aktie", result.instrumentTypeAllocation().getFirst().instrumentType());
 
         verify(portfolioValuationService).getValuedHoldingsByUserId(7);
         verify(portfolioAllocationService).getAccountTypeAllocation(7, valuedHoldings);

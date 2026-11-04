@@ -12,7 +12,6 @@ import {
   DialogActions,
 } from "@mui/material";
 import Badge from "./Badge";
-import { formatCurrency } from "../utils/formatCurrency";
 import AppButton from "./AppButton";
 import { useState } from "react";
 
@@ -109,7 +108,10 @@ const DataTable = <T extends { id: number }>({
                         {String(row[col.field])}
                       </Badge>
                     ) : col.field === "totalValueSek" ? (
-                      formatCurrency(Number(row[col.field]))
+                      Number(row[col.field]).toLocaleString("sv-SE", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
                     ) : (
                       String(row[col.field] ?? "")
                     )}

@@ -24,7 +24,7 @@ public class PostgresMigrationTest {
     private static final String NEW_USERNAME = "avanza";
     private static final String NEW_PASSWORD = "avanza123";
 
-    private static final List<String> UNCHANGED_TABLES = List.of("users", "accounts", "alerts", "target_allocations" );
+    private static final List<String> UNCHANGED_TABLES = List.of("users", "alerts", "target_allocations" );
 
     @BeforeAll
     static void verifyConnections() throws SQLException {
@@ -60,6 +60,10 @@ public class PostgresMigrationTest {
         try (Connection oldConnection = oldConnection();
              Connection newConnection = newConnection()) {
 
+            // accounts has new cash/version columns; compare only pre-existing fields.
+            assertQueryResultsEqual(oldConnection, newConnection,
+                    "SELECT id, user_id, account_type, account_name, currency FROM accounts ORDER BY id",
+                    "accounts legacy columns");
             for (String table : UNCHANGED_TABLES) {
                 assertQueryResultsEqual(
                         oldConnection,

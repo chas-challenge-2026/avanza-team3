@@ -1,0 +1,17 @@
+.icon {
+  color: var(--primary);
+  font-size: 25px;
+}
+
+.label {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  margin: 5px 0;
+  font-weight: 500;
+}
+
+@media (min-width: 600px) {
+  .mobileOnly {
+    display: none;
+  }
+}

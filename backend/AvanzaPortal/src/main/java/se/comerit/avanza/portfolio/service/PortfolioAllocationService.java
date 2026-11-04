@@ -2,6 +2,7 @@ package se.comerit.avanza.portfolio.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import se.comerit.avanza.accountallocation.model.AllocationRules;
 import se.comerit.avanza.portfolio.dto.PortfolioAllocationResult;
 import se.comerit.avanza.portfolio.dto.PortfolioAllocationRow;
 import se.comerit.avanza.portfolio.dto.ValuedHolding;
@@ -20,7 +21,6 @@ import java.util.Set;
 @Service
 public class PortfolioAllocationService {
 
-    private static final BigDecimal DRIFT_THRESHOLD_PERCENTAGE_POINTS = new BigDecimal("5.00");
     private static final List<String> DEFAULT_ACCOUNT_TYPES = List.of("ISK", "KF", "Depa", "Pension");
 
     private final PortfolioValuationService portfolioValuationService;
@@ -84,7 +84,7 @@ public class PortfolioAllocationService {
 
             BigDecimal targetPercentage = targetMap.getOrDefault(accountType, BigDecimal.ZERO);
             BigDecimal driftPercentagePoints = actualPercentage.subtract(targetPercentage).abs();
-            boolean overThreshold = driftPercentagePoints.compareTo(DRIFT_THRESHOLD_PERCENTAGE_POINTS) > 0;
+            boolean overThreshold = driftPercentagePoints.compareTo(AllocationRules.DRIFT_THRESHOLD_PERCENTAGE_POINTS) > 0;
 
             rows.add(new PortfolioAllocationRow(
                     accountType,
@@ -104,8 +104,34 @@ public class PortfolioAllocationService {
         );
     }
 
+    public List<se.comerit.avanza.portfolio.dto.InstrumentAllocationRow> calculateInstrumentTypeAllocation(
+            List<ValuedHolding> holdings) {
+        Map<String, BigDecimal> totals = new java.util.LinkedHashMap<>();
+        totals.put("Aktie", BigDecimal.ZERO);
+        totals.put("Fond", BigDecimal.ZERO);
+        totals.put("Övrigt", BigDecimal.ZERO);
+        BigDecimal portfolioTotal = BigDecimal.ZERO;
+        for (ValuedHolding holding : holdings) {
+            String category = holding.instrumentType() == null
+                    ? "Övrigt" : holding.instrumentType().getDisplayName();
+            BigDecimal marketValue = orZero(holding.marketValueSek());
+            totals.merge(category, marketValue, BigDecimal::add);
+            portfolioTotal = portfolioTotal.add(marketValue);
+        }
+        List<se.comerit.avanza.portfolio.dto.InstrumentAllocationRow> result = new ArrayList<>();
+        for (Map.Entry<String, BigDecimal> entry : totals.entrySet()) {
+            BigDecimal percent = portfolioTotal.compareTo(BigDecimal.ZERO) > 0
+                    ? entry.getValue().multiply(new BigDecimal("100"))
+                    .divide(portfolioTotal, 2, RoundingMode.HALF_UP)
+                    : BigDecimal.ZERO.setScale(2);
+            result.add(new se.comerit.avanza.portfolio.dto.InstrumentAllocationRow(
+                    entry.getKey(), round(entry.getValue()), percent));
+        }
+        return List.copyOf(result);
+    }
+
     public int getDriftThresholdPercent() {
-        return DRIFT_THRESHOLD_PERCENTAGE_POINTS.intValue();
+        return AllocationRules.DRIFT_THRESHOLD_PERCENTAGE_POINTS.intValue();
     }
 
     private String normalizeAccountType(String accountType) {

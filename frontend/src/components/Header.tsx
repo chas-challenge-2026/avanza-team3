@@ -3,6 +3,7 @@ import useAuth from "../hooks/useAuth";
 import { Button } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
 
 const getInitials = (name?: string) => {
   if (!name) return "";
@@ -19,10 +20,10 @@ const Header = () => {
 
   return (
     <header className={styles.header}>
-      <div className={styles.brand}>
+      <Link to="/" className={styles.brand}>
         <span className={styles.logoMark}>A</span>
         <h1>Avanza</h1>
-      </div>
+      </Link>
       <div className={styles.actionWrapper}>
         <div className={styles.userInfo}>
           <span className={styles.avatar}>{getInitials(user?.name)}</span>

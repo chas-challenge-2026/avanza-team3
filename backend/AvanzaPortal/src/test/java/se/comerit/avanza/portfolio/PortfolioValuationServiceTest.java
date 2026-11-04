@@ -100,6 +100,24 @@ class PortfolioValuationServiceTest {
     }
 
     @Test
+    void getValuedHoldingsForAccountFiltersByAccountAndUserAndConvertsUsd() {
+        PortfolioValuationService service = new PortfolioValuationService(
+                holdingRepository, marketDataService);
+        Holding own = holding(31, 11, 7, "ISK", "Main ISK", 101,
+                "AAPL", "Apple Inc.", "USD", new BigDecimal("2"), new BigDecimal("80.00"));
+        when(holdingRepository.findAllByOwnedAccount(11, 7)).thenReturn(List.of(own));
+        when(marketDataService.getPrice("AAPL")).thenReturn(new BigDecimal("100.00"));
+        when(marketDataService.getEffectiveFxRate("USD", "SEK"))
+                .thenReturn(new BigDecimal("10.00"));
+
+        var results = service.getValuedHoldingsByAccountIdAndUserId(11, 7);
+        assertEquals(1, results.size());
+        assertEquals(11, results.get(0).accountId());
+        assertEquals(new BigDecimal("2000.00"), results.get(0).marketValueSek());
+        verify(holdingRepository).findAllByOwnedAccount(11, 7);
+    }
+
+    @Test
     void valueShouldRejectHoldingWithoutInstrument() {
         PortfolioValuationService service = new PortfolioValuationService(
                 holdingRepository,

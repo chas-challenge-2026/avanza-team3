@@ -3,6 +3,8 @@ package se.comerit.avanza.holding.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -15,9 +17,37 @@ import java.util.Optional;
 @Repository
 public interface HoldingRepository extends JpaRepository<Holding, Integer> {
 
+    boolean existsByAccountId(Integer accountId);
+
     List<Holding> findByAccountUserIdOrderByAccountAccountTypeAscInstrumentTickerAsc(Integer userId);
 
     Optional<Holding> findByIdAndAccountUserId(Integer holdingId, Integer userId);
+
+    @Query("""
+            SELECT h FROM Holding h
+            JOIN FETCH h.instrument
+            JOIN FETCH h.account
+            WHERE h.accountId = :accountId AND h.account.userId = :userId
+            ORDER BY h.instrument.ticker ASC
+            """)
+    List<Holding> findAllByOwnedAccount(
+            @Param("accountId") Integer accountId,
+            @Param("userId") Integer userId
+    );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            SELECT h FROM Holding h
+            JOIN FETCH h.instrument
+            JOIN FETCH h.account
+            WHERE h.accountId = :accountId AND h.account.userId = :userId
+            ORDER BY h.instrument.ticker ASC
+            """)
+
+    List<Holding> findAllByOwnedAccountForUpdate(
+            @Param("accountId") Integer accountId,
+            @Param("userId") Integer userId
+    );
 
     Page<Holding> findByAccountUserId(Integer userId, Pageable pageable);
 

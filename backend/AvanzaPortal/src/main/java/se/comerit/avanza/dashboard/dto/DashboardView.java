@@ -16,6 +16,9 @@ public record DashboardView(
         @Schema(description = "Actual allocation compared with target allocation")
         List<AllocationRowResponse> allocationRows,
 
+        @Schema(description = "Actual allocations among stocks, funds (including ETFs), and other instruments")
+        List<se.comerit.avanza.portfolio.dto.InstrumentAllocationRow> instrumentTypeAllocation,
+
         @Schema(description = "Total portfolio value in SEK", example = "245500.75")
         double totalPortfolioValue,
 
