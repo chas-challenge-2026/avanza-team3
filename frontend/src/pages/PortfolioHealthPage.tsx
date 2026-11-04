@@ -24,12 +24,31 @@ import InfoText from "../components/InfoText";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import { useAccountAllocations } from "../hooks/useAccountAllocations";
+import { getInstruments } from "../services/instrumentService";
+import type { Instrument } from "../types/Instrument";
+import { groupByInstrumentType } from "../utils/groupByInstrumentType";
 
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
+}
+
+function CustomTabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      tabIndex={0}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
 }
 
 function PortfolioHealthPage() {
@@ -38,7 +57,25 @@ function PortfolioHealthPage() {
   const { riskData } = usePortfolioRisk();
 
   const [summaryHoldings, setSummaryHoldings] = useState<HoldingSummary[]>([]);
+  const [instruments, setInstruments] = useState<Instrument[]>([]);
   const [value, setValue] = React.useState(0);
+
+  useEffect(() => {
+    const fetchInstruments = async () => {
+      try {
+        const data = await getInstruments();
+        setInstruments(data);
+      } catch (error) {
+        console.error("Kunde inte hämta instrument:", error);
+      }
+    };
+
+    fetchInstruments();
+  }, []);
+
+  const instrumentTypeById: Record<number, string> = Object.fromEntries(
+    instruments.map((instrument) => [instrument.id, instrument.instrumentType]),
+  );
 
   const {
     accounts,
@@ -47,8 +84,6 @@ function PortfolioHealthPage() {
   } = useAccounts();
 
   const accountIds = accounts.map((account) => account.id);
-
-  const { allocations: accountAllocations } = useAccountAllocations(accountIds);
 
   const {
     targetsByAccount,
@@ -175,44 +210,11 @@ function PortfolioHealthPage() {
     (h) => h.instrument_type === "Övrigt",
   ).length;
 
-  const categoryConfig: Record<string, { label: string; color: string }> = {
-    STOCK: { label: "Aktier", color: "#3b82f6" },
-    FUND: { label: "Fonder", color: "#22c55e" },
-    BOND: { label: "Räntor", color: "#f59e0b" },
-    OTHER: { label: "Övrigt", color: "#94a3b8" },
-  };
-
-  const toDonutData = (categories: { category: string; valueSek: number }[]) =>
-    categories
-      .filter((item) => item.valueSek > 0)
-      .map((item) => ({
-        label: categoryConfig[item.category]?.label ?? item.category,
-        value: item.valueSek,
-        color: categoryConfig[item.category]?.color ?? "#94a3b8",
-      }));
-
-  const getAccountDonutData = (accountType: string) => {
-    const account = accounts.find((a) => a.accountType === accountType);
-
-    const allocation = accountAllocations.find(
-      (a) => a.accountId === account?.id,
+  const getAccountInstrumentAllocations = (accountType: string) =>
+    groupByInstrumentType(
+      summaryHoldings.filter((holding) => holding.account_type === accountType),
+      instrumentTypeById,
     );
-
-    return toDonutData(allocation?.categories ?? []);
-  };
-
-  const portfolioCategories = Object.keys(categoryConfig).map((category) => ({
-    category,
-    valueSek: accountAllocations.reduce(
-      (sum, account) =>
-        sum +
-        (account.categories.find((item) => item.category === category)
-          ?.valueSek ?? 0),
-      0,
-    ),
-  }));
-
-  const portfolioDonutData = toDonutData(portfolioCategories);
 
   const handleSaveAllocations = async (
     values: Record<string, [number, number]>,
@@ -237,23 +239,6 @@ function PortfolioHealthPage() {
       }),
     );
   };
-
-  function CustomTabPanel(props: TabPanelProps) {
-    const { children, value, index, ...other } = props;
-
-    return (
-      <div
-        role="tabpanel"
-        hidden={value !== index}
-        tabIndex={0}
-        id={`simple-tabpanel-${index}`}
-        aria-labelledby={`simple-tab-${index}`}
-        {...other}
-      >
-        {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-      </div>
-    );
-  }
 
   function a11yProps(index: number) {
     return {
@@ -433,7 +418,10 @@ function PortfolioHealthPage() {
                     "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar.",
                 }}
                 title="Aktuell fördelning per tillgångsslag"
-                data={portfolioDonutData}
+                data={groupByInstrumentType(
+                  summaryHoldings,
+                  instrumentTypeById,
+                )}
               />
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1}>
@@ -444,7 +432,7 @@ function PortfolioHealthPage() {
                     "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar.",
                 }}
                 title="Aktuell fördelning av aktier, räntor och övrigt i ISK"
-                data={getAccountDonutData("ISK")}
+                data={getAccountInstrumentAllocations("ISK")}
               />
             </CustomTabPanel>
             <CustomTabPanel value={value} index={2}>
@@ -455,7 +443,7 @@ function PortfolioHealthPage() {
                     "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar.",
                 }}
                 title="Aktuell fördelning av aktier, räntor och övrigt i KF"
-                data={getAccountDonutData("KF")}
+                data={getAccountInstrumentAllocations("KF")}
               />
             </CustomTabPanel>
             <CustomTabPanel value={value} index={3}>
@@ -466,7 +454,7 @@ function PortfolioHealthPage() {
                     "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar.",
                 }}
                 title="Aktuell fördelning av aktier, räntor och övrigt i Depå"
-                data={getAccountDonutData("Depa")}
+                data={getAccountInstrumentAllocations("Depa")}
               />
             </CustomTabPanel>
           </Box>
