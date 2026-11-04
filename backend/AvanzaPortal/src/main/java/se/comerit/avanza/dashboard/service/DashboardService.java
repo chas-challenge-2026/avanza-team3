@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.comerit.avanza.account.service.AccountService;
+import se.comerit.avanza.account.model.Account;
 import se.comerit.avanza.alert.dto.AlertResponse;
 import se.comerit.avanza.alert.service.AlertService;
 import se.comerit.avanza.dashboard.dto.AccountSummaryResponse;
@@ -75,10 +76,18 @@ public class DashboardService {
             );
         }
 
+        BigDecimal totalCash = BigDecimal.ZERO;
+        for (Account account : accountService.getAccountsByUserId(userId)) {
+            BigDecimal cash = account.getCashBalanceSek() == null
+                    ? BigDecimal.ZERO : account.getCashBalanceSek();
+            accountTotals.merge(account.getId(), cash, BigDecimal::add);
+            totalCash = totalCash.add(cash);
+        }
+
         PortfolioAllocationResult allocationResult =
                 portfolioAllocationService.getAccountTypeAllocation(userId, valuedHoldings);
 
-        BigDecimal totalPortfolioValue = allocationResult.totalPortfolioValueSek();
+        BigDecimal totalPortfolioValue = allocationResult.totalPortfolioValueSek().add(totalCash);
         BigDecimal usdToSek = marketDataService.getEffectiveFxRate("USD", BASE_CURRENCY);
 
         return new DashboardView(
