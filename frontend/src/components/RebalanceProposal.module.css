@@ -1,0 +1,195 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #475569;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Affärer */
+
+.tradeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tradeCard {
+  background: #fff;
+  border: 1px solid #e0e4e8;
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 0;
+}
+
+.tradeHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.tradeHeader h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #17212b;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.buy {
+  background: #e7f5ef;
+  color: #008c6c;
+}
+
+.sell {
+  background: #fcebea;
+  color: #c2413b;
+}
+
+/* Antal och pris */
+
+.tradeDetails {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tradeDetails div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tradeDetails span,
+.tradeTotal span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.tradeDetails strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: #17212b;
+}
+
+.tradeTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 13px;
+  border-top: 1px solid #e0e4e8;
+}
+
+.tradeTotal strong {
+  font-size: 16px;
+  font-weight: 700;
+  color: #17212b;
+}
+
+/* Saldo */
+
+.summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 15px 16px;
+  border: 1px solid #e0e4e8;
+  border-radius: 8px;
+  background: #f8fafb;
+}
+
+.summary span {
+  font-size: 13px;
+  color: #475569;
+}
+
+.summary strong {
+  font-size: 17px;
+  font-weight: 700;
+  color: #17212b;
+}
+
+/* Information */
+
+.info {
+  padding: 12px 14px;
+  background: #f8fafb;
+  border: 1px solid #e0e4e8;
+  border-radius: 8px;
+}
+
+.info strong {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.info p {
+  margin: 5px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+/* Bekräftelse */
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.empty {
+  font-size: 13px;
+  color: #64748b;
+}
+
+@media (max-width: 700px) {
+  .tradeGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .actions {
+    justify-content: stretch;
+  }
+}

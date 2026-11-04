@@ -19,6 +19,13 @@ const InnehavsForm = ({ onAdd }: Props) => {
   const [selectedInstrument, setSelectedInstrument] =
     useState<Instrument | null>(null);
 
+  const instrumentTypeLabels: Record<string, string> = {
+    STOCK: "Aktie",
+    BOND: "Ränta",
+    FUND: "Fond",
+    OTHER: "Övrigt",
+  };
+
   useEffect(() => {
     const loadInstruments = async () => {
       try {
@@ -91,7 +98,7 @@ const InnehavsForm = ({ onAdd }: Props) => {
     <div className={styles.formWrapper}>
       <AppCard>
         <div className={styles.titleWrapper}>
-          <h2 className={styles.sectionTitle}>Lägg till gödkänt innehav</h2>
+          <h2 className={styles.sectionTitle}>Lägg till godkänt innehav</h2>
         </div>
         <p className={styles.label}>
           Välj ett instrument som får användas vid rebalansering.
@@ -109,9 +116,13 @@ const InnehavsForm = ({ onAdd }: Props) => {
         >
           <div className={styles.container}>
             <Autocomplete
-              options={instruments}
+              options={instruments.filter((instrument) =>
+                ["STOCK", "BOND", "OTHER"].includes(instrument.instrumentType),
+              )}
               value={selectedInstrument}
-              getOptionLabel={(option) => `${option.ticker} - ${option.name}`}
+              getOptionLabel={(option) =>
+                `${option.ticker} - ${option.name} (${instrumentTypeLabels[option.instrumentType] ?? option.instrumentType})`
+              }
               isOptionEqualToValue={(option, value) => option.id === value.id}
               onChange={(_, newValue) => {
                 setSelectedInstrument(newValue);
@@ -138,7 +149,10 @@ const InnehavsForm = ({ onAdd }: Props) => {
 
                 <div className={styles.instrumentDetail}>
                   <span>Instrumenttyp</span>
-                  <strong>{selectedInstrument.instrumentType}</strong>
+                  <strong>
+                    {instrumentTypeLabels[selectedInstrument.instrumentType] ??
+                      selectedInstrument.instrumentType}
+                  </strong>
                 </div>
 
                 <div className={styles.instrumentDetail}>
