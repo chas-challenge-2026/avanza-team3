@@ -6,9 +6,9 @@ const assetClassByType: Record<string, string> = {
 };
 
 const colors: Record<string, string> = {
-  Aktier: "#16a34a",
-  Räntor: "#1976d2",
-  Övrigt: "#f59e0b",
+  Aktier: "#2f6f8f",
+  Räntor: "#3d9b82",
+  Övrigt: "#d9a441",
 };
 
 export function groupByInstrumentType(

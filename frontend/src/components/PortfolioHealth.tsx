@@ -53,7 +53,9 @@ const PortfolioHealth = ({
         </div>
 
         <Gauge
-          cornerRadius={"50%"}
+          cornerRadius={0}
+          innerRadius="82%"
+          outerRadius="100%"
           width={300}
           height={200}
           value={value}
@@ -62,7 +64,10 @@ const PortfolioHealth = ({
           endAngle={90}
           sx={{
             [`& .${gaugeClasses.valueArc}`]: {
-              fill: "url(#gaugeGradient)",
+              fill: statusColors[valueStatus()],
+            },
+            [`& .${gaugeClasses.referenceArc}`]: {
+              fill: "#e8ecea",
             },
             [`& .${gaugeClasses.valueText} text`]: {
               fontSize: 25,

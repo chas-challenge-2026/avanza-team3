@@ -135,19 +135,15 @@ function RebalanseringPage() {
           setPreview(null);
         }}
       />
-      <div>
-        <AppButton
-          onClick={handlePreview}
-          disabled={
-            selectedAccountId === null ||
-            approved.length === 0 ||
-            previewLoading
-          }
-          variant="contained"
-        >
-          {previewLoading ? "Beräknar..." : "Beräkna rebalansering"}
-        </AppButton>
-      </div>
+      <AppButton
+        onClick={handlePreview}
+        disabled={
+          selectedAccountId === null || approved.length === 0 || previewLoading
+        }
+        variant="contained"
+      >
+        {previewLoading ? "Beräknar..." : "Beräkna rebalansering"}
+      </AppButton>
 
       {preview && (
         <RebalanceProposal

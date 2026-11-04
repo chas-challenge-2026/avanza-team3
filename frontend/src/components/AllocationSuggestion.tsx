@@ -5,10 +5,10 @@ import type { RebalancePreviewResponse } from "../types/rebalance";
 import AppCard from "./AppCard";
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
-  STOCK: { label: "Aktier", color: "#3b82f6" },
-  FUND: { label: "Fonder", color: "#94a3b8" },
-  BOND: { label: "Räntor", color: " #2bb887" },
-  OTHER: { label: "Övrigt", color: "#f59e0b" },
+  STOCK: { label: "Aktier", color: "#2f6f8f" },
+  FUND: { label: "Fonder", color: "#8a9fae" },
+  BOND: { label: "Räntor", color: "#3d9b82" },
+  OTHER: { label: "Övrigt", color: "#d9a441" },
 };
 
 type AllocationSuggestionProps = {

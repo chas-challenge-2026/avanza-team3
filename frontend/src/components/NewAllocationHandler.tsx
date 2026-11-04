@@ -20,11 +20,7 @@ type NewAllocationHandlerProps = {
   onSave?: (values: Record<string, SliderValue>) => Promise<void>;
 };
 
-const COLORS = {
-  STOCK: "#3B82F6",
-  BOND: "#F59E0B",
-  OTHER: "#94A3B8",
-};
+const COLORS = { STOCK: "#2f6f8f", BOND: "#3d9b82", OTHER: "#d9a441" };
 
 const getInitialSliderValue = (
   targets: AccountAllocationTarget[],

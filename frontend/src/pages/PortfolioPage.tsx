@@ -38,9 +38,9 @@ function PortfolioPage() {
   );
 
   const accountColors: Record<string, string> = {
-    ISK: "#6366F1",
-    KF: "#0D9488",
-    Depa: "#D97706",
+    ISK: "#2f6f8f",
+    KF: "#3d9b82",
+    Depa: "#d9a441",
   };
 
   const allocationData = rows
