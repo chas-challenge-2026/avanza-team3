@@ -2,6 +2,7 @@ import DonutChart from "./DonutChart";
 import styles from "./AllocationSuggestion.module.css";
 import { useAccountAllocation } from "../hooks/useAccountAllocation";
 import type { RebalancePreviewResponse } from "../types/rebalance";
+import AppCard from "./AppCard";
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
   STOCK: { label: "Aktier", color: "#3b82f6" },
@@ -51,25 +52,29 @@ const AllocationSuggestion = ({
 
   return (
     <div className={styles.container}>
-      <DonutChart
-        title="Nuvarande fördelning"
-        data={currentAllocation}
-        help={{
-          title: "Nuvarande fördelning",
-          content: "Så här är dina tillgångar fördelade idag.",
-        }}
-      />
+      <AppCard>
+        <DonutChart
+          title="Nuvarande fördelning"
+          data={currentAllocation}
+          help={{
+            title: "Nuvarande fördelning",
+            content: "Så här är dina tillgångar fördelade idag.",
+          }}
+        />
+      </AppCard>
 
-      <DonutChart
-        title={preview ? "Föreslagen fördelning" : "Målallokering"}
-        data={preview ? suggestedAllocation : targetAllocation}
-        help={{
-          title: preview ? "Föreslagen fördelning" : "Målallokering",
-          content: preview
-            ? "Så här beräknas kontot vara fördelat efter rebalansering."
-            : "Så här vill du att kontot ska vara fördelat.",
-        }}
-      />
+      <AppCard>
+        <DonutChart
+          title={preview ? "Föreslagen fördelning" : "Målallokering"}
+          data={preview ? suggestedAllocation : targetAllocation}
+          help={{
+            title: preview ? "Föreslagen fördelning" : "Målallokering",
+            content: preview
+              ? "Så här beräknas kontot vara fördelat efter rebalansering."
+              : "Så här vill du att kontot ska vara fördelat.",
+          }}
+        />
+      </AppCard>
     </div>
   );
 };
