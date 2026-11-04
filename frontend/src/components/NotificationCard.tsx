@@ -73,7 +73,7 @@ const DriftCard = ({ drift }: { drift: Drift }) => {
               <span className={styles.valueLabel}>Avvikelse</span>
               <p className={styles.valueNumber}>
                 {drift.difference > 0 ? "+" : ""}
-                {drift.difference.toFixed(1)} pp
+                {drift.difference.toFixed(1)} %
               </p>
             </div>
 

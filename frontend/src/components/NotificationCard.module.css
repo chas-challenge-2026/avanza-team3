@@ -123,6 +123,10 @@
   text-decoration: underline;
 }
 
+.link {
+  color: #3333;
+}
+
 .viewMore svg {
   transition: transform 0.2s ease;
 }
