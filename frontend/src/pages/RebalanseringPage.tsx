@@ -7,13 +7,81 @@ import { useApprovedHoldings } from "../hooks/useApprovedHoldings";
 import ApprovedHoldingsList from "../components/ApprovedHoldingsList";
 import AccountPicker from "../components/AccountPicker";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import AllocationSuggestion from "../components/AllocationSuggestion";
+import {
+  previewRebalance,
+  confirmRebalance,
+} from "../services/rebalanceService";
+import type { RebalancePreviewResponse } from "../types/rebalance";
+import AppButton from "../components/AppButton";
+import RebalanceProposal from "../components/RebalanceProposal";
+import { Snackbar, Alert } from "@mui/material";
 
 function RebalanseringPage() {
   // const { loading, error } = useHoldings();
   const { approved, addApproved, removeApproved } = useApprovedHoldings();
+  const [searchParams] = useSearchParams();
+  const accountFromUrl = Number(searchParams.get("account")) || null;
+
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
-    null,
+    accountFromUrl,
   );
+  const [preview, setPreview] = useState<RebalancePreviewResponse | null>(null);
+
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+
+  const [confirming, setConfirming] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [allocationVersion, setAllocationVersion] = useState(0);
+
+  const handlePreview = async () => {
+    if (selectedAccountId === null || approved.length === 0) return;
+
+    setPreviewLoading(true);
+    setPreviewError(null);
+    setPreview(null);
+
+    try {
+      const result = await previewRebalance(
+        selectedAccountId,
+        approved.map((instrument) => instrument.id),
+      );
+
+      setPreview(result);
+      console.log("REBALANCE PREVIEW:", result);
+    } catch (error) {
+      setPreviewError(
+        error instanceof Error ? error.message : "Något gick fel",
+      );
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    if (selectedAccountId === null || !preview?.proposalToken) return;
+
+    setConfirming(true);
+    setPreviewError(null);
+
+    try {
+      await confirmRebalance(selectedAccountId, preview.proposalToken);
+
+      setPreview(null);
+      setSnackbarOpen(true);
+      setAllocationVersion((prev) => prev + 1);
+    } catch (error) {
+      setPreviewError(
+        error instanceof Error
+          ? error.message
+          : "Kunde inte genomföra rebalanseringen",
+      );
+    } finally {
+      setConfirming(false);
+    }
+  };
 
   return (
     <div className={styles.RebalanseringWrapper}>
@@ -27,8 +95,18 @@ function RebalanseringPage() {
       </div>
       <AccountPicker
         selectedAccountId={selectedAccountId}
-        onSelect={setSelectedAccountId}
+        onSelect={(accountId) => {
+          setSelectedAccountId(accountId);
+          setPreview(null);
+        }}
       />
+      {selectedAccountId !== null && (
+        <AllocationSuggestion
+          key={`${selectedAccountId}-${allocationVersion}`}
+          accountId={selectedAccountId}
+          preview={preview}
+        />
+      )}
       {/*       <InnehavsLista
         holdings={holdings}
         columns={[
@@ -43,8 +121,53 @@ function RebalanseringPage() {
         // width="1200px"
         showDelete
       /> */}
-      <ApprovedHoldingsList approved={approved} onRemove={removeApproved} />
-      <InnehavsForm onAdd={addApproved} />
+      <ApprovedHoldingsList
+        approved={approved}
+        onRemove={(id) => {
+          removeApproved(id);
+          setPreview(null);
+        }}
+      />
+
+      <InnehavsForm
+        onAdd={(instrument) => {
+          addApproved(instrument);
+          setPreview(null);
+        }}
+      />
+      <AppButton
+        onClick={handlePreview}
+        disabled={
+          selectedAccountId === null || approved.length === 0 || previewLoading
+        }
+        variant="contained"
+      >
+        {previewLoading ? "Beräknar..." : "Beräkna rebalansering"}
+      </AppButton>
+
+      {preview && (
+        <RebalanceProposal
+          preview={preview}
+          onConfirm={handleConfirm}
+          confirming={confirming}
+        />
+      )}
+
+      {previewError && <p>{previewError}</p>}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          onClose={() => setSnackbarOpen(false)}
+        >
+          Rebalanseringen har genomförts!
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

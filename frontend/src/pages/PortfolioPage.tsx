@@ -10,35 +10,37 @@ import NotificationCard from "../components/NotificationCard";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import usePortfolioAllocations from "../hooks/usePortfolioAllocation";
 import useDashboard from "../hooks/useDasboard";
-import useLiveAlerts from "../hooks/useLiveAlerts";
-import { usePortfolioRisk } from "../hooks/usePortfolioRisk";
-import { calculatePortfolioHealth } from "../utils/calculatePortfolioHealth";
-import { calculateHoldingSpread } from "../utils/calculateHoldingSpread";
-import { useState, useEffect } from "react";
-import { getHoldingsSummary } from "../services/holdingSummaryService";
-import type { HoldingSummary } from "../services/holdingSummaryService";
+// import useLiveAlerts from "../hooks/useLiveAlerts";
+import { useMemo } from "react";
+import { usePortfolioHealth } from "../hooks/usePortfolioHealth";
 // import { useTargetAllocations } from "../hooks/useTargetAllocation";
+import { useAccountAllocations } from "../hooks/useAccountAllocations";
 
 function PortfolioPage() {
   const { rows } = usePortfolioAllocations();
   // const { targetAllocation } = useTargetAllocations();
   const { dashboard } = useDashboard();
-  const accounts = dashboard?.accounts ?? [];
-  const { liveAlerts } = useLiveAlerts();
-  const { riskData } = usePortfolioRisk();
+  // const { liveAlerts } = useLiveAlerts();
 
-  const [summaryHoldings, setSummaryHoldings] = useState<
-    HoldingSummary[] | null
-  >(null);
+  const accounts = useMemo(
+    () => dashboard?.accounts ?? [],
+    [dashboard?.accounts],
+  );
 
-  useEffect(() => {
-    getHoldingsSummary().then(setSummaryHoldings).catch(console.error);
-  }, []);
+  const accountIds = accounts.map((account) => account.id);
+
+  const { allocations: accountAllocations, loading: healthLoading } =
+    useAccountAllocations(accountIds);
+
+  const { portfolioHealth, accountHealth } = usePortfolioHealth(
+    accounts,
+    accountAllocations,
+  );
 
   const accountColors: Record<string, string> = {
-    ISK: "#6366F1",
-    KF: "#0D9488",
-    Depa: "#D97706",
+    ISK: "#2f6f8f",
+    KF: "#3d9b82",
+    Depa: "#d9a441",
   };
 
   const allocationData = rows
@@ -55,22 +57,6 @@ function PortfolioPage() {
         // target: currentTarget?.targetPercentage ?? row.target
       };
     });
-
-  const riskScore = riskData?.current.riskScore;
-
-  const spread = summaryHoldings
-    ? calculateHoldingSpread(
-        summaryHoldings.map((holding) => ({
-          ticker: holding.ticker,
-          valueSek: holding.marketValue,
-        })),
-      )
-    : undefined;
-
-  const portfolioHealth =
-    riskScore !== undefined && spread !== undefined
-      ? calculatePortfolioHealth(riskScore, spread)
-      : undefined;
 
   return (
     <div className={styles.container}>
@@ -112,25 +98,28 @@ function PortfolioPage() {
             }}
           />
         </AppCard>
-        {portfolioHealth !== undefined &&
-          riskScore !== undefined &&
-          spread !== undefined && (
+        {!healthLoading &&
+          accounts.length > 0 &&
+          accountAllocations.length === accounts.length &&
+          portfolioHealth !== null && (
             <PortfolioHealth
               value={portfolioHealth}
+              accountHealth={accountHealth}
               help={{
                 title: "Vad betyder portföljhälsa?",
                 content:
-                  "Portföljhälsa ger en överblick över hur väl din portfölj är balanserad, till exempel utifrån risk, diversifiering och fördelning mellan innehav.",
+                  "Portföljhälsa visar hur väl dina konton följer sina målallokeringar. Poängen viktas efter varje kontos värde.",
               }}
-              riskScore={riskScore}
-              spread={spread}
             />
           )}
       </div>
 
       <div className={styles.row3}>
         <DataTable title="Konton" rows={accounts} columns={accountColumns} />
-        <NotificationCard alerts={liveAlerts} allocationRows={rows} />
+        <NotificationCard
+          allocations={accountAllocations}
+          accounts={accounts}
+        />{" "}
       </div>
 
       <div className={styles.row4}></div>

@@ -72,6 +72,39 @@
   margin-bottom: 0.4rem;
 }
 
+.message .description {
+  color: var(--muted-foreground);
+  margin: 0 0 20px;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+
+.statValue {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.deviation {
+  color: var(--text-warning);
+}
+
 .time {
   flex-shrink: 0;
   font-size: 0.75rem;
@@ -108,4 +141,33 @@
 .bold {
   font-weight: 500;
   color: var(--text-gray);
+}
+.card .rebalanceLink {
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 10px 14px;
+  background: #e6f4ef;
+  color: #057a5b;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+
+.card .rebalanceLink:hover,
+.card .rebalanceLink:focus-visible {
+  background: #d3ece3;
+}
+
+@media (max-width: 600px) {
+  .card {
+    flex-wrap: wrap;
+  }
+
+  .rebalanceLink {
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
 }

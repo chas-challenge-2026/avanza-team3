@@ -20,8 +20,10 @@ type NewAllocationHandlerProps = {
   onSave?: (values: Record<string, SliderValue>) => Promise<void>;
 };
 
+const COLORS = { STOCK: "#2f6f8f", BOND: "#3d9b82", OTHER: "#d9a441" };
+
 const getInitialSliderValue = (
-  targets: AccountAllocationTarget[]
+  targets: AccountAllocationTarget[],
 ): SliderValue => {
   const stocks =
     targets.find((target) => target.category === "STOCK")?.targetPercentage ??
@@ -40,33 +42,36 @@ const getInitialSliderValue = (
 
   return [
     Math.round((stocks / total) * 100),
-    Math.round(((stocks + bonds) / total) * 100)
+    Math.round(((stocks + bonds) / total) * 100),
   ];
 };
 
 const NewAllocationhandler = ({
   allocations,
-  onSave
+  onSave,
 }: NewAllocationHandlerProps) => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [values, setValues] = useState<Record<string, SliderValue>>(
     Object.fromEntries(
-      allocations.map(({ id, targets }) => [id, getInitialSliderValue(targets)])
-    )
+      allocations.map(({ id, targets }) => [
+        id,
+        getInitialSliderValue(targets),
+      ]),
+    ),
   );
 
   const handleValueChange = (id: string, value: SliderValue) => {
     setValues((current) => ({
       ...current,
-      [id]: value
+      [id]: value,
     }));
   };
 
   const handleAllocationInput = (
     id: string,
     field: AllocationField,
-    rawValue: string
+    rawValue: string,
   ) => {
     const value = Math.max(0, Math.min(100, Math.round(Number(rawValue) || 0)));
 
@@ -95,32 +100,55 @@ const NewAllocationhandler = ({
     field: AllocationField,
     label: string,
     value: number,
-    color: string
+    color: string,
   ) => (
     <Typography
       component="label"
       variant="body2"
-      sx={{ color, fontWeight: 500 }}
+      sx={{
+        color,
+        fontWeight: 500,
+        display: "flex",
+        alignItems: "center",
+        gap: 0.75,
+        "& input": {
+          width: `${Math.max(2, String(value).length) + 2}ch`,
+          padding: "3px 6px",
+          border: "1px solid #cfd6d4",
+          borderRadius: "6px",
+          background: "#fff",
+          color: "#0d1112",
+          font: "inherit",
+          textAlign: "center",
+        },
+        "& input:hover": { borderColor: "#9aa7a4" },
+        "& input:focus": {
+          outline: "2px solid #3d7f6e",
+          outlineOffset: 0,
+          borderColor: "transparent",
+        },
+      }}
     >
-      {label}:{" "}
+      {label}:
       <input
-        type="number"
-        min={0}
-        max={100}
-        step={1}
+        type="text"
+        inputMode="numeric"
+        maxLength={3}
         value={value}
         aria-label={`${label} i procent`}
         onFocus={(event) => event.currentTarget.select()}
         onChange={(event) =>
           handleAllocationInput(id, field, event.target.value)
         }
-        style={{
-          width: "3em",
-          border: 0,
-          padding: 0,
-          background: "transparent",
-          color: "inherit",
-          font: "inherit"
+        onKeyDown={(event) => {
+          if (event.key === "ArrowUp") {
+            event.preventDefault();
+            handleAllocationInput(id, field, String(value + 1));
+          }
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            handleAllocationInput(id, field, String(value - 1));
+          }
         }}
       />
       %
@@ -138,7 +166,7 @@ const NewAllocationhandler = ({
       setSuccessMessage(
         error instanceof Error
           ? error.message
-          : "Kunde inte spara målallokeringen"
+          : "Kunde inte spara målallokeringen",
       );
       setOpenSnackbar(true);
     }
@@ -157,15 +185,15 @@ const NewAllocationhandler = ({
             key={allocation.id}
             sx={{
               borderRadius: 3,
-              pb: 3,
-              width: "100%"
+              pb: 2,
+              width: "100%",
             }}
           >
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
               <h2 className={styles.label}>{allocation.label}</h2>
@@ -185,50 +213,50 @@ const NewAllocationhandler = ({
               track={false}
               aria-label={`Målallokering för ${allocation.label}`}
               sx={{
-                height: 19,
-                padding: "10px 0",
+                height: 14,
+                padding: "9px 0",
 
                 "& .MuiSlider-rail": {
                   opacity: 1,
                   background: `linear-gradient(
-              to right,
-              #5875f5 0%,
-              #5875f5 ${first}%,
-              #2bb887 ${first}%,
-              #2bb887 ${second}%,
-              #f5a623 ${second}%,
-              #f5a623 100%
-            )`,
-                  borderRadius: "5px"
+                    to right,
+                    ${COLORS.STOCK} 0%,
+                    ${COLORS.STOCK} ${first}%,
+                    ${COLORS.BOND} ${first}%,
+                    ${COLORS.BOND} ${second}%,
+                    ${COLORS.OTHER} ${second}%,
+                    ${COLORS.OTHER} 100%
+                  )`,
+                  borderRadius: "5px",
                 },
 
                 "& .MuiSlider-thumb": {
-                  borderRadius: 2,
-                  width: 35,
-                  height: 35,
+                  borderRadius: 1.5,
+                  width: 28,
+                  height: 28,
                   bgcolor: "#fff",
                   border: "2px solid #8491a5",
 
                   "&:before": {
-                    boxShadow: "none"
+                    boxShadow: "none",
                   },
 
                   "&:after": {
-                    width: 8,
-                    height: 8,
+                    width: 7,
+                    height: 7,
                     borderRadius: "50%",
                     bgcolor: "#64748b",
-                    boxShadow: "none"
+                    boxShadow: "none",
                   },
 
                   "&:hover, &.Mui-focusVisible": {
-                    boxShadow: "0 0 0 3px rgba(255,255,255,0.15)"
-                  }
+                    boxShadow: "0 0 0 3px rgba(255,255,255,0.15)",
+                  },
                 },
 
                 "& .MuiSlider-track": {
-                  display: "none"
-                }
+                  display: "none",
+                },
               }}
             />
 
@@ -236,8 +264,8 @@ const NewAllocationhandler = ({
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                mt: 2,
-                gap: 1
+                mt: 1.5,
+                gap: 1,
               }}
             >
               {renderAllocationValue(
@@ -245,7 +273,7 @@ const NewAllocationhandler = ({
                 "stocks",
                 "Aktier",
                 stocks,
-                "#5875f5"
+                COLORS.STOCK,
               )}
 
               {renderAllocationValue(
@@ -253,7 +281,7 @@ const NewAllocationhandler = ({
                 "rates",
                 "Ränta",
                 rates,
-                "#2bb887"
+                COLORS.BOND,
               )}
 
               {renderAllocationValue(
@@ -261,14 +289,18 @@ const NewAllocationhandler = ({
                 "other",
                 "Övrigt",
                 other,
-                "#f5a623"
+                COLORS.OTHER,
               )}
             </Box>
           </Box>
         );
       })}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <AppButton onClick={handleSaveGoal} variant="contained">
+        <AppButton
+          onClick={handleSaveGoal}
+          variant="contained"
+          sx={{ minWidth: 120 }}
+        >
           Spara
         </AppButton>
         <Snackbar
