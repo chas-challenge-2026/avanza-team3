@@ -13,6 +13,12 @@ const categoryLabels: Record<string, string> = {
   OTHER: "Övrigt",
 };
 
+const formatPct = (value: number) =>
+  value.toLocaleString("sv-SE", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+
 export default function NotificationPage() {
   const { dashboard } = useDashboard();
 
@@ -87,34 +93,41 @@ export default function NotificationPage() {
 
             <div className={styles.message}>
               <p className={styles.cardTitle}>
-                {notification.accountType} – Avviker från målallokering
+                {notification.accountType === "Depa"
+                  ? "Depå"
+                  : notification.accountType}{" "}
+                – Avviker från målallokering
+              </p>
+              <p className={styles.description}>
+                Största avvikelsen: {notification.category}
               </p>
 
-              <p>
-                Största avvikelsen: {notification.category},{" "}
-                {notification.difference > 0 ? "+" : ""}
-                {notification.difference.toFixed(1)} procentenheter.
-              </p>
-
-              <div>
-                <span>
-                  <span className={styles.bold}>Nuvarande:</span>{" "}
-                  {notification.actual.toFixed(1)} %
-                </span>{" "}
-                <span>
-                  <span className={styles.bold}>Mål:</span>{" "}
-                  {notification.target.toFixed(1)} %
-                </span>{" "}
-                <span>
-                  <span className={styles.bold}>Avvikelse:</span>{" "}
-                  {notification.difference > 0 ? "+" : ""}
-                  {notification.difference.toFixed(1)} pp
-                </span>
+              <div className={styles.stats}>
+                <div className={styles.stat}>
+                  <span className={styles.statLabel}>Nuvarande</span>
+                  <span className={styles.statValue}>
+                    {formatPct(notification.actual)} %
+                  </span>
+                </div>
+                <div className={styles.stat}>
+                  <span className={styles.statLabel}>Mål</span>
+                  <span className={styles.statValue}>
+                    {formatPct(notification.target)} %
+                  </span>
+                </div>
+                <div className={styles.stat}>
+                  <span className={styles.statLabel}>Avvikelse</span>
+                  <span className={`${styles.statValue} ${styles.deviation}`}>
+                    {notification.difference > 0 ? "+" : ""}
+                    {formatPct(notification.difference)} %
+                  </span>
+                </div>
               </div>
-              <Link to="/rebalansering" className={styles.rebalanceLink}>
-                Rebalansera →
-              </Link>
             </div>
+
+            <Link to="/rebalansering" className={styles.rebalanceLink}>
+              Rebalansera →
+            </Link>
           </div>
         ))
       )}
