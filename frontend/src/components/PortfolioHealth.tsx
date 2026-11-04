@@ -6,6 +6,7 @@ import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import AppCard from "./AppCard";
 import PopOver from "./Popover";
 import { useState } from "react";
+import InfoText from "./InfoText";
 
 type PortfolioHealthProps = {
   value: number;
@@ -134,6 +135,7 @@ const PortfolioHealth = ({
             Visa detaljer
           </button>
         )}
+        <InfoText content={help.content} />
       </div>
     </AppCard>
   );

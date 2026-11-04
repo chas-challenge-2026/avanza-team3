@@ -19,33 +19,15 @@
 
 .currencyBar {
   display: flex;
+  gap: 3px;
   width: 100%;
-  height: 40px;
-  overflow: hidden;
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
+  height: 14px;
+  margin-bottom: 0.5rem;
 }
 
 .currencySegment {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 6px;
-  color: white;
-  padding: 0 8px;
+  border-radius: 7px;
   min-width: 0;
-}
-
-.currencySegment + .currencySegment {
-  border-left: 2px solid white;
-}
-
-.currencySegment strong {
-  font-size: 1rem;
-}
-
-.currencySegment span {
-  font-size: 1rem;
 }
 
 .sek {
@@ -84,23 +66,11 @@
   background-color: var(--bg-container);
 }
 
-.currencyValue {
-  font-size: 0.8125rem;
-  color: var(--text-gray);
-  margin: 0;
-}
-
 .currencyCardTop {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 12px;
-}
-
-.currencyPercentage {
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--foreground);
 }
 
 .currencyIcon {
@@ -119,6 +89,7 @@
 }
 
 .currencyText {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -131,4 +102,43 @@
 .currencyText span {
   font-size: 0.8rem;
   color: var(--text-gray);
+}
+
+.currencyList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.currencyRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.currencyDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.currencyPercentage {
+  width: 56px;
+  text-align: right;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.currencyValue {
+  width: 140px;
+  margin: 0 0 0 24px;
+  text-align: right;
+  font-size: 0.875rem;
+  color: var(--text-gray);
+  font-variant-numeric: tabular-nums;
 }
