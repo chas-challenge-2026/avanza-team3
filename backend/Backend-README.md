@@ -490,3 +490,71 @@ docker stop avanza-rebalance-test
 ```
 
 Den kan sedan startas igen med `docker start avanza-rebalance-test` utan att behöva skapas på nytt.
+
+## Backendautentisering
+
+Backends autentisering hanteras av Spring Security med stateless JWT-token. Användaren loggar in med e-post och lösenord. Backend verifierar lösenordet mot en BCrypt-hash och returnerar en signerad token vid lyckad inloggning.
+
+### Endpoints
+| Metod    | Endpoint | Åtkomst | Beskrivning |
+| -------- | ------- | -------- | -------- |
+| `POST`  | `/api/auth/login`| Öppen | Loggar in och returnerar en JWT |
+| `GET` | `/api/auth/me`| Kräver JWT | Returnerar den inloggade användarens ID, namn och e-post|
+| `DELETE`    | `/api/auth/logout`| Kräver JWT | Returnerar en utloggningsbekräftelse |
+
+#### Logga in
+Skicka JSON till `POST /api/auth/login`:
+```json
+{
+  "email": "anna@example.com",
+  "password": "password123"
+}
+```
+E-post och lösenord måste anges och får vara högst 100 tecken. E-postadressen valideras. Vid lyckad inloggning returneras:
+```json
+{
+  "token": "<jwt>",
+  "tokentype": "Bearer"
+}
+```
+Ogiltig e-post eller lösenord ger `401 Unauthorized`.
+
+#### Anropa skyddade endpoints
+Alla `/api/**`-endpoints kräver autentisering, förutom login-endpointen. Swagger-dokumentation är öppen.
+
+**Frontend**: Efter lyckad inloggning sparas JWT i `localstorage`. Frontend skickar automatisk med token i `Authorization`-headern vid anrop till skyddade endpoints.
+
+**Manuell testning** 
+Vid testning via exempelvis curl behöver JWT skickas manuellt:
+
+```
+Authorization: Bearer
+```
+Exempel:
+```bash
+curl http://localhost:8082/api/auth/me \
+  -H "Authorization: Bearer <jwt>"
+```
+
+### JWT och säkerhetskonfiguration
+Token innehåller användarens e-post som subject och användar-ID som claim. Standardlivslängden är 24 timmar. Tokenens signeringsnyckel anges med `JWT_SECRET`(`jwt.secret`) och ska vara en stark hemlig nyckel med minst 32 bytes.
+
+Sessioner är stateless: servern verifierar tokenen vid varje anrop och lagrar ingen inloggnignsession.
+
+`DELETE /api/auth/logout` återkallar inte tokenen på serversidan. Den förblir giltig tills den går ut.
+
+### Rate Limiting
+Rate limiting är konfigurerad under `app.rate-limit` och aktiverad i applikationskonfigurationen:
+- Login: Kapacitet på 5 anrop, med återfyllning av 5 per minut.
+- Övriga API-anrop: kapacitet på 50 anrop, med återfyllning av 2 per sekund.
+
+När gränsen nås svarar backend med `429 Too Many Requests` och en `Retry-after`-header.
+
+### Centrala klasser
+- [AuthController.java](AvanzaPortal/src/main/java/se/comerit/avanza/auth/controller/AuthController.java)
+- [AuthService.java](AvanzaPortal/src/main/java/se/comerit/avanza/auth/service/AuthService.java) 
+- [User.java](AvanzaPortal/src/main/java/se/comerit/avanza/auth/model/User.java)
+- [SecurityConfig.java](AvanzaPortal/src/main/java/se/comerit/avanza/config/SecurityConfig.java)
+- [JwtService.java](AvanzaPortal/src/main/java/se/comerit/avanza/security/JwtService.java)
+- [JwtAuthenticationFilter.java](AvanzaPortal/src/main/java/se/comerit/avanza/security/JwtAuthenticationFilter.java)
+- [RateLimitFilter.java](AvanzaPortal/src/main/java/se/comerit/avanza/security/RateLimitFilter.java)
