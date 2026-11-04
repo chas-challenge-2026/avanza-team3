@@ -13,6 +13,7 @@ import se.comerit.avanza.instrument.model.InstrumentType;
 import se.comerit.avanza.instrument.model.Sector;
 import se.comerit.avanza.market.service.MarketDataService;
 import se.comerit.avanza.portfolio.dto.ValuedHolding;
+import se.comerit.avanza.portfolio.dto.AggregatedValuedHolding;
 import se.comerit.avanza.portfolio.service.PortfolioValuationService;
 
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -132,6 +134,51 @@ class PortfolioValuationServiceTest {
         );
 
         assertEquals("Holding 99 is not linked to an instrument", exception.getMessage());
+    }
+
+    @Test
+    void aggregatedDashboardValuationPreservesRoundingPerHoldingAcrossAccounts() {
+        PortfolioValuationService service = new PortfolioValuationService(
+                holdingRepository, marketDataService);
+        HoldingRepository.HoldingValuationGroup eric =
+                mock(HoldingRepository.HoldingValuationGroup.class);
+        HoldingRepository.HoldingValuationGroup usd =
+                mock(HoldingRepository.HoldingValuationGroup.class);
+
+        when(eric.getAccountId()).thenReturn(11);
+        when(eric.getAccountType()).thenReturn("ISK");
+        when(eric.getInstrumentType()).thenReturn(InstrumentType.STOCK);
+        when(eric.getTicker()).thenReturn("ERIC-B");
+        when(eric.getCurrency()).thenReturn("SEK");
+        when(eric.getQuantity()).thenReturn(new BigDecimal("0.015"));
+        when(eric.getHoldingCount()).thenReturn(9995L);
+
+        when(usd.getAccountId()).thenReturn(12);
+        when(usd.getAccountType()).thenReturn("KF");
+        when(usd.getInstrumentType()).thenReturn(InstrumentType.ETF);
+        when(usd.getTicker()).thenReturn("ETF-USD");
+        when(usd.getCurrency()).thenReturn("USD");
+        when(usd.getQuantity()).thenReturn(new BigDecimal("2"));
+        when(usd.getHoldingCount()).thenReturn(5L);
+
+        when(holdingRepository.findValuationGroupsByUserId(7))
+                .thenReturn(List.of(eric, usd));
+        when(marketDataService.getPrice("ERIC-B")).thenReturn(new BigDecimal("12.345"));
+        when(marketDataService.getEffectiveFxRate("SEK", "SEK"))
+                .thenReturn(BigDecimal.ONE);
+        when(marketDataService.getPrice("ETF-USD")).thenReturn(new BigDecimal("3.45"));
+        when(marketDataService.getEffectiveFxRate("USD", "SEK"))
+                .thenReturn(new BigDecimal("10"));
+
+        List<AggregatedValuedHolding> result = service.getAggregatedValuedHoldingsByUserId(7);
+
+        assertEquals(2, result.size());
+        // Each of the 9,995 original holdings is worth SEK 0.19, not SEK 0.185175.
+        assertEquals(new BigDecimal("1899.05"), result.get(0).marketValueSek());
+        assertEquals(new BigDecimal("345.00"), result.get(1).marketValueSek());
+        assertEquals(11, result.get(0).accountId());
+        assertEquals(InstrumentType.ETF, result.get(1).instrumentType());
+        verify(holdingRepository).findValuationGroupsByUserId(7);
     }
 
     private Holding holding(

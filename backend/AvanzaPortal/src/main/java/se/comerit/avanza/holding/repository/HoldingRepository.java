@@ -21,6 +21,34 @@ public interface HoldingRepository extends JpaRepository<Holding, Integer> {
 
     List<Holding> findByAccountUserIdOrderByAccountAccountTypeAscInstrumentTickerAsc(Integer userId);
 
+    @Query("""
+            SELECT a.id AS accountId,
+                   a.accountType AS accountType,
+                   i.ticker AS ticker,
+                   i.currency AS currency,
+                   i.instrumentType AS instrumentType,
+                   h.quantity AS quantity,
+                   COUNT(h.id) AS holdingCount
+            FROM Holding h
+            JOIN h.account a
+            LEFT JOIN h.instrument i
+            WHERE a.userId = :userId
+            GROUP BY a.id, a.accountType, i.id, i.ticker, i.currency,
+                     i.instrumentType, h.quantity
+            """)
+    List<HoldingValuationGroup> findValuationGroupsByUserId(
+            @Param("userId") Integer userId);
+
+    interface HoldingValuationGroup {
+        Integer getAccountId();
+        String getAccountType();
+        String getTicker();
+        String getCurrency();
+        InstrumentType getInstrumentType();
+        java.math.BigDecimal getQuantity();
+        Long getHoldingCount();
+    }
+
     Optional<Holding> findByIdAndAccountUserId(Integer holdingId, Integer userId);
 
     @Query("""

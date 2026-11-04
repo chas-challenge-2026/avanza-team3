@@ -17,7 +17,7 @@ import se.comerit.avanza.holding.service.HoldingService;
 import se.comerit.avanza.market.service.MarketDataService;
 import se.comerit.avanza.portfolio.dto.PortfolioAllocationResult;
 import se.comerit.avanza.portfolio.dto.PortfolioAllocationRow;
-import se.comerit.avanza.portfolio.dto.ValuedHolding;
+import se.comerit.avanza.portfolio.dto.AggregatedValuedHolding;
 import se.comerit.avanza.portfolio.service.PortfolioAllocationService;
 import se.comerit.avanza.portfolio.service.PortfolioValuationService;
 
@@ -64,11 +64,13 @@ public class DashboardService {
     public DashboardView getDashboardForUser(Integer userId, int page, int size) {
         List<Map<String, Object>> accounts = accountService.getAccountMapsByUserId(userId);
         Page<Map<String, Object>> holdingsPage = holdingService.getHoldingsByUserId(userId, page, size);
-        List<ValuedHolding> valuedHoldings =
-                portfolioValuationService.getValuedHoldingsByUserId(userId);
+        // The holdings page is still paginated. Only dashboard totals use
+        // aggregation, avoiding 10,000 managed Hibernate objects per request.
+        List<AggregatedValuedHolding> valuedHoldings =
+                portfolioValuationService.getAggregatedValuedHoldingsByUserId(userId);
 
         Map<Integer, BigDecimal> accountTotals = new HashMap<>();
-        for (ValuedHolding holding : valuedHoldings) {
+        for (AggregatedValuedHolding holding : valuedHoldings) {
             accountTotals.merge(
                     holding.accountId(),
                     holding.marketValueSek(),

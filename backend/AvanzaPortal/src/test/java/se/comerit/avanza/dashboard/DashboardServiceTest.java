@@ -15,9 +15,8 @@ import se.comerit.avanza.holding.service.HoldingService;
 import se.comerit.avanza.market.service.MarketDataService;
 import se.comerit.avanza.portfolio.dto.PortfolioAllocationResult;
 import se.comerit.avanza.instrument.model.InstrumentType;
-import se.comerit.avanza.instrument.model.Sector;
 import se.comerit.avanza.portfolio.dto.PortfolioAllocationRow;
-import se.comerit.avanza.portfolio.dto.ValuedHolding;
+import se.comerit.avanza.portfolio.dto.AggregatedValuedHolding;
 import se.comerit.avanza.portfolio.service.PortfolioAllocationService;
 import se.comerit.avanza.portfolio.service.PortfolioValuationService;
 
@@ -71,8 +70,9 @@ class DashboardServiceTest {
         when(holdingService.getHoldingsByUserId(7, 0, 20)).thenReturn(
                 new PageImpl<>(List.of(holding), PageRequest.of(0, 20), 1)
         );
-        List<ValuedHolding> valuedHoldings = List.of(valuedHolding());
-        when(portfolioValuationService.getValuedHoldingsByUserId(7)).thenReturn(valuedHoldings);
+        List<AggregatedValuedHolding> valuedHoldings = List.of(
+                new AggregatedValuedHolding(11, "ISK", InstrumentType.STOCK, new BigDecimal("10000.00")));
+        when(portfolioValuationService.getAggregatedValuedHoldingsByUserId(7)).thenReturn(valuedHoldings);
         when(portfolioAllocationService.getAccountTypeAllocation(7, valuedHoldings)).thenReturn(
                 new PortfolioAllocationResult(
                         List.of(new PortfolioAllocationRow(
@@ -104,32 +104,9 @@ class DashboardServiceTest {
         assertTrue(result.anyDrift());
         assertEquals("Aktie", result.instrumentTypeAllocation().getFirst().instrumentType());
 
-        verify(portfolioValuationService).getValuedHoldingsByUserId(7);
+        verify(portfolioValuationService).getAggregatedValuedHoldingsByUserId(7);
         verify(portfolioAllocationService).getAccountTypeAllocation(7, valuedHoldings);
         verify(marketDataService, never()).getPrice("AAPL");
-    }
-
-    private ValuedHolding valuedHolding() {
-        return new ValuedHolding(
-                31,
-                11,
-                "ISK",
-                "Main ISK",
-                101,
-                "AAPL",
-                "Apple Inc.",
-                InstrumentType.STOCK,
-                Sector.TECHNOLOGY,
-                "USD",
-                new BigDecimal("10"),
-                new BigDecimal("80.00"),
-                new BigDecimal("100.00"),
-                new BigDecimal("10.00000000"),
-                new BigDecimal("10000.00"),
-                new BigDecimal("8000.00"),
-                new BigDecimal("2000.00"),
-                new BigDecimal("25.00")
-        );
     }
 
     private Map<String, Object> valuedHoldingMap() {

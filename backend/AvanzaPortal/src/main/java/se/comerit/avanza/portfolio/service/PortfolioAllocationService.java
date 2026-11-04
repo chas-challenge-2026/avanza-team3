@@ -6,6 +6,7 @@ import se.comerit.avanza.accountallocation.model.AllocationRules;
 import se.comerit.avanza.portfolio.dto.PortfolioAllocationResult;
 import se.comerit.avanza.portfolio.dto.PortfolioAllocationRow;
 import se.comerit.avanza.portfolio.dto.ValuedHolding;
+import se.comerit.avanza.portfolio.dto.PortfolioValuationEntry;
 import se.comerit.avanza.targetallocation.model.TargetAllocation;
 import se.comerit.avanza.targetallocation.service.TargetAllocationService;
 
@@ -42,7 +43,7 @@ public class PortfolioAllocationService {
     @Transactional(readOnly = true)
     public PortfolioAllocationResult getAccountTypeAllocation(
             Integer userId,
-            List<ValuedHolding> holdings) {
+            List<? extends PortfolioValuationEntry> holdings) {
         return calculateAccountTypeAllocation(
                 holdings,
                 targetAllocationService.getTargetAllocationsByUserId(userId)
@@ -50,7 +51,7 @@ public class PortfolioAllocationService {
     }
 
     public PortfolioAllocationResult calculateAccountTypeAllocation(
-            List<ValuedHolding> holdings,
+            List<? extends PortfolioValuationEntry> holdings,
             List<TargetAllocation> targets) {
 
         Map<String, BigDecimal> accountTypeTotals = new HashMap<>();
@@ -58,7 +59,7 @@ public class PortfolioAllocationService {
 
         Set<String> accountTypes = new LinkedHashSet<>(DEFAULT_ACCOUNT_TYPES);
 
-        for (ValuedHolding holding : holdings) {
+        for (PortfolioValuationEntry holding : holdings) {
             String accountType = normalizeAccountType(holding.accountType());
             accountTypes.add(accountType);
             accountTypeTotals.merge(accountType, holding.marketValueSek(), BigDecimal::add);
@@ -105,13 +106,13 @@ public class PortfolioAllocationService {
     }
 
     public List<se.comerit.avanza.portfolio.dto.InstrumentAllocationRow> calculateInstrumentTypeAllocation(
-            List<ValuedHolding> holdings) {
+            List<? extends PortfolioValuationEntry> holdings) {
         Map<String, BigDecimal> totals = new java.util.LinkedHashMap<>();
         totals.put("Aktie", BigDecimal.ZERO);
         totals.put("Fond", BigDecimal.ZERO);
         totals.put("Övrigt", BigDecimal.ZERO);
         BigDecimal portfolioTotal = BigDecimal.ZERO;
-        for (ValuedHolding holding : holdings) {
+        for (PortfolioValuationEntry holding : holdings) {
             String category = holding.instrumentType() == null
                     ? "Övrigt" : holding.instrumentType().getDisplayName();
             BigDecimal marketValue = orZero(holding.marketValueSek());

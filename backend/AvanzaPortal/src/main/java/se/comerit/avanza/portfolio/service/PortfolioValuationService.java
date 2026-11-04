@@ -3,6 +3,7 @@ package se.comerit.avanza.portfolio.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.comerit.avanza.account.model.Account;
+import se.comerit.avanza.portfolio.dto.AggregatedValuedHolding;
 import se.comerit.avanza.holding.model.Holding;
 import se.comerit.avanza.holding.repository.HoldingRepository;
 import se.comerit.avanza.instrument.model.Instrument;
@@ -34,6 +35,35 @@ public class PortfolioValuationService {
                 .findByAccountUserIdOrderByAccountAccountTypeAscInstrumentTickerAsc(userId)
                 .stream()
                 .map(this::value)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AggregatedValuedHolding> getAggregatedValuedHoldingsByUserId(Integer userId) {
+        return holdingRepository.findValuationGroupsByUserId(userId).stream()
+                .map(group -> {
+                    if (group.getTicker() == null || group.getCurrency() == null) {
+                        throw new IllegalStateException(
+                                "Portfolio contains a holding without a linked instrument");
+                    }
+
+                    BigDecimal quantity = orZero(group.getQuantity());
+                    BigDecimal currentPrice = marketDataService.getPrice(group.getTicker());
+                    BigDecimal fxRate = marketDataService.getEffectiveFxRate(
+                            group.getCurrency(), BASE_CURRENCY);
+
+                    // Original value(Holding) rounds EACH holding before totals are added.
+                    BigDecimal valuePerHolding = roundMoney(
+                            quantity.multiply(currentPrice).multiply(fxRate));
+                    BigDecimal groupTotal = valuePerHolding.multiply(
+                            BigDecimal.valueOf(group.getHoldingCount()));
+
+                    return new AggregatedValuedHolding(
+                            group.getAccountId(),
+                            group.getAccountType(),
+                            group.getInstrumentType(),
+                            groupTotal);
+                })
                 .toList();
     }
 
