@@ -78,11 +78,11 @@ const DriftCard = ({ drift }: { drift: Drift }) => {
             </div>
 
             <Link
-              to="/notiser"
+              to={`/rebalansering?account=${drift.id}`}
               className={styles.viewMore}
               onClick={(event) => event.stopPropagation()}
             >
-              Se alla notifikationer
+              Rebalansera
               <FontAwesomeIcon icon={faArrowRight} />
             </Link>
           </div>

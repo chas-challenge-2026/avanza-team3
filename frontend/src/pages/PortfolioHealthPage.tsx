@@ -190,6 +190,12 @@ function PortfolioHealthPage() {
   const spreadHelp =
     "Innehavsspridning visar hur jämnt portföljens värde är fördelat mellan olika innehav. Ett högre värde innebär att kapitalet är mer utspritt.";
 
+  const allocationHelp =
+    "Målallokering är hur du vill att pengarna ska fördelas mellan aktier, räntor och övrigt på varje konto. Dra i reglagen eller skriv in procent och tryck på Spara.";
+
+  const assetClassHelp =
+    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar, som fonder och guld. Diagrammet visar hur stor del av värdet som ligger i varje slag. En jämn fördelning kan sprida risken, och du kan jämföra med din målallokering för att se om portföljen följer din plan.";
+
   const allocations = accounts.map((account) => ({
     id: String(account.id),
     label: account.accountType,
@@ -380,7 +386,14 @@ function PortfolioHealthPage() {
 
       <div className={styles.container}>
         <AppCard>
-          <h2>Målallokering över kontotyp</h2>
+          <div className={styles.header}>
+            <h2>Målallokering över kontotyp</h2>
+            <PopOver
+              title="Vad betyder Målallokering?"
+              content={allocationHelp}
+            />
+          </div>
+          <InfoText content={allocationHelp} />
           <p className={styles.allocationLabel}>
             Justera fördelning med reglagen för önskad fördelning över dina
             konton. <br />
@@ -414,8 +427,7 @@ function PortfolioHealthPage() {
               <DonutChart
                 help={{
                   title: "Vad betyder tillgångsslag?",
-                  content:
-                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar.",
+                  content: assetClassHelp,
                 }}
                 title="Aktuell fördelning per tillgångsslag"
                 data={groupByInstrumentType(
@@ -428,8 +440,7 @@ function PortfolioHealthPage() {
               <DonutChart
                 help={{
                   title: "Vad betyder tillgångsslag?",
-                  content:
-                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar.",
+                  content: assetClassHelp,
                 }}
                 title="Aktuell fördelning av aktier, räntor och övrigt i ISK"
                 data={getAccountInstrumentAllocations("ISK")}
@@ -439,8 +450,7 @@ function PortfolioHealthPage() {
               <DonutChart
                 help={{
                   title: "Vad betyder tillgångsslag?",
-                  content:
-                    "Tillgångsslag visar hur innehaven fördelas mellan aktier, räntebärande placeringar och övriga tillgångar.",
+                  content: assetClassHelp,
                 }}
                 title="Aktuell fördelning av aktier, räntor och övrigt i KF"
                 data={getAccountInstrumentAllocations("KF")}
