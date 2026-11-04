@@ -7,6 +7,7 @@ import { useApprovedHoldings } from "../hooks/useApprovedHoldings";
 import ApprovedHoldingsList from "../components/ApprovedHoldingsList";
 import AccountPicker from "../components/AccountPicker";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import AllocationSuggestion from "../components/AllocationSuggestion";
 import {
   previewRebalance,
@@ -20,8 +21,11 @@ import { Snackbar, Alert } from "@mui/material";
 function RebalanseringPage() {
   // const { loading, error } = useHoldings();
   const { approved, addApproved, removeApproved } = useApprovedHoldings();
+  const [searchParams] = useSearchParams();
+  const accountFromUrl = Number(searchParams.get("account")) || null;
+
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
-    null,
+    accountFromUrl,
   );
   const [preview, setPreview] = useState<RebalancePreviewResponse | null>(null);
 
@@ -131,15 +135,19 @@ function RebalanseringPage() {
           setPreview(null);
         }}
       />
-      <AppButton
-        onClick={handlePreview}
-        disabled={
-          selectedAccountId === null || approved.length === 0 || previewLoading
-        }
-        variant="contained"
-      >
-        {previewLoading ? "Beräknar..." : "Beräkna rebalansering"}
-      </AppButton>
+      <div>
+        <AppButton
+          onClick={handlePreview}
+          disabled={
+            selectedAccountId === null ||
+            approved.length === 0 ||
+            previewLoading
+          }
+          variant="contained"
+        >
+          {previewLoading ? "Beräknar..." : "Beräkna rebalansering"}
+        </AppButton>
+      </div>
 
       {preview && (
         <RebalanceProposal
