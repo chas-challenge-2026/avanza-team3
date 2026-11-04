@@ -1,22 +1,43 @@
-import styles from "./NotificationCard.module.css";
 import { useState } from "react";
-import AppCard from "./AppCard";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
-import type { LiveAlert } from "../types/notification";
-import type { AllocationRow } from "../types/dashboard";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faTriangleExclamation,
+  faArrowRight,
+} from "@fortawesome/free-solid-svg-icons";
 
-type NotificationCardProps = {
-  alerts: LiveAlert[];
-  allocationRows: AllocationRow[];
+import AppCard from "./AppCard";
+import styles from "./NotificationCard.module.css";
+import type { AccountAllocation } from "../hooks/useAccountAllocation";
+
+type Account = {
+  id: number;
+  accountType: string;
 };
 
-const DriftCard = ({ row }: { row: AllocationRow }) => {
-  const [open, setOpen] = useState(false);
+type NotificationCardProps = {
+  allocations: AccountAllocation[];
+  accounts: Account[];
+};
 
-  const difference = row.actual - row.target;
+type Drift = {
+  id: string;
+  accountType: string;
+  category: string;
+  actual: number;
+  target: number;
+  difference: number;
+};
+
+const categoryLabels: Record<string, string> = {
+  STOCK: "Aktier",
+  FUND: "Fonder",
+  BOND: "Räntor",
+  OTHER: "Övrigt",
+};
+
+const DriftCard = ({ drift }: { drift: Drift }) => {
+  const [open, setOpen] = useState(false);
 
   return (
     <div
@@ -27,35 +48,42 @@ const DriftCard = ({ row }: { row: AllocationRow }) => {
 
       <div className={styles.textWrapper}>
         <h3 className={styles.cardTitle}>
-          {row.accountType} –{" "}
-          {difference > 0 ? "Över målallokering" : "Under målallokering"}
+          {drift.accountType} – Avviker från målallokering
         </h3>
 
         <p className={styles.cardInfo}>
-          Din fördelning avviker från ditt angivna mål.
+          Största avvikelsen: {drift.category},{" "}
+          {drift.difference > 0 ? "+" : ""}
+          {drift.difference.toFixed(1)} procentenheter.
         </p>
 
         {open && (
           <div className={styles.values}>
             <div className={styles.valueItem}>
               <span className={styles.valueLabel}>Nuvarande</span>
-              <p className={styles.valueNumber}>{row.actual.toFixed(1)} %</p>
+              <p className={styles.valueNumber}>{drift.actual.toFixed(1)} %</p>
             </div>
 
             <div className={styles.valueItem}>
               <span className={styles.valueLabel}>Mål</span>
-              <p className={styles.valueNumber}>{row.target.toFixed(1)} %</p>
+              <p className={styles.valueNumber}>{drift.target.toFixed(1)} %</p>
             </div>
 
             <div className={styles.valueItem}>
               <span className={styles.valueLabel}>Avvikelse</span>
               <p className={styles.valueNumber}>
-                {difference > 0 ? "+" : ""}
-                {difference.toFixed(1)} %
+                {drift.difference > 0 ? "+" : ""}
+                {drift.difference.toFixed(1)} pp
               </p>
             </div>
-            <Link to="/notiser" className={styles.viewMore}>
-              Se alla notifikationer <FontAwesomeIcon icon={faArrowRight} />
+
+            <Link
+              to="/notiser"
+              className={styles.viewMore}
+              onClick={(event) => event.stopPropagation()}
+            >
+              Se alla notifikationer
+              <FontAwesomeIcon icon={faArrowRight} />
             </Link>
           </div>
         )}
@@ -64,92 +92,50 @@ const DriftCard = ({ row }: { row: AllocationRow }) => {
   );
 };
 
-const NotificationCard = ({
-  alerts,
-  allocationRows,
-}: NotificationCardProps) => {
-  const driftRows = allocationRows.filter((row) => row.overThreshold);
+const NotificationCard = ({ allocations, accounts }: NotificationCardProps) => {
+  const drifts: Drift[] = allocations.flatMap((allocation) => {
+    if (!allocation.targetsConfigured) return [];
 
-  const otherAlerts = alerts.filter(
-    (alert) =>
-      alert.alert_type !== "DRIFT" && alert.alert_type !== "LIVE_DRIFT",
-  );
+    const account = accounts.find((item) => item.id === allocation.accountId);
+
+    const deviations = allocation.categories
+      .filter(
+        (category) =>
+          category.targetPct !== null &&
+          Math.abs(category.actualPct - category.targetPct) > 5,
+      )
+      .sort(
+        (a, b) =>
+          Math.abs(b.actualPct - b.targetPct!) -
+          Math.abs(a.actualPct - a.targetPct!),
+      );
+
+    const largest = deviations[0];
+
+    if (!largest) return [];
+
+    return [
+      {
+        id: String(allocation.accountId),
+        accountType: account?.accountType ?? "Konto",
+        category: categoryLabels[largest.category] ?? largest.category,
+        actual: largest.actualPct,
+        target: largest.targetPct!,
+        difference: largest.actualPct - largest.targetPct!,
+      },
+    ];
+  });
 
   return (
     <AppCard>
       <p className={styles.title}>Notifikationer</p>
 
       <div className={styles.list}>
-        {driftRows.map((row) => (
-          <DriftCard key={row.accountType} row={row} />
-        ))}
-        {/* {driftRows.map((row) => {
-          const difference = row.actual - row.target;
-
-          return (
-            <div
-              key={row.accountType}
-              className={`${styles.card} ${styles.warning}`}
-            >
-              <FontAwesomeIcon
-                icon={faTriangleExclamation}
-                className={styles.icon}
-              />
-
-              <div className={styles.textWrapper}>
-                <strong>
-                  {row.accountType} –{" "}
-                  {difference > 0
-                    ? "Över målallokering"
-                    : "Under målallokering"}
-                </strong>
-
-                <p>Din fördelning avviker från ditt angivna mål.</p>
-
-                <div className={styles.values}>
-                  <div className={styles.valueItem}>
-                    <span className={styles.valueLabel}>Nuvarande</span>
-                    <strong className={styles.valueNumber}>
-                      {row.actual.toFixed(1)} %
-                    </strong>
-                  </div>
-
-                  <div className={styles.valueItem}>
-                    <span className={styles.valueLabel}>Mål</span>
-                    <strong className={styles.valueNumber}>
-                      {row.target.toFixed(1)} %
-                    </strong>
-                  </div>
-
-                  <div className={styles.valueItem}>
-                    <span className={styles.valueLabel}>Avvikelse</span>
-                    <strong className={styles.valueNumber}>
-                      {difference > 0 ? "+" : ""}
-                      {difference.toFixed(1)} %
-                    </strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })} */}
-
-        {otherAlerts.map((alert, index) => (
-          <div key={index} className={`${styles.card} ${styles.warning}`}>
-            <FontAwesomeIcon
-              icon={faTriangleExclamation}
-              className={styles.icon}
-            />
-
-            <div className={styles.textWrapper}>
-              <p>{alert.message}</p>
-            </div>
-          </div>
+        {drifts.map((drift) => (
+          <DriftCard key={drift.id} drift={drift} />
         ))}
 
-        {driftRows.length === 0 && otherAlerts.length === 0 && (
-          <p>Inga aktuella notifikationer.</p>
-        )}
+        {drifts.length === 0 && <p>Inga aktuella notifikationer.</p>}
       </div>
     </AppCard>
   );

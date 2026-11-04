@@ -198,13 +198,17 @@ function PortfolioHealthPage() {
 
   console.log(allocations);
 
-  const stockCount =
-    summaryHoldings?.filter((holding) => holding.instrument_type === "Aktie")
-      .length ?? 0;
+  const stockCount = summaryHoldings.filter(
+    (h) => h.instrument_type === "Aktie",
+  ).length;
 
-  const fundCount =
-    summaryHoldings?.filter((holding) => holding.instrument_type === "Fond")
-      .length ?? 0;
+  const bondCount = summaryHoldings.filter(
+    (h) => h.instrument_type === "Ränta",
+  ).length;
+
+  const otherCount = summaryHoldings.filter(
+    (h) => h.instrument_type === "Övrigt",
+  ).length;
 
   const getAccountInstrumentAllocations = (accountType: string) =>
     groupByInstrumentType(
@@ -313,7 +317,7 @@ function PortfolioHealthPage() {
             <p className={styles.value}>{summaryHoldings?.length ?? "–"} st</p>
 
             <p className={styles.label}>
-              {stockCount} aktier · {fundCount} fonder
+              {stockCount} aktier · {bondCount} räntor · {otherCount} övrigt
             </p>
           </div>
         </AppCard>
