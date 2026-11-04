@@ -53,9 +53,7 @@ const PortfolioHealth = ({
         </div>
 
         <Gauge
-          cornerRadius={0}
-          innerRadius="82%"
-          outerRadius="100%"
+          cornerRadius={"50%"}
           width={300}
           height={200}
           value={value}
@@ -64,10 +62,7 @@ const PortfolioHealth = ({
           endAngle={90}
           sx={{
             [`& .${gaugeClasses.valueArc}`]: {
-              fill: statusColors[valueStatus()],
-            },
-            [`& .${gaugeClasses.referenceArc}`]: {
-              fill: "#e8ecea",
+              fill: "url(#gaugeGradient)",
             },
             [`& .${gaugeClasses.valueText} text`]: {
               fontSize: 25,
@@ -125,11 +120,6 @@ const PortfolioHealth = ({
                 </div>
               ))}
             </div>
-
-            <p className={styles.explanation}>
-              Portföljhälsan visar hur väl dina konton följer sina
-              målallokeringar. Konton med högre värde påverkar totalpoängen mer.
-            </p>
 
             <NavLink to="/portfoljhalsa" className={styles.readMore}>
               Läs mer
