@@ -2,6 +2,12 @@
 
 C and C++ libraries that the Java backend loads through JNA. Each module builds to a shared library (`fx.dll` / `libfx.so`, `risk.dll` / `librisk.so`). Full API and error codes are in each module's own README.
 
+### For more technichal details
+| Module | Language     | README                           |
+|--------|--------------|----------------------------------|
+| Fx     | C++          | [fx/README.md](fx/README.md)     |
+| Risk   | C            | [risk/README.md](risk/README.md) |
+
 ## FX (`fx/`, C++17)
 
 Converts an amount from one currency to another.
