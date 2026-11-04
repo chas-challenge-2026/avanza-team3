@@ -15,7 +15,7 @@ Avanza Portal är en portföljapplikation byggd med React, Spring Boot och Postg
 | --------------- | ------------------------------------------------------------- | ------------------------------------------------------ |
 | Frontend        | React, TypeScript, Vite, Material UI                          | [READMEFRONTEND.md](READMEFRONTEND.md)                 |
 | Backend         | Java 21, Spring Boot, PostgreSQL                              | [backend/Backend-README.md](backend/Backend-README.md) |
-| Native-moduler  | C och C++ (valutakurser och riskmått), laddas av Java via JNA | [native/README.md](native/README.md) (på engelska)     |
+| Native-moduler  | C och C++ (valutakurser och riskmått), laddas av Java via JNA | [native/README.md](native/README.md)                   |
 | Start och drift | Docker                                                        | [docs/v2/README2.md](docs/v2/README2.md)               |
 
 ## Snabbstart
