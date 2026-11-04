@@ -91,9 +91,9 @@ cd backend/AvanzaPortal
 mvn test
 ```
 
-PostgreSQL-integrationstestet för rebalansering kräver en separat testdatabas och miljövariabeln `REBALANCE_PG_TEST=true`.
+PostgreSQL-integrationstestet för rebalansering har genomförts och godkänts. För att köra det på nytt krävs en separat testdatabas och miljövariabeln REBALANCE_PG_TEST=true.
 
-Se backendens README för instruktioner om integrationstestet.
+Se backendens README för instruktioner.
 
 ## Stoppa applikationen
 
@@ -118,3 +118,18 @@ docker compose up --build -d
 ## Felsökning och driftsättning
 
 Se [DRIFT.md](DRIFT.md) för mer information om Docker, databasåterställning, vanliga fel och driftsättning.
+
+
+## Dokumentation
+
+Mer detaljerad dokumentation finns i följande filer:
+
+- [Backend – API, tester, säkerhet och feedforward](backend/Backend-README.md)
+- [Frontend](READMEFRONTEND.md)
+- [C/C++ och native-moduler](native/README.md)
+- [Arkitektur v2](docs/v2/architecture.md)
+- [Mål och resultat för v2](docs/v2/v2-targets.md)
+- [Beslutslogg](backend/AvanzaPortal/beslutslogg.md)
+
+Backenddokumentationen innehåller även resultat från k6-belastningstester,
+OWASP ZAP-skanning, genomförda tester och kända begränsningar.

@@ -150,3 +150,6 @@
 - Avancerad skatteberäkning för ISK/depå, kvittning av vinster och förluster i Depå, exakta handelsavgifter och mer avancerad rebalansering.
 - En fullständig historisk backtestinglösning mot verkliga femårsdata för upp till 500 instrument.
 - Fullständig återhämtningsstrategi med cachade verifierade priser, exponential backoff och aktiv driftövervakning.
+
+### Kontakt och gemensamma beslut inom backend
+Kostas och Tilda har haft regelbunden kontakt via Discord och Slack, och med det tagit gemensamma beslut. Samt hjälpts åt med problem och diskuterat lösningar tillsammans vid upprepade tillfällen.

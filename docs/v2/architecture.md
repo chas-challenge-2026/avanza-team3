@@ -1,49 +1,67 @@
 # Arkitektur — Avanza Portföljhälsa v2
 
 ## Övergripande design
-Webb/React + Typescript
-->
-JSON/REST API
-->
-Spring Boot 3.2.11 med Java 21, på port 8082
-Spring Security: JWT-filter, metodsäkerhet, rate limiting
-RestController: auth, accounts, holdings, instruments, targets, allocation, alerts, rebalance, portfolio, risk, market
-Srvice: behörighetskontroller, affärsregler, beräkningar
-Spring Data: JPA/Repository
-->
-PostgreSQL 15 med flyway v1-v9
-->
-MarketDataService
-->
-Native FX via JNA/C++
-Fallbackpriser och fallbackvalutor(simulerade)
-->
-RiskService
-->
-native C-modul via JNA
 
-Dockerfile bygger allt.
+Webbläsare
+|
+v
+React 19 + TypeScript
+|
+v
+JSON/REST API
+|
+v
+Spring Boot 3.2.11 / Java 21 (port 8082)
+|
++-- Spring Security
+|      JWT, metodsäkerhet, rate limiting
+|
++-- REST Controllers
+|      Auth, Account, Holding, Instrument,
+|      Allocation, Alert, Rebalance, Portfolio,
+|      Market, Risk
+|
++-- Services
+|      Behörighetskontroller, affärsregler,
+|      transaktioner och beräkningar
+|
++-- Spring Data JPA / Repositories
+|      |
+|      v
+|   PostgreSQL 15
+|   Flyway-migrationer V1–V9
+|
++-- MarketDataService
+|      Priser och valutakurser
+|      Native FX via JNA/C++
+|      Simulerad fallbackdata
+|
++-- RiskService
+Riskberäkningar via C/JNA
+Delvis simulerad historik
+
+Dockerfile bygger frontend, backend och native-moduler.
 
 ## Teknikstack sammanfattning
 
-| Lager | Teknik                |
-|---|-----------------------|
-| Ramverk | Spring Boot 3.2.11    |
-| Vy-motor | React 19 + Typescript |
-| Datbaslager | JPA                   |
-| Databas | PostgreSQL 15         |
-| Auth | JWT                   |
-| Bygg | Maven 4.0.0, Java 21    |
-| Deploy | Docker Compose        |
+| Lager       | Teknik                                 |
+|-------------|----------------------------------------|
+| Ramverk     | Spring Boot 3.2.11                     |
+| Frontend    | React 19 + Typescript                  |
+| Datbaslager | JPA                                    |
+| Databas     | PostgreSQL 15                          |
+| Auth        | JWT                                    |
+| Bygg        | Maven 3.9, Java 21, npm/vite och Cmake |
+| Deploy      | Docker Compose                         |
 
-## Vad som saknades (avsiktligt) och vad som implementerades
+## Brister i v1 och genomförda förbättringar i v2
 
 - **Inget servicelager** — Tydlig uppdelning med service, repo, entitet, dto, controller samt exceptionhandling
-- **Ingen repository-abstraktion** — SQL-strängar hanteras korrekt via JpaRepositories
+- **Ingen repository-abstraktion i v1** — dataåtkomst har flyttats till Spring Data JPA-repositories.
 - **Ingen säkerhetsfilter** — implementerat JWT-autentisering
 - **Ingen pagination** — pagination på listendpoints
-- **Ingen FX-integration** — FX integration klar
-- **Inga tester** — unit samt integrationstester med bred täcknning utöver ställda krav
+- **Ingen FX-integration i v1** — native FX-integration via JNA har implementerats. Simulerade fallbackkurser används fortfarande i vissa fall.
+- **Inga tester i v1** — enhets- och integrationstester har implementerats och genomförts. Servicemetodernas testtäckning har granskats och bedömts som tillräcklig.
 
 ## Ansvar per backenddel förklarat
 

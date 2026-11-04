@@ -116,8 +116,6 @@ Kategorierna är `STOCK`, `FUND`, `BOND`, `OTHER`. `ETF` klassas som `FUND`, och
 
 `AlertService` använder `AccountAllocationOverviewService` för **alla användarens konton** och skapar `LIVE_DRIFT` om `STOCK` eller `FUND` avviker **mer än fem procentenheter** från kontots mål. Gränsen definieras i `AllocationRules.DRIFT_THRESHOLD_PERCENTAGE_POINTS`. Live-notiser lagras inte i databasen och ska inte förväxlas med sparade/dismissbara alerts.
 
-**API-kontrakt att verifiera mot klienten:** nuvarande `LiveAlertDto` har JSON-fälten `alertType` och `createdAt` (camelCase). En kontrollerad frontendtyp har använt `alert_type` och `created_at`. Lös detta tillsammans med frontendgruppen; beskriv inte ett format som inte överensstämmer med koden.
-
 ### Rebalancing – simulering per konto
 
 | Metod | Endpoint | Funktion |
@@ -179,17 +177,19 @@ mvn test
 
 CI-jobbet `backend-tests` kör Maven-tester vid PR och push mot `develop` eller `main`. Exempel på testområden i repot är `HoldingServiceTest`, `AccountAllocationOverviewServiceTest`, `RebalanceServiceTest`, `RebalanceProposalTokenServiceTest`, `MarketDataServiceTest` och `NativeFxMarketDataProviderTest`.
 
-Enhetstesterna för rebalansering omfattar exempelvis läsande preview, confirm en gång, avvisning av upprepad bekräftelse och avvisning när kassasaldot ändrats. Alla tester eller 100 % kodtäckning kan inte antas vara verifierade enbart utifrån denna dokumentation; kontrollera CI-resultat och utför nödvändiga integrationstester med PostgreSQL och Docker.
+
+Backendens tester har genomförts och servicemetodernas testtäckning har granskats och bedömts som tillräcklig.
+
+Vid den dokumenterade Maven-körningen den 3 november 2026 redovisades 205 tester: 200 godkända, 0 fel och 5 överhoppade. De överhoppade testerna ingår inte i antalet godkända tester.
+
+PostgreSQL-integrationstestet `RebalancePostgresIntegrationTest` har dessutom körts separat mot PostgreSQL och godkänts. Testet verifierar bland annat preview, confirm och uppdatering av innehav. Applikationen är också driftsatt och har funktionstestats av teamet.
 
 ## Kända begränsningar och nästa steg
 
 1. Instrumentprisers fallback är simulerad, inklusive ett generellt standardpris för okänd ticker. Runtime-provider läser inte V9:s `instrument_prices` automatiskt.
 2. Riskhistorik är mockad trots en fungerande JNA-beräkningsmodul.
 3. JWT återkallas inte vid logout och databasens demouppgifter finns i konfigurationen.
-4. JSON-kontraktet för `LiveAlertDto` måste samordnas med klientens förväntningar.
-5. Samtidighet mellan vanligt Holding API och rebalansering samt fullständiga databas- och end-to-end-tester behöver fortsatt uppföljning.
-
-För systemövergripande dokumentation relevant för projektet finns: [docs/v2/known-bugs.md](../docs/v2/known-bugs.md), [docs/v2/README-pain-points.md](../docs/v2/README-pain-points.md) och [docs/v2/v2-targets.md](../docs/v2/v2-targets.md).
+4. Backendens tester och PostgreSQL-integrationstestet för rebalansering har genomförts och godkänts. Ytterligare riktade tester av samtidiga ändringar via Holding API och rebalansering kan vara relevanta inför produktionsanvändning.
 
 
 ## Säkerhetstest – OWASP ZAP
@@ -203,6 +203,9 @@ Den identifierade exponeringen är inte tillgänglig i deploy, detta har verifie
 Sedan den senaste skanningen har ytterligare funktionalitet och endpoints lagts till. Därför bör en ny OWASP ZAP-skanning genomföras om tiden tillåter före slutleveransen.
 
 Den tidigare skanningen kan alltså inte betraktas som en fullständig säkerhetsverifiering av den slutliga versionen.
+
+[OWASP ZAP-rapport – 19 oktober 2026](../2026-10-19-ZAP-Report3-.html)
+
 
 **OWASP ZAP-rapporten bifogas i projektets rotkatalog** som dokumentation av genomförd säkerhetstestning.
 
@@ -318,7 +321,7 @@ GitHub Actions används för automatiserade backendtester och frontendkontroller
 
 Dependabot har lagts till och skapar uppdateringsförslag via pull requests. Dessa har dock inte hanterats konsekvent, vilket innebär att identifierade beroendeuppdateringar kan bli liggande.
 
-Automatiserad sårbarhetsskanning med exempelvis `npm audit` som en del av CI/CD har inte verifierats som färdigimplementerad.
+Automatiserad sårbarhetsskanning med exempelvis `npm audit` som en del av CI/CD har implementerats.
 
 ### UUID – medveten avgränsning
 
@@ -357,7 +360,7 @@ Dessa begränsningar behöver dokumenteras tydligt så att det framgår vad syst
 
 `RebalancePostgresIntegrationTest` testar rebalanseringsflödet mot en riktig PostgreSQL-databas, inklusive förhandsgranskning, bekräftelse, uppdatering av innehav och kontoavvikelser.
 
-Testet är normalt avaktiverat och aktiveras med miljövariabeln `REBALANCE_PG_TEST=true`.
+Testet är normalt avaktiverat och aktiveras med miljövariabeln `REBALANCE_PG_TEST=true`. Testet har körts och verifierats.
 
 ### Förutsättningar
 
