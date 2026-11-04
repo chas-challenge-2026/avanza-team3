@@ -1,75 +1,61 @@
-# React + TypeScript + Vite
+# Avanza Portal – Team 3
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Avanza Portal är en portföljapplikation byggd med React, Spring Boot och PostgreSQL. Skolprojekt på Chas Academy med fiktiva uppgifter. Backend får hjälp av C- och C++-moduler för valutaomvandling och riskmått.
 
-Currently, two official plugins are available:
+## Vad appen gör
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Överblick:** totalt portföljvärde, konton, fördelning per kontotyp, portföljhälsa och live-varningar om avvikande allokering
+- **Portföljhälsa:** riskpoäng, diversifiering, innehav, valutaexponering och diagram. Mål för allokering kan visas och ändras per konto
+- **Rebalansering:** välj ett konto och vilka instrument som får användas, och få ett förslag på ny fördelning
+- **Notiser:** aktuella avvikelser mot målallokeringen, med länk vidare till rebalansering
 
-## React Compiler
+## Delarna och deras README
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Del             | Teknik                                                        | README                                                 |
+| --------------- | ------------------------------------------------------------- | ------------------------------------------------------ |
+| Frontend        | React, TypeScript, Vite, Material UI                          | [READMEFRONTEND.md](READMEFRONTEND.md)                 |
+| Backend         | Java 21, Spring Boot, PostgreSQL                              | [backend/Backend-README.md](backend/Backend-README.md) |
+| Native-moduler  | C och C++ (valutakurser och riskmått), laddas av Java via JNA | [native/README.md](native/README.md) (på engelska)     |
+| Start och drift | Docker                                                        | [docs/v2/README2.md](docs/v2/README2.md)               |
 
-## Expanding the ESLint configuration
+## Snabbstart
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Förutsättning: Docker Desktop. Kommandona nedan är för Windows PowerShell.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. Gå till `infra` och sätt en JWT-secret (minst 32 tecken):
+   ```
+   cd infra
+   $env:JWT_SECRET="test-secret-key-with-at-least-32-characters"
+   ```
+2. Starta allt:
+   ```
+   docker compose up --build
+   ```
+3. Öppna `http://localhost:8082`
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Testanvändare, stopp och omstart, backendtester och felsökning finns i [docs/v2/README2.md](docs/v2/README2.md).
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Frontend-utveckling
+
+Låt backend och PostgreSQL köra i Docker och starta sedan frontend från projektets rotmapp:
 
 ```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+cd frontend
+npm ci
+npm run dev
 ```
+
+Frontend körs normalt på `http://localhost:5173` och skickar API-anrop till backend på port 8082. Fler kommandon (`npm run build`, `npm run lint`, `npm run test:run`) finns i [READMEFRONTEND.md](READMEFRONTEND.md).
+
+## Mer dokumentation
+
+- [Arkitektur v2](docs/v2/architecture.md)
+- [Mål och resultat för v2](docs/v2/v2-targets.md)
+- [Drift och felsökning](docs/v2/DRIFT.md)
+- [Beslutslogg](backend/AvanzaPortal/beslutslogg.md)
+
+## Teamet
+
+- Frontend: Isabelle Franzén, Max Mattiasson, Sascha Bergenås
+- Java: Konstantinos Nascos, Tilda Nivåsen, Felix Lidén
+- C/C++: Jonathan Käcker, Alexander Safapay
