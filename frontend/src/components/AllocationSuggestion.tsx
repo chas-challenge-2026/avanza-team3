@@ -5,9 +5,9 @@ import type { RebalancePreviewResponse } from "../types/rebalance";
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
   STOCK: { label: "Aktier", color: "#3b82f6" },
-  FUND: { label: "Fonder", color: "#22c55e" },
-  BOND: { label: "Räntor", color: "#f59e0b" },
-  OTHER: { label: "Övrigt", color: "#94a3b8" },
+  FUND: { label: "Fonder", color: "#94a3b8" },
+  BOND: { label: "Räntor", color: " #2bb887" },
+  OTHER: { label: "Övrigt", color: "#f59e0b" },
 };
 
 type AllocationSuggestionProps = {
