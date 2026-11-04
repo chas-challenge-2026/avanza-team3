@@ -209,11 +209,11 @@ function PortfolioHealthPage() {
   ).length;
 
   const bondCount = summaryHoldings.filter(
-    (h) => h.instrument_type === "Ränta",
+    (h) => h.instrument_type === "Övrigt",
   ).length;
 
   const otherCount = summaryHoldings.filter(
-    (h) => h.instrument_type === "Övrigt",
+    (h) => h.instrument_type === "Ränta",
   ).length;
 
   const getAccountInstrumentAllocations = (accountType: string) =>
